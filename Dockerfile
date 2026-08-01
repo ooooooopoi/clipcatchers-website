@@ -23,7 +23,7 @@ ENV UPLOAD_DIR=/data/uploads
 
 EXPOSE 3000
 
-# Migrations are best-effort at boot: a failure is logged loudly but still
-# starts the server, so the platform reports a live app you can diagnose
-# rather than a crash loop with no page to load.
-CMD ["sh", "-c", "npx prisma migrate deploy || echo '!!! MIGRATION FAILED — check DATABASE_URL above !!!'; npx next start -p ${PORT:-3000}"]
+# The web server starts immediately and migrations run alongside it. Running
+# them first meant an unreachable database could stall boot past the platform's
+# healthcheck window, failing the deploy with nothing serving to diagnose from.
+CMD ["sh", "-c", "( npx prisma migrate deploy && echo '[migrate] applied' || echo '[migrate] FAILED — check DATABASE_URL' ) & exec npx next start -p ${PORT:-3000}"]
