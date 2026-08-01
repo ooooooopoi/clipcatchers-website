@@ -13,17 +13,27 @@ import { formatCompact } from "@/lib/format";
 
 export type SeriesPoint = Record<string, string | number>;
 
+/** Named formats, because a formatter function can't cross into a client component. */
+export type ValueFormat = "compact" | "usd";
+
+const FORMATTERS: Record<ValueFormat, (n: number) => string> = {
+  compact: formatCompact,
+  usd: (n) => `$${n.toFixed(2)}`,
+};
+
 export function AreaTrend({
   data,
   keys,
   height = 280,
-  valueFormatter = formatCompact,
+  valueFormat = "compact",
 }: {
   data: SeriesPoint[];
   keys: { key: string; label: string; color: string }[];
   height?: number;
-  valueFormatter?: (n: number) => string;
+  valueFormat?: ValueFormat;
 }) {
+  const format = FORMATTERS[valueFormat];
+
   return (
     <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
@@ -47,7 +57,7 @@ export function AreaTrend({
           tickLine={false}
           axisLine={false}
           tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
-          tickFormatter={(v) => valueFormatter(Number(v))}
+          tickFormatter={(v) => format(Number(v))}
           width={56}
         />
         <Tooltip
@@ -60,7 +70,7 @@ export function AreaTrend({
             boxShadow: "0 12px 30px -12px rgba(0,0,0,.6)",
           }}
           labelStyle={{ color: "hsl(var(--muted-foreground))", marginBottom: 4 }}
-          formatter={(value: number | string, name: string) => [valueFormatter(Number(value)), name]}
+          formatter={(value: number | string, name: string) => [format(Number(value)), name]}
         />
         {keys.map(({ key, label, color }) => (
           <Area

@@ -2,6 +2,12 @@
 
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatCompact } from "@/lib/format";
+import type { ValueFormat } from "@/components/charts/area-trend";
+
+const FORMATTERS: Record<ValueFormat, (n: number) => string> = {
+  compact: formatCompact,
+  usd: (n) => `$${n.toFixed(2)}`,
+};
 
 export function BarTrend({
   data,
@@ -9,7 +15,7 @@ export function BarTrend({
   label,
   color = "hsl(var(--primary))",
   height = 260,
-  valueFormatter = formatCompact,
+  valueFormat = "compact",
   layout = "horizontal",
   categoryKey = "label",
 }: {
@@ -18,11 +24,12 @@ export function BarTrend({
   label: string;
   color?: string;
   height?: number;
-  valueFormatter?: (n: number) => string;
+  valueFormat?: ValueFormat;
   layout?: "horizontal" | "vertical";
   categoryKey?: string;
 }) {
   const vertical = layout === "vertical";
+  const format = FORMATTERS[valueFormat];
 
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -31,7 +38,12 @@ export function BarTrend({
         layout={layout}
         margin={{ top: 8, right: 8, bottom: 0, left: vertical ? 8 : -12 }}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={vertical} horizontal={!vertical} />
+        <CartesianGrid
+          strokeDasharray="3 3"
+          stroke="hsl(var(--border))"
+          vertical={vertical}
+          horizontal={!vertical}
+        />
         {vertical ? (
           <>
             <XAxis
@@ -39,7 +51,7 @@ export function BarTrend({
               tickLine={false}
               axisLine={false}
               tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
-              tickFormatter={(v) => valueFormatter(Number(v))}
+              tickFormatter={(v) => format(Number(v))}
             />
             <YAxis
               type="category"
@@ -63,7 +75,7 @@ export function BarTrend({
               tickLine={false}
               axisLine={false}
               tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
-              tickFormatter={(v) => valueFormatter(Number(v))}
+              tickFormatter={(v) => format(Number(v))}
               width={56}
             />
           </>
@@ -77,9 +89,14 @@ export function BarTrend({
             fontSize: 12,
           }}
           labelStyle={{ color: "hsl(var(--muted-foreground))", marginBottom: 4 }}
-          formatter={(value: number | string) => [valueFormatter(Number(value)), label]}
+          formatter={(value: number | string) => [format(Number(value)), label]}
         />
-        <Bar dataKey={dataKey} name={label} fill={color} radius={vertical ? [0, 5, 5, 0] : [5, 5, 0, 0]} />
+        <Bar
+          dataKey={dataKey}
+          name={label}
+          fill={color}
+          radius={vertical ? [0, 5, 5, 0] : [5, 5, 0, 0]}
+        />
       </BarChart>
     </ResponsiveContainer>
   );

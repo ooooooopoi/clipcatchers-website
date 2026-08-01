@@ -14,7 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { requireUser } from "@/lib/auth-helpers";
 import { getDashboardData } from "@/lib/queries";
-import { formatCompact, formatCurrency, formatNumber } from "@/lib/format";
+import { formatCompact, formatCurrency } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
@@ -53,16 +53,16 @@ export default async function DashboardPage() {
           index={0}
           label="Active campaigns"
           value={data.totals.active}
-          format={formatNumber}
-          icon={Megaphone}
+          format="number"
+          icon={<Megaphone />}
           hint={`${data.totals.campaigns} total`}
         />
         <StatCard
           index={1}
           label="Total views"
           value={data.totals.views}
-          format={formatCompact}
-          icon={Eye}
+          format="compact"
+          icon={<Eye />}
           trend={data.viewsTrend}
           hint="vs. previous 15 days"
         />
@@ -70,16 +70,16 @@ export default async function DashboardPage() {
           index={2}
           label="Estimated reach"
           value={data.totals.reach}
-          format={formatCompact}
-          icon={Users}
+          format="compact"
+          icon={<Users />}
           hint="unique accounts"
         />
         <StatCard
           index={3}
           label="Budget spent"
           value={data.totals.spentCents}
-          format={(n) => formatCurrency(n)}
-          icon={DollarSign}
+          format="currency"
+          icon={<DollarSign />}
           hint={`of ${formatCurrency(data.totals.budgetCents)} allocated`}
         />
       </div>

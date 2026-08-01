@@ -22,7 +22,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { requireUser } from "@/lib/auth-helpers";
 import { getAnalyticsData } from "@/lib/queries";
-import { cpmCents, formatCompact, formatCurrency, formatNumber } from "@/lib/format";
+import { cpmCents, formatCurrency, formatNumber } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Analytics" };
 export const dynamic = "force-dynamic";
@@ -63,32 +63,32 @@ export default async function AnalyticsPage({
               index={0}
               label="Views"
               value={data.totals.views}
-              format={formatCompact}
-              icon={Eye}
+              format="compact"
+              icon={<Eye />}
               hint={`last ${range} days`}
             />
             <StatCard
               index={1}
               label="Reach"
               value={data.totals.reach}
-              format={formatCompact}
-              icon={Users}
+              format="compact"
+              icon={<Users />}
               hint="unique accounts"
             />
             <StatCard
               index={2}
               label="Spend"
               value={Math.round(data.totals.spend * 100)}
-              format={(n) => formatCurrency(n)}
-              icon={DollarSign}
+              format="currency"
+              icon={<DollarSign />}
               hint={`last ${range} days`}
             />
             <StatCard
               index={3}
               label="Blended CPM"
               value={Math.round(data.totals.cpm * 100)}
-              format={(n) => formatCurrency(n)}
-              icon={Gauge}
+              format="currency"
+              icon={<Gauge />}
               hint="cost per 1,000 views"
             />
           </div>
@@ -145,7 +145,7 @@ export default async function AnalyticsPage({
                 <AreaTrend
                   data={data.daily}
                   height={260}
-                  valueFormatter={(n) => `$${n.toFixed(2)}`}
+                  valueFormat="usd"
                   keys={[{ key: "cpm", label: "CPM", color: "hsl(38 92% 55%)" }]}
                 />
               </CardContent>

@@ -5,7 +5,7 @@
     "dockerfilePath": "Dockerfile"
   },
   "deploy": {
-    "startCommand": "sh -c 'echo \"[boot] PORT=${PORT:-unset}, binding 3000 to match the domain target port\"; ( npx prisma migrate deploy && echo \"[migrate] applied\" || ( echo \"[migrate] retrying after an interrupted migration\"; npx prisma migrate resolve --rolled-back 20260801000000_init; npx prisma migrate deploy && echo \"[migrate] applied on retry\" || echo \"[migrate] FAILED\" ) ) & exec npx next start -H 0.0.0.0 -p 3000'",
+    "startCommand": "sh -c 'echo \"[boot] binding ${PORT:-3000}\"; ( npx prisma migrate deploy && echo \"[migrate] applied\" || ( echo \"[migrate] clearing interrupted migration\"; npx prisma migrate resolve --rolled-back 20260801000000_init; npx prisma migrate deploy && echo \"[migrate] applied on retry\" || echo \"[migrate] FAILED\" ) ) & exec npx next start -H 0.0.0.0 -p ${PORT:-3000}'",
     "healthcheckPath": "/api/health",
     "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE",
