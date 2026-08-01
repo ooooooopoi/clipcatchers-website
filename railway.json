@@ -5,7 +5,7 @@
     "dockerfilePath": "Dockerfile"
   },
   "deploy": {
-    "startCommand": "sh -c 'npx prisma migrate deploy && npx next start -p ${PORT:-3000}'",
+    "startCommand": "sh -c '( npx prisma migrate deploy && echo \"[migrate] applied\" || echo \"[migrate] FAILED - check DATABASE_URL\" ) & echo \"[boot] listening on ${PORT:-3000}\"; exec npx next start -H 0.0.0.0 -p ${PORT:-3000}'",
     "healthcheckPath": "/api/health",
     "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE",
