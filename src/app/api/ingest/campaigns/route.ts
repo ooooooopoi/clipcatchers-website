@@ -25,11 +25,11 @@ const metricSchema = z.object({
 
 const campaignSchema = z.object({
   externalId: z.string().min(1),
-  // Omitted for link-only campaigns: those are reachable through their signed
-  // share URL but belong to no client account.
-  ownerEmail: z.string().email().optional().or(z.literal("")),
+  // Optional fields accept null as well as absent: the sender is a service
+  // serialising database rows, where an empty column comes through as null.
+  ownerEmail: z.union([z.string().email(), z.literal(""), z.null()]).optional(),
   name: z.string().min(1).max(200),
-  brandName: z.string().max(200).default(""),
+  brandName: z.string().max(200).nullish(),
   status: z
     .enum(["PENDING", "APPROVED", "RUNNING", "PAUSED", "COMPLETED", "CANCELLED"])
     .default("RUNNING"),
@@ -37,8 +37,8 @@ const campaignSchema = z.object({
   spentCents: z.number().int().min(0).default(0),
   totalViews: z.number().int().min(0).default(0),
   estimatedReach: z.number().int().min(0).default(0),
-  platforms: z.array(z.string()).default([]),
-  description: z.string().max(4000).optional(),
+  platforms: z.array(z.string()).nullish(),
+  description: z.string().max(4000).nullish(),
   startDate: z.string().nullable().optional(),
   endDate: z.string().nullable().optional(),
   metrics: z.array(metricSchema).max(400).default([]),
@@ -118,7 +118,7 @@ export async function POST(request: Request) {
         spentCents: item.spentCents,
         totalViews: item.totalViews,
         estimatedReach: item.estimatedReach,
-        platforms: item.platforms,
+        platforms: item.platforms ?? [],
         description: item.description ?? null,
         startDate: item.startDate ? new Date(item.startDate) : null,
         endDate: item.endDate ? new Date(item.endDate) : null,
