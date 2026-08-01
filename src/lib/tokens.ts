@@ -39,9 +39,13 @@ export async function consumeToken(token: string, type: TokenType) {
 }
 
 export function appUrl(path = "") {
-  const base =
-    process.env.NEXT_PUBLIC_APP_URL ??
-    process.env.AUTH_URL ??
+  // `||` not `??`: an env var set to an empty string is as good as unset here.
+  const raw =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.AUTH_URL ||
     "http://localhost:3000";
-  return `${base.replace(/\/$/, "")}${path}`;
+  // Tolerate a host pasted without a scheme, which would otherwise produce
+  // links that browsers treat as relative paths.
+  const base = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  return `${base.replace(/\/+$/, "")}${path}`;
 }

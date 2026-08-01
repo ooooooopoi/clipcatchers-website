@@ -1,4 +1,5 @@
 import type { NextAuthConfig } from "next-auth";
+import "@/lib/env";
 
 /**
  * Edge-safe half of the auth setup: no Prisma, no bcrypt. The middleware
