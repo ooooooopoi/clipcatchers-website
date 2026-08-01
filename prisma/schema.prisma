@@ -1,0 +1,276 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CLIENT
+  ADMIN
+}
+
+enum Plan {
+  STARTER
+  GROWTH
+  SCALE
+}
+
+enum CampaignStatus {
+  PENDING
+  APPROVED
+  RUNNING
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  OPEN
+  PAID
+  VOID
+  UNCOLLECTIBLE
+}
+
+enum NotificationType {
+  CAMPAIGN_APPROVED
+  CAMPAIGN_RUNNING
+  CAMPAIGN_COMPLETED
+  INVOICE_PAID
+  NEW_MESSAGE
+  SYSTEM
+}
+
+enum FileKind {
+  LOGO
+  BRAND_KIT
+  VIDEO
+  IMAGE
+  PDF
+  ARCHIVE
+  OTHER
+}
+
+enum TicketStatus {
+  OPEN
+  PENDING
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum TokenType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  company       String?
+  passwordHash  String
+  image         String?
+  role          Role      @default(CLIENT)
+  plan          Plan      @default(STARTER)
+  planRenewsAt  DateTime?
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  settings       Settings?
+  campaigns      Campaign[]
+  invoices       Invoice[]
+  notifications  Notification[]
+  files          FileAsset[]
+  tickets        SupportTicket[]
+  ticketMessages TicketMessage[]
+  paymentMethods PaymentMethod[]
+  tokens         VerificationToken[]
+
+  @@index([email])
+}
+
+model Settings {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  emailCampaignUpdates Boolean  @default(true)
+  emailInvoices        Boolean  @default(true)
+  emailProductUpdates  Boolean  @default(false)
+  emailMarketing       Boolean  @default(false)
+  theme                String   @default("dark")
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  type      TokenType
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+}
+
+model Campaign {
+  id             String         @id @default(cuid())
+  userId         String
+  name           String
+  brandName      String
+  brandLogoUrl   String?
+  website        String?
+  discord        String?
+  description    String?
+  goal           String?
+  notes          String?
+  status         CampaignStatus @default(PENDING)
+  budgetCents    Int            @default(0)
+  spentCents     Int            @default(0)
+  totalViews     Int            @default(0)
+  estimatedReach Int            @default(0)
+  platforms      String[]       @default([])
+  startDate      DateTime?
+  endDate        DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  metrics CampaignMetric[]
+  files   FileAsset[]
+
+  @@index([userId, status])
+  @@index([createdAt])
+}
+
+model CampaignMetric {
+  id         String   @id @default(cuid())
+  campaignId String
+  date       DateTime
+  views      Int      @default(0)
+  reach      Int      @default(0)
+  spendCents Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, date])
+  @@index([date])
+}
+
+model Invoice {
+  id              String        @id @default(cuid())
+  userId          String
+  number          String        @unique
+  description     String
+  amountCents     Int
+  currency        String        @default("usd")
+  status          InvoiceStatus @default(OPEN)
+  issuedAt        DateTime      @default(now())
+  dueAt           DateTime?
+  paidAt          DateTime?
+  stripeInvoiceId String?
+  hostedUrl       String?
+  createdAt       DateTime      @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+}
+
+model PaymentMethod {
+  id                    String   @id @default(cuid())
+  userId                String
+  brand                 String
+  last4                 String
+  expMonth              Int
+  expYear               Int
+  isDefault             Boolean  @default(false)
+  stripePaymentMethodId String?
+  createdAt             DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String
+  link      String?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([createdAt])
+}
+
+model FileAsset {
+  id         String   @id @default(cuid())
+  userId     String
+  campaignId String?
+  ticketId   String?
+  name       String
+  storageKey String
+  mimeType   String
+  sizeBytes  Int
+  kind       FileKind @default(OTHER)
+  createdAt  DateTime @default(now())
+
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaign Campaign?      @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  ticket   SupportTicket? @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+
+  @@index([userId, kind])
+  @@index([campaignId])
+}
+
+model SupportTicket {
+  id        String         @id @default(cuid())
+  userId    String
+  subject   String
+  status    TicketStatus   @default(OPEN)
+  priority  TicketPriority @default(NORMAL)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages    TicketMessage[]
+  attachments FileAsset[]
+
+  @@index([userId, status])
+}
+
+model TicketMessage {
+  id        String   @id @default(cuid())
+  ticketId  String
+  authorId  String
+  body      String
+  fromStaff Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+}
