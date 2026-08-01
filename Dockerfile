@@ -26,4 +26,5 @@ EXPOSE 3000
 # The web server starts immediately and migrations run alongside it. Running
 # them first meant an unreachable database could stall boot past the platform's
 # healthcheck window, failing the deploy with nothing serving to diagnose from.
-CMD ["sh", "-c", "( npx prisma migrate deploy && echo '[migrate] applied' || echo '[migrate] FAILED — check DATABASE_URL' ) & exec npx next start -p ${PORT:-3000}"]
+# -H 0.0.0.0 so the container is reachable from outside, not just localhost.
+CMD ["sh", "-c", "( npx prisma migrate deploy && echo '[migrate] applied' || echo '[migrate] FAILED — check DATABASE_URL' ) & echo \"[boot] starting on port ${PORT:-3000}\"; exec npx next start -H 0.0.0.0 -p ${PORT:-3000}"]
