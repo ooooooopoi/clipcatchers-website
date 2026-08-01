@@ -1,10 +1,12 @@
-import { timingSafeEqual } from "crypto";
+import { randomBytes, timingSafeEqual } from "crypto";
 import { z } from "zod";
 import type { CampaignStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { badRequest, handleError, ok, unauthorized } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
+
+const SYSTEM_EMAIL = "shared-reports@clipcatchers.local";
 
 /**
  * Receives campaign state from the Discord bot. Authenticated with a shared
@@ -23,7 +25,9 @@ const metricSchema = z.object({
 
 const campaignSchema = z.object({
   externalId: z.string().min(1),
-  ownerEmail: z.string().email(),
+  // Omitted for link-only campaigns: those are reachable through their signed
+  // share URL but belong to no client account.
+  ownerEmail: z.string().email().optional().or(z.literal("")),
   name: z.string().min(1).max(200),
   brandName: z.string().max(200).default(""),
   status: z
@@ -63,20 +67,50 @@ export async function POST(request: Request) {
     const { campaigns } = payloadSchema.parse(await request.json());
 
     let synced = 0;
-    const skipped: string[] = [];
+    let linkOnly = 0;
+    const unknownOwners: string[] = [];
+    let systemUserId: string | null = null;
 
-    for (const item of campaigns) {
-      const owner = await prisma.user.findUnique({
-        where: { email: item.ownerEmail.toLowerCase() },
+    /**
+     * Holder for campaigns with no client account. Has no usable password and
+     * is left unverified, so it can never be signed into — these campaigns are
+     * reachable only through their signed share link.
+     */
+    async function systemOwner() {
+      if (systemUserId) return systemUserId;
+      const existing = await prisma.user.findUnique({
+        where: { email: SYSTEM_EMAIL },
         select: { id: true },
       });
-      if (!owner) {
-        skipped.push(item.ownerEmail);
-        continue;
+      if (existing) {
+        systemUserId = existing.id;
+        return systemUserId;
       }
+      const created = await prisma.user.create({
+        data: {
+          email: SYSTEM_EMAIL,
+          name: "Shared reports",
+          passwordHash: randomBytes(32).toString("hex"),
+          emailVerified: null,
+        },
+        select: { id: true },
+      });
+      systemUserId = created.id;
+      return systemUserId;
+    }
+
+    for (const item of campaigns) {
+      const email = item.ownerEmail?.toLowerCase() ?? "";
+      const owner = email
+        ? await prisma.user.findUnique({ where: { email }, select: { id: true } })
+        : null;
+
+      if (email && !owner) unknownOwners.push(email);
+      const ownerId = owner?.id ?? (await systemOwner());
+      if (!owner) linkOnly += 1;
 
       const data = {
-        userId: owner.id,
+        userId: ownerId,
         name: item.name,
         brandName: item.brandName || item.name,
         status: item.status as CampaignStatus,
@@ -115,7 +149,7 @@ export async function POST(request: Request) {
       synced += 1;
     }
 
-    return ok({ synced, skippedUnknownOwners: [...new Set(skipped)] });
+    return ok({ synced, linkOnly, unknownOwners: [...new Set(unknownOwners)] });
   } catch (error) {
     return handleError(error);
   }

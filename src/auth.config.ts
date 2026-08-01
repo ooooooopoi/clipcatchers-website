@@ -20,6 +20,10 @@ export const authConfig = {
       // address unverifiable.
       if (pathname.startsWith("/verify-email")) return true;
 
+      // Shared campaign report. Access is proved by the signature in the URL,
+      // not by a session — these links go to clients who have no account.
+      if (pathname.startsWith("/c/")) return true;
+
       const isAuthPage = ["/login", "/signup", "/forgot-password", "/reset-password"].some(
         (p) => pathname.startsWith(p),
       );
