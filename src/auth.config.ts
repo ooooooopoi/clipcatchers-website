@@ -14,6 +14,12 @@ export const authConfig = {
     authorized({ auth, request }) {
       const signedIn = Boolean(auth?.user);
       const { pathname } = request.nextUrl;
+
+      // Reachable signed in or out: a new client clicks this link before they
+      // have an account session, and bouncing them to /login would make the
+      // address unverifiable.
+      if (pathname.startsWith("/verify-email")) return true;
+
       const isAuthPage = ["/login", "/signup", "/forgot-password", "/reset-password"].some(
         (p) => pathname.startsWith(p),
       );

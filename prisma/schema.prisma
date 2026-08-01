@@ -131,6 +131,9 @@ model VerificationToken {
 model Campaign {
   id             String         @id @default(cuid())
   userId         String
+  // Set when the campaign is mirrored from the Discord bot; the bot's own
+  // campaign id. Null for campaigns created here in the dashboard.
+  externalId     String?        @unique
   name           String
   brandName      String
   brandLogoUrl   String?
