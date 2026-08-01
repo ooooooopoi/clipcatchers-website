@@ -23,4 +23,7 @@ ENV UPLOAD_DIR=/data/uploads
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && npx next start -p ${PORT:-3000}"]
+# Migrations are best-effort at boot: a failure is logged loudly but still
+# starts the server, so the platform reports a live app you can diagnose
+# rather than a crash loop with no page to load.
+CMD ["sh", "-c", "npx prisma migrate deploy || echo '!!! MIGRATION FAILED — check DATABASE_URL above !!!'; npx next start -p ${PORT:-3000}"]
