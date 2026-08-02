@@ -166,6 +166,7 @@ model Campaign {
 
   user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   metrics CampaignMetric[]
+  clips   CampaignClip[]
   files   FileAsset[]
 
   @@index([userId, status])
@@ -185,6 +186,26 @@ model CampaignMetric {
 
   @@unique([campaignId, date])
   @@index([date])
+}
+
+/// An individual approved clip, mirrored from the bot so clients can open the
+/// post itself rather than take the view count on trust.
+model CampaignClip {
+  id         String   @id @default(cuid())
+  campaignId String
+  /// The bot's clip id, so re-syncs update rather than duplicate.
+  externalId String
+  url        String
+  platform   String   @default("")
+  handle     String   @default("")
+  views      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, externalId])
+  @@index([campaignId, views])
 }
 
 model Invoice {

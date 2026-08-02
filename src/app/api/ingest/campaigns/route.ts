@@ -23,6 +23,14 @@ const metricSchema = z.object({
   spendCents: z.number().int().min(0).default(0),
 });
 
+const clipSchema = z.object({
+  externalId: z.string().min(1),
+  url: z.string().max(2000),
+  platform: z.string().max(40).nullish(),
+  handle: z.string().max(120).nullish(),
+  views: z.number().int().min(0).default(0),
+});
+
 const campaignSchema = z.object({
   externalId: z.string().min(1),
   // Optional fields accept null as well as absent: the sender is a service
@@ -43,6 +51,7 @@ const campaignSchema = z.object({
   startDate: z.string().nullable().optional(),
   endDate: z.string().nullable().optional(),
   metrics: z.array(metricSchema).max(400).default([]),
+  clips: z.array(clipSchema).max(1000).default([]),
 });
 
 const payloadSchema = z.object({ campaigns: z.array(campaignSchema).max(200) });
@@ -147,6 +156,33 @@ export async function POST(request: Request) {
           update: { views: metric.views, reach: metric.reach, spendCents: metric.spendCents },
         });
       }
+
+      for (const clip of item.clips) {
+        const clipData = {
+          url: clip.url,
+          platform: clip.platform ?? "",
+          handle: clip.handle ?? "",
+          views: clip.views,
+        };
+        await prisma.campaignClip.upsert({
+          where: {
+            campaignId_externalId: { campaignId: campaign.id, externalId: clip.externalId },
+          },
+          create: { campaignId: campaign.id, externalId: clip.externalId, ...clipData },
+          update: clipData,
+        });
+      }
+
+      // A clip the bot no longer sends was removed or un-approved, so it has to
+      // disappear from the client's report too rather than linger at its last
+      // known view count. An empty list means every clip goes.
+      const keep = item.clips.map((clip) => clip.externalId);
+      await prisma.campaignClip.deleteMany({
+        where: {
+          campaignId: campaign.id,
+          ...(keep.length > 0 ? { externalId: { notIn: keep } } : {}),
+        },
+      });
 
       synced += 1;
     }

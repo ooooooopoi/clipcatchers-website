@@ -54,6 +54,7 @@ export default async function CampaignDetailPage({
     where: { id, userId: user.id },
     include: {
       metrics: { orderBy: { date: "asc" } },
+      clips: { orderBy: [{ views: "desc" }, { externalId: "desc" }], take: 200 },
       files: { orderBy: { createdAt: "desc" } },
     },
   });
@@ -211,6 +212,54 @@ export default async function CampaignDetailPage({
           </Card>
         </div>
       </div>
+
+      <Card className="mt-4">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Clips</CardTitle>
+          <CardDescription>
+            Every approved clip running on this campaign. Open any one to see the live post.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {campaign.clips.length === 0 ? (
+            <p className="py-10 text-center text-sm text-muted-foreground">
+              Approved clips appear here as creators post them.
+            </p>
+          ) : (
+            <ul className="divide-y divide-border">
+              {campaign.clips.map((clip) => (
+                <li
+                  key={clip.id}
+                  className="flex items-center justify-between gap-4 py-2.5 first:pt-0 last:pb-0"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">
+                      {clip.handle ? `@${clip.handle}` : "Creator"}
+                    </p>
+                    {clip.platform && (
+                      <p className="text-xs text-muted-foreground">{clip.platform}</p>
+                    )}
+                  </div>
+                  <div className="flex shrink-0 items-center gap-4">
+                    <span className="font-mono text-sm tabular-nums">
+                      {formatNumber(clip.views)}
+                      <span className="ml-1 text-xs text-muted-foreground">views</span>
+                    </span>
+                    <a
+                      href={clip.url}
+                      target="_blank"
+                      rel="noopener noreferrer nofollow"
+                      className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-xs transition-colors hover:bg-accent hover:text-accent-foreground"
+                    >
+                      View <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         <Card>

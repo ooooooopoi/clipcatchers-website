@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
-import { Clapperboard, DollarSign, Eye, Users } from "lucide-react";
+import { Clapperboard, DollarSign, ExternalLink, Eye, Users } from "lucide-react";
 import { BrandWordmark } from "@/components/brand";
 import { AreaTrend } from "@/components/charts/area-trend";
 import { StatCard } from "@/components/dashboard/stat-card";
@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { prisma } from "@/lib/prisma";
 import { shareSignatureValid } from "@/lib/share";
-import { formatCurrency, formatDate, initials } from "@/lib/format";
+import { formatCurrency, formatDate, formatNumber, initials } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +34,10 @@ export default async function SharedCampaignPage({
 
   const campaign = await prisma.campaign.findUnique({
     where: { externalId: decodeURIComponent(externalId) },
-    include: { metrics: { orderBy: { date: "asc" }, take: 120 } },
+    include: {
+      metrics: { orderBy: { date: "asc" }, take: 120 },
+      clips: { orderBy: [{ views: "desc" }, { externalId: "desc" }], take: 200 },
+    },
   });
   if (!campaign) notFound();
 
@@ -133,6 +136,54 @@ export default async function SharedCampaignPage({
                   { key: "reach", label: "Reach", color: "hsl(199 89% 55%)" },
                 ]}
               />
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="mt-4">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Clips</CardTitle>
+            <CardDescription>
+              Every approved clip running on this campaign. Open any one to see the live post.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {campaign.clips.length === 0 ? (
+              <p className="py-10 text-center text-sm text-muted-foreground">
+                Approved clips appear here as creators post them.
+              </p>
+            ) : (
+              <ul className="divide-y divide-border">
+                {campaign.clips.map((clip) => (
+                  <li
+                    key={clip.id}
+                    className="flex items-center justify-between gap-4 py-2.5 first:pt-0 last:pb-0"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">
+                        {clip.handle ? `@${clip.handle}` : "Creator"}
+                      </p>
+                      {clip.platform && (
+                        <p className="text-xs text-muted-foreground">{clip.platform}</p>
+                      )}
+                    </div>
+                    <div className="flex shrink-0 items-center gap-4">
+                      <span className="font-mono text-sm tabular-nums">
+                        {formatNumber(clip.views)}
+                        <span className="ml-1 text-xs text-muted-foreground">views</span>
+                      </span>
+                      <a
+                        href={clip.url}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                        className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-xs transition-colors hover:bg-accent hover:text-accent-foreground"
+                      >
+                        View <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             )}
           </CardContent>
         </Card>
