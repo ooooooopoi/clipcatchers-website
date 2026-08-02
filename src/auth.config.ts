@@ -24,6 +24,9 @@ export const authConfig = {
       // not by a session — these links go to clients who have no account.
       if (pathname.startsWith("/c/")) return true;
 
+      // Public marketing site.
+      if (pathname === "/") return true;
+
       const isAuthPage = ["/login", "/signup", "/forgot-password", "/reset-password"].some(
         (p) => pathname.startsWith(p),
       );
