@@ -5,11 +5,11 @@ import { format } from "date-fns";
 import {
   ArrowLeft,
   CalendarRange,
+  Clapperboard,
   DollarSign,
   ExternalLink,
   Eye,
   FileText,
-  Gauge,
   MessageSquare,
   Users,
 } from "lucide-react";
@@ -23,7 +23,6 @@ import { Progress } from "@/components/ui/progress";
 import { requireUser } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import {
-  cpmCents,
   formatBytes,
   formatCurrency,
   formatDate,
@@ -69,7 +68,6 @@ export default async function CampaignDetailPage({
   const budgetPct = campaign.budgetCents
     ? Math.min(100, (campaign.spentCents / campaign.budgetCents) * 100)
     : 0;
-  const cpm = cpmCents(campaign.spentCents, campaign.totalViews);
 
   return (
     <div>
@@ -135,10 +133,10 @@ export default async function CampaignDetailPage({
           sub={`of ${formatCurrency(campaign.budgetCents)}`}
         />
         <Metric
-          icon={Gauge}
-          label="Effective CPM"
-          value={cpm ? formatCurrency(cpm) : "—"}
-          sub="per 1,000 views"
+          icon={Clapperboard}
+          label="Clips"
+          value={formatNumber(campaign.clipCount)}
+          sub="approved and live"
         />
       </div>
 

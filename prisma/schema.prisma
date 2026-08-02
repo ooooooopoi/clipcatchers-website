@@ -156,6 +156,8 @@ model Campaign {
   spentCents     Int            @default(0)
   totalViews     Int            @default(0)
   estimatedReach Int            @default(0)
+  /// Approved clips delivered on this campaign, mirrored from the bot.
+  clipCount      Int            @default(0)
   platforms      String[]       @default([])
   startDate      DateTime?
   endDate        DateTime?

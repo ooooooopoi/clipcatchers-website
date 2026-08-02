@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
-import { DollarSign, Eye, Gauge, Users } from "lucide-react";
+import { Clapperboard, DollarSign, Eye, Users } from "lucide-react";
 import { BrandWordmark } from "@/components/brand";
 import { AreaTrend } from "@/components/charts/area-trend";
 import { StatCard } from "@/components/dashboard/stat-card";
@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { prisma } from "@/lib/prisma";
 import { shareSignatureValid } from "@/lib/share";
-import { cpmCents, formatCurrency, formatDate, initials } from "@/lib/format";
+import { formatCurrency, formatDate, initials } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -46,7 +46,6 @@ export default async function SharedCampaignPage({
   const budgetPct = campaign.budgetCents
     ? Math.min(100, (campaign.spentCents / campaign.budgetCents) * 100)
     : 0;
-  const cpm = cpmCents(campaign.spentCents, campaign.totalViews);
 
   return (
     <div className="relative min-h-screen">
@@ -107,11 +106,11 @@ export default async function SharedCampaignPage({
           />
           <StatCard
             index={3}
-            label="Effective CPM"
-            value={cpm}
-            format="currency"
-            icon={<Gauge />}
-            hint="per 1,000 views"
+            label="Clips"
+            value={campaign.clipCount}
+            format="number"
+            icon={<Clapperboard />}
+            hint="approved and live"
           />
         </div>
 
