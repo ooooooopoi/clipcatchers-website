@@ -128,6 +128,15 @@ model VerificationToken {
   @@index([userId, type])
 }
 
+/// Read-only mirror of the Discord bot's tables, pushed on each sync so the
+/// team view can show clips, clippers, accounts and invites — none of which
+/// exist as first-class records here.
+model BotSnapshot {
+  id        String   @id @default("latest")
+  data      Json
+  updatedAt DateTime @updatedAt
+}
+
 model Campaign {
   id             String         @id @default(cuid())
   userId         String

@@ -1,0 +1,233 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { Coins, Eye, Megaphone, Users, Wallet } from "lucide-react";
+import { BrandWordmark } from "@/components/brand";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { prisma } from "@/lib/prisma";
+import { teamSignatureValid } from "@/lib/share";
+import { formatCompact, formatDateTime, formatNumber } from "@/lib/format";
+import { cn } from "@/lib/utils";
+
+export const metadata: Metadata = { title: "Team", robots: { index: false, follow: false } };
+export const dynamic = "force-dynamic";
+
+type Row = Record<string, unknown>;
+type Snapshot = {
+  campaigns?: Row[];
+  clips?: Row[];
+  clippers?: Row[];
+  accounts?: Row[];
+  invites?: Row[];
+};
+
+const SHEETS = [
+  { key: "campaigns", label: "Campaigns" },
+  { key: "clips", label: "Clips" },
+  { key: "clippers", label: "Clippers" },
+  { key: "accounts", label: "Accounts" },
+  { key: "invites", label: "Invites" },
+] as const;
+
+/** Columns that read better as money, counts, or status pills. */
+const MONEY = new Set(["earned", "owed", "paid", "budget", "rate_amount"]);
+const COUNTS = new Set(["views", "approved_views", "clips", "clippers", "min_views", "max_views"]);
+
+function cellFor(key: string, value: unknown) {
+  if (value === null || value === undefined || value === "") {
+    return <span className="text-muted-foreground">—</span>;
+  }
+  if (key === "status") {
+    const v = String(value);
+    const tone =
+      v === "approved"
+        ? "border-lime-500/30 bg-lime-500/10 text-lime-400"
+        : v === "pending"
+          ? "border-amber-500/30 bg-amber-500/10 text-amber-400"
+          : "border-red-500/30 bg-red-500/10 text-red-400";
+    return (
+      <span className={cn("rounded-full border px-2 py-0.5 text-xs font-medium", tone)}>{v}</span>
+    );
+  }
+  if (key === "url") {
+    return (
+      <a
+        href={String(value)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-primary underline-offset-4 hover:underline"
+      >
+        open ↗
+      </a>
+    );
+  }
+  if ((key === "paid" || key === "verified" || key === "active") && (value === 0 || value === 1)) {
+    return value === 1 ? "✅" : "—";
+  }
+  if (typeof value === "number") {
+    if (MONEY.has(key)) return <span className="font-mono">${value.toFixed(2)}</span>;
+    if (COUNTS.has(key)) return <span className="font-mono">{formatNumber(value)}</span>;
+    return <span className="font-mono">{value}</span>;
+  }
+  const text = String(value);
+  return text.length > 60 ? `${text.slice(0, 60)}…` : text;
+}
+
+function SheetTable({ rows }: { rows: Row[] }) {
+  if (!rows.length) {
+    return (
+      <p className="rounded-xl border border-dashed border-border py-12 text-center text-sm text-muted-foreground">
+        No rows yet.
+      </p>
+    );
+  }
+  const columns = Object.keys(rows[0]);
+  return (
+    <div className="rounded-xl border border-border">
+      <div className="max-h-[65vh] overflow-auto scrollbar-thin">
+        <Table>
+          <TableHeader className="sticky top-0 bg-card">
+            <TableRow>
+              {columns.map((c) => (
+                <TableHead key={c} className="whitespace-nowrap">
+                  {c.replace(/_/g, " ")}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((row, i) => (
+              <TableRow key={i}>
+                {columns.map((c) => (
+                  <TableCell key={c} className="whitespace-nowrap text-sm">
+                    {cellFor(c, row[c])}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
+
+export default async function TeamPage({ params }: { params: Promise<{ sig: string }> }) {
+  const { sig } = await params;
+  if (!teamSignatureValid(sig)) notFound();
+
+  const snapshot = await prisma.botSnapshot.findUnique({ where: { id: "latest" } });
+  const data = (snapshot?.data ?? {}) as Snapshot;
+
+  const clips = data.clips ?? [];
+  const clippers = data.clippers ?? [];
+  const campaigns = data.campaigns ?? [];
+
+  const totals = {
+    views: clips.reduce(
+      (s, c) => s + (c.status === "approved" ? Number(c.views ?? 0) : 0),
+      0,
+    ),
+    owed: clippers.reduce((s, c) => s + Number(c.owed ?? 0), 0),
+    paid: clippers.reduce((s, c) => s + Number(c.paid ?? 0), 0),
+    clippers: clippers.length,
+    campaigns: campaigns.length,
+  };
+
+  return (
+    <div className="min-h-screen">
+      <div className="mx-auto w-full max-w-[1500px] px-4 py-8 sm:px-6">
+        <header className="flex flex-wrap items-center justify-between gap-3">
+          <BrandWordmark />
+          <span className="rounded-full border border-border px-3 py-1 text-xs font-medium uppercase tracking-wider text-amber-400">
+            Team — internal
+          </span>
+        </header>
+
+        <div className="mt-8">
+          <h1 className="text-2xl font-semibold tracking-tight">Everything</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Mirrored from the Discord bot
+            {snapshot ? ` · updated ${formatDateTime(snapshot.updatedAt)}` : ""}
+          </p>
+        </div>
+
+        {!snapshot && (
+          <p className="mt-6 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-300">
+            No data yet — run <code className="font-mono">/sync-dashboard</code> in Discord to push
+            the first snapshot.
+          </p>
+        )}
+
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+          <Stat icon={<Eye />} label="Approved views" value={formatCompact(totals.views)} />
+          <Stat icon={<Megaphone />} label="Campaigns" value={String(totals.campaigns)} />
+          <Stat icon={<Users />} label="Clippers" value={String(totals.clippers)} />
+          <Stat icon={<Coins />} label="Owed" value={`$${totals.owed.toFixed(2)}`} accent />
+          <Stat icon={<Wallet />} label="Paid out" value={`$${totals.paid.toFixed(2)}`} />
+        </div>
+
+        <Tabs defaultValue="campaigns" className="mt-8">
+          <TabsList>
+            {SHEETS.map((s) => (
+              <TabsTrigger key={s.key} value={s.key}>
+                {s.label}
+                <span className="ml-1.5 text-xs text-muted-foreground">
+                  {(data[s.key] ?? []).length}
+                </span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {SHEETS.map((s) => (
+            <TabsContent key={s.key} value={s.key}>
+              <SheetTable rows={data[s.key] ?? []} />
+            </TabsContent>
+          ))}
+        </Tabs>
+
+        <footer className="mt-10 border-t border-border pt-6 text-xs text-muted-foreground">
+          Internal view — contains payout addresses and Discord IDs. Don&apos;t share this link.
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+function Stat({
+  icon,
+  label,
+  value,
+  accent,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  accent?: boolean;
+}) {
+  return (
+    <Card className="p-5">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-sm text-muted-foreground">{label}</p>
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-background/60 text-muted-foreground [&_svg]:h-4 [&_svg]:w-4">
+          {icon}
+        </span>
+      </div>
+      <p
+        className={cn(
+          "mt-3 font-mono text-2xl font-semibold tracking-tight",
+          accent && "text-primary",
+        )}
+      >
+        {value}
+      </p>
+    </Card>
+  );
+}

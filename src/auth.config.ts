@@ -27,6 +27,10 @@ export const authConfig = {
       // Public marketing site.
       if (pathname === "/") return true;
 
+      // Internal team view, gated by the signature in the URL rather than a
+      // session so it can be opened from Discord without an account.
+      if (pathname.startsWith("/team/")) return true;
+
       const isAuthPage = ["/login", "/signup", "/forgot-password", "/reset-password"].some(
         (p) => pathname.startsWith(p),
       );

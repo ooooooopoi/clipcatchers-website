@@ -19,3 +19,6 @@ next-env.d.ts
 tsconfig.tsbuildinfo
 local-db.mjs
 local-db-utf8.mjs
+
+.vercel
+.env*

@@ -20,6 +20,21 @@ export function shareSignatureValid(externalId: string, provided: string) {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
+/** Signature for the internal team view. Mirrors the bot's team_link_token(). */
+export function teamSignature() {
+  const secret = process.env.INGEST_SECRET ?? "";
+  if (!secret) return null;
+  return createHmac("sha256", secret).update("team").digest("hex").slice(0, 24);
+}
+
+export function teamSignatureValid(provided: string) {
+  const expected = teamSignature();
+  if (!expected) return false;
+  const a = Buffer.from(provided);
+  const b = Buffer.from(expected);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
 export function shareUrl(externalId: string) {
   const sig = shareSignature(externalId);
   if (!sig) return null;
