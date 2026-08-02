@@ -189,25 +189,37 @@ export default async function SharedCampaignPage({
         </Card>
 
         <div className="mt-4 grid gap-4 lg:grid-cols-3">
-          {campaign.budgetCents > 0 && (
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Budget</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-baseline justify-between">
-                  <span className="font-mono text-xl font-semibold">
-                    {formatCurrency(campaign.spentCents)}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    / {formatCurrency(campaign.budgetCents)}
-                  </span>
-                </div>
-                <Progress value={budgetPct} className="mt-3" />
-                <p className="mt-2 text-xs text-muted-foreground">{budgetPct.toFixed(0)}% delivered</p>
-              </CardContent>
-            </Card>
-          )}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Budget</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="font-mono text-2xl font-semibold">
+                  {formatCurrency(campaign.spentCents)}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {campaign.budgetCents > 0 ? `of ${formatCurrency(campaign.budgetCents)}` : "spent"}
+                </span>
+              </div>
+              {campaign.budgetCents > 0 ? (
+                <>
+                  <Progress value={budgetPct} className="mt-3 h-3" />
+                  <div className="mt-2 flex items-center justify-between gap-3 text-xs">
+                    <span className="font-medium">{budgetPct.toFixed(1)}% delivered</span>
+                    <span className="text-muted-foreground">
+                      {formatCurrency(Math.max(campaign.budgetCents - campaign.spentCents, 0))}{" "}
+                      remaining
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  No budget cap set on this campaign.
+                </p>
+              )}
+            </CardContent>
+          </Card>
 
           <Card className={campaign.description ? "lg:col-span-2" : ""}>
             <CardHeader className="pb-3">

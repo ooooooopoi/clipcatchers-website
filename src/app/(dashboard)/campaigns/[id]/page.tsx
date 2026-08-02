@@ -170,16 +170,30 @@ export default async function CampaignDetailPage({
               <CardTitle className="text-base">Budget</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-baseline justify-between">
-                <span className="font-mono text-xl font-semibold">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="font-mono text-2xl font-semibold">
                   {formatCurrency(campaign.spentCents)}
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  / {formatCurrency(campaign.budgetCents)}
+                  {campaign.budgetCents > 0 ? `of ${formatCurrency(campaign.budgetCents)}` : "spent"}
                 </span>
               </div>
-              <Progress value={budgetPct} className="mt-3" />
-              <p className="mt-2 text-xs text-muted-foreground">{budgetPct.toFixed(0)}% used</p>
+              {campaign.budgetCents > 0 ? (
+                <>
+                  <Progress value={budgetPct} className="mt-3 h-3" />
+                  <div className="mt-2 flex items-center justify-between gap-3 text-xs">
+                    <span className="font-medium">{budgetPct.toFixed(1)}% used</span>
+                    <span className="text-muted-foreground">
+                      {formatCurrency(Math.max(campaign.budgetCents - campaign.spentCents, 0))}{" "}
+                      remaining
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  No budget cap set on this campaign.
+                </p>
+              )}
             </CardContent>
           </Card>
 
