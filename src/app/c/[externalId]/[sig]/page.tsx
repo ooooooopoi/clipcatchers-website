@@ -9,6 +9,7 @@ import { StatusBadge } from "@/components/campaigns/status-badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { prisma } from "@/lib/prisma";
+import { combineCampaigns } from "@/lib/combined-campaign";
 import { shareSignatureValid } from "@/lib/share";
 import { formatCurrency, formatDate, formatNumber, initials } from "@/lib/format";
 
@@ -30,16 +31,27 @@ export default async function SharedCampaignPage({
   params: Promise<{ externalId: string; sig: string }>;
 }) {
   const { externalId, sig } = await params;
-  if (!shareSignatureValid(decodeURIComponent(externalId), sig)) notFound();
+  const key = decodeURIComponent(externalId);
+  // The signature covers the whole key, so a link for one campaign can't be
+  // edited into a link for two.
+  if (!shareSignatureValid(key, sig)) notFound();
 
-  const campaign = await prisma.campaign.findUnique({
-    where: { externalId: decodeURIComponent(externalId) },
+  // A "+"-joined key reports on several campaigns at once, for a client
+  // running the same promotion across platforms.
+  const ids = key.split("+").map((part) => part.trim()).filter(Boolean);
+
+  const records = await prisma.campaign.findMany({
+    where: { externalId: { in: ids } },
     include: {
       metrics: { orderBy: { date: "asc" }, take: 120 },
       clips: { orderBy: [{ views: "desc" }, { externalId: "desc" }], take: 200 },
     },
   });
-  if (!campaign) notFound();
+  if (records.length === 0) notFound();
+
+  // Keep the client's chosen order rather than whatever the database returns.
+  records.sort((a, b) => ids.indexOf(a.externalId ?? "") - ids.indexOf(b.externalId ?? ""));
+  const campaign = combineCampaigns(records);
 
   const series = campaign.metrics.map((m) => ({
     label: format(m.date, "MMM d"),
@@ -139,6 +151,47 @@ export default async function SharedCampaignPage({
             )}
           </CardContent>
         </Card>
+
+        {campaign.parts.length > 0 && (
+          <Card className="mt-4">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">By campaign</CardTitle>
+              <CardDescription>
+                How each platform contributed to the totals above.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="divide-y divide-border">
+                {campaign.parts.map((part) => (
+                  <li
+                    key={part.id}
+                    className="flex flex-wrap items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">{part.name}</p>
+                      {part.platforms.length > 0 && (
+                        <p className="text-xs text-muted-foreground">
+                          {part.platforms.join(", ")}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex shrink-0 items-center gap-5 font-mono text-sm tabular-nums">
+                      <span>
+                        {formatNumber(part.totalViews)}
+                        <span className="ml-1 text-xs text-muted-foreground">views</span>
+                      </span>
+                      <span>
+                        {formatNumber(part.clipCount)}
+                        <span className="ml-1 text-xs text-muted-foreground">clips</span>
+                      </span>
+                      <span>{formatCurrency(part.spentCents)}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="mt-4">
           <CardHeader className="pb-3">
