@@ -65,6 +65,44 @@ function secretMatches(provided: string | null) {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
+const deleteSchema = z.object({ externalIds: z.array(z.string().min(1)).min(1).max(100) });
+
+/**
+ * Removes mirrored campaigns by externalId.
+ *
+ * Deliberately explicit rather than pruning anything absent from a sync: a
+ * partial or failed sync would otherwise wipe a client's live report.
+ */
+export async function DELETE(request: Request) {
+  try {
+    if (!process.env.INGEST_SECRET) {
+      return badRequest("Ingest is not configured — set INGEST_SECRET.");
+    }
+    if (!secretMatches(request.headers.get("x-ingest-secret"))) {
+      return unauthorized("Invalid ingest secret.");
+    }
+
+    const { externalIds } = deleteSchema.parse(await request.json());
+    const found = await prisma.campaign.findMany({
+      where: { externalId: { in: externalIds } },
+      select: { externalId: true, name: true },
+    });
+
+    // Metrics and clips go with it via the schema's cascade.
+    const { count } = await prisma.campaign.deleteMany({
+      where: { externalId: { in: externalIds } },
+    });
+
+    return ok({
+      deleted: count,
+      names: found.map((c) => c.name),
+      missing: externalIds.filter((id) => !found.some((c) => c.externalId === id)),
+    });
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
 export async function POST(request: Request) {
   try {
     if (!process.env.INGEST_SECRET) {
