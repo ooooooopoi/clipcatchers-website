@@ -142,6 +142,13 @@ export default async function TeamPage({ params }: { params: Promise<{ sig: stri
     campaigns: campaigns.length,
   };
 
+  // Approved only: a pending clip's view count isn't something to celebrate
+  // before anyone has checked it's a real submission.
+  const topClips = clips
+    .filter((c) => c.status === "approved")
+    .sort((a, b) => Number(b.views ?? 0) - Number(a.views ?? 0))
+    .slice(0, 10);
+
   return (
     <div className="min-h-screen">
       <div className="mx-auto w-full max-w-[1500px] px-4 py-8 sm:px-6">
@@ -174,6 +181,53 @@ export default async function TeamPage({ params }: { params: Promise<{ sig: stri
           <Stat icon={<Coins />} label="Owed" value={`$${totals.owed.toFixed(2)}`} accent />
           <Stat icon={<Wallet />} label="Paid out" value={`$${totals.paid.toFixed(2)}`} />
         </div>
+
+        {topClips.length > 0 && (
+          <Card className="mt-4 p-5">
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 className="text-base font-semibold">Most viewed clips</h2>
+              <span className="text-xs text-muted-foreground">approved only</span>
+            </div>
+            <ul className="mt-3 divide-y divide-border">
+              {topClips.map((clip, index) => (
+                <li
+                  key={String(clip.id ?? index)}
+                  className="flex items-center justify-between gap-4 py-2 first:pt-0 last:pb-0"
+                >
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="w-6 shrink-0 text-center font-mono text-xs text-muted-foreground">
+                      {["🥇", "🥈", "🥉"][index] ?? index + 1}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">
+                        {clip.handle ? `@${clip.handle}` : "—"}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {String(clip.campaign ?? "")}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-4 font-mono text-sm tabular-nums">
+                    <span>{formatCompact(Number(clip.views ?? 0))}</span>
+                    <span className="text-muted-foreground">
+                      ${Number(clip.earned ?? 0).toFixed(2)}
+                    </span>
+                    {clip.url ? (
+                      <a
+                        href={String(clip.url)}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                        className="rounded-md border border-border px-2 py-1 text-xs transition-colors hover:bg-accent hover:text-accent-foreground"
+                      >
+                        Watch
+                      </a>
+                    ) : null}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        )}
 
         <Tabs defaultValue="campaigns" className="mt-8">
           <TabsList>
