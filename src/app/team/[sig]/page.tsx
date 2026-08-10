@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Coins, Eye, Megaphone, Users, Wallet } from "lucide-react";
 import { BrandWordmark } from "@/components/brand";
+import { ClipActions } from "@/components/team/clip-actions";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -81,7 +82,15 @@ function cellFor(key: string, value: unknown) {
   return text.length > 60 ? `${text.slice(0, 60)}…` : text;
 }
 
-function SheetTable({ rows }: { rows: Row[] }) {
+function SheetTable({
+  rows,
+  sig,
+  withActions,
+}: {
+  rows: Row[];
+  sig?: string;
+  withActions?: boolean;
+}) {
   if (!rows.length) {
     return (
       <p className="rounded-xl border border-dashed border-border py-12 text-center text-sm text-muted-foreground">
@@ -101,6 +110,7 @@ function SheetTable({ rows }: { rows: Row[] }) {
                   {c.replace(/_/g, " ")}
                 </TableHead>
               ))}
+              {withActions && <TableHead className="whitespace-nowrap">review</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -111,6 +121,15 @@ function SheetTable({ rows }: { rows: Row[] }) {
                     {cellFor(c, row[c])}
                   </TableCell>
                 ))}
+                {withActions && sig && (
+                  <TableCell className="whitespace-nowrap">
+                    <ClipActions
+                      sig={sig}
+                      clipId={String(row.id)}
+                      status={String(row.status ?? "pending")}
+                    />
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>
@@ -242,7 +261,11 @@ export default async function TeamPage({ params }: { params: Promise<{ sig: stri
           </TabsList>
           {SHEETS.map((s) => (
             <TabsContent key={s.key} value={s.key}>
-              <SheetTable rows={data[s.key] ?? []} />
+              <SheetTable
+                rows={data[s.key] ?? []}
+                sig={sig}
+                withActions={s.key === "clips"}
+              />
             </TabsContent>
           ))}
         </Tabs>
