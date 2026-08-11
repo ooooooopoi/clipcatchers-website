@@ -14,7 +14,7 @@ export function MarkPaid({
   label,
 }: {
   sig: string;
-  userId: number;
+  userId: string;
   campaignId?: number | null;
   amount: number;
   label: string;

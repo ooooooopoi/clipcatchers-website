@@ -33,7 +33,12 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export type OwedClipper = {
-  user_id: number;
+  /**
+   * A Discord snowflake, kept as a string. As a JSON number it becomes a
+   * double in the browser and loses its last digits, so the id sent back
+   * matches nothing.
+   */
+  user_id: string;
   handle: string | null;
   owed: number;
   clips: number;
@@ -87,9 +92,9 @@ export function fetchCampaigns() {
   );
 }
 
-export function markPaid(userId: number, campaignId?: number) {
+export function markPaid(userId: string, campaignId?: number, paid = true) {
   return call<{ clips_marked: number; amount: number }>("/api/payouts/mark-paid", {
     method: "POST",
-    body: JSON.stringify({ user_id: userId, campaign_id: campaignId ?? null }),
+    body: JSON.stringify({ user_id: userId, campaign_id: campaignId ?? null, paid }),
   });
 }
