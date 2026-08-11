@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Coins, Eye, Megaphone, Users, Wallet } from "lucide-react";
 import { BrandWordmark } from "@/components/brand";
@@ -184,6 +185,20 @@ export default async function TeamPage({ params }: { params: Promise<{ sig: stri
             Mirrored from the Discord bot
             {snapshot ? ` · updated ${formatDateTime(snapshot.updatedAt)}` : ""}
           </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link
+              href={`/team/${sig}/payouts`}
+              className="rounded-full border border-border px-3 py-1 text-xs transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              💸 Payouts
+            </Link>
+            <Link
+              href={`/team/${sig}/campaigns`}
+              className="rounded-full border border-border px-3 py-1 text-xs transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              📣 Campaigns
+            </Link>
+          </div>
         </div>
 
         {!snapshot && (
