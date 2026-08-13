@@ -1,16 +1,19 @@
-import { Zap } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 export function BrandMark({ className }: { className?: string }) {
   return (
-    <span
+    <Image
+      src="/logo.jpg"
+      alt="Clip Catchers"
+      width={64}
+      height={64}
+      priority
       className={cn(
-        "inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 text-primary ring-1 ring-inset ring-primary/25",
+        "h-8 w-8 rounded-lg object-cover ring-1 ring-inset ring-primary/25",
         className,
       )}
-    >
-      <Zap className="h-4 w-4 fill-current" />
-    </span>
+    />
   );
 }
 
