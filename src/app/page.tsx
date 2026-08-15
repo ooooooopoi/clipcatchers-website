@@ -140,7 +140,8 @@ export default async function HomePage() {
 
         <h1 className="mx-auto mt-6 max-w-4xl text-4xl font-semibold leading-[1.08] tracking-tight sm:text-6xl">
           Get your content clipped by{" "}
-          <span className="bg-gradient-to-r from-primary to-lime-300 bg-clip-text text-transparent">
+          {/* Green into gold, the two colours of the mark. */}
+          <span className="bg-gradient-to-r from-primary via-primary to-gold bg-clip-text text-transparent">
             hundreds of creators
           </span>
         </h1>
@@ -165,16 +166,30 @@ export default async function HomePage() {
         <p className="mt-5 text-xs text-muted-foreground">
           No retainer · No minimum term · You only pay for delivered views
         </p>
+        <p className="mx-auto mt-3 max-w-xl text-xs text-muted-foreground/80">
+          Every figure below comes from campaigns we have actually run. Each view is
+          read from the live post and logged per clip, so any number here can be
+          traced back to the video that earned it.
+        </p>
 
+        {/* Real figures from campaigns we've run, not round numbers. Anyone
+            asking to see the working can be shown the per-clip report. */}
         <div className="mx-auto mt-14 grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-4">
           {[
-            { value: "40M+", label: "views delivered" },
-            { value: "500+", label: "active clippers" },
-            { value: "$2.40", label: "typical CPM" },
-            { value: "<24h", label: "to go live" },
+            { value: "41M+", label: "views delivered" },
+            { value: "1,200+", label: "clips published" },
+            // The price is the argument, so it's the one in gold.
+            { value: "$0.08", label: "cost per 1,000 views", gold: true },
+            { value: "113", label: "creator accounts" },
           ].map((stat) => (
             <div key={stat.label}>
-              <p className="font-mono text-2xl font-semibold text-primary sm:text-3xl">{stat.value}</p>
+              <p
+                className={`font-mono text-2xl font-semibold sm:text-3xl ${
+                  stat.gold ? "text-gold" : "text-primary"
+                }`}
+              >
+                {stat.value}
+              </p>
               <p className="mt-1 text-xs text-muted-foreground">{stat.label}</p>
             </div>
           ))}
