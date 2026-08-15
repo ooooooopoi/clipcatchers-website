@@ -104,36 +104,43 @@ export default async function HomePage() {
       {/* Nav — stays put while the page scrolls, so Sign in and Start a
           campaign are always one click away rather than a scroll back up. */}
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-4">
-        <Link href="/" className="flex items-center gap-2.5">
-          <BrandMark />
-          <span className="text-sm font-semibold tracking-tight">Clip Catchers</span>
-        </Link>
-        <nav className="flex items-center gap-2">
-          <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-            <Link href="#how-it-works">How it works</Link>
-          </Button>
-          <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-            <Link href="#creators">For creators</Link>
-          </Button>
-          {user ? (
-            <Button asChild size="sm">
-              <Link href="/dashboard">
-                Dashboard
-                <ArrowRight />
-              </Link>
+        {/* Three zones: mark, then the explainer links centred, then the two
+            actions. Keeping the centre column empty-but-present on mobile is
+            what stops the logo drifting off-centre when the links hide. */}
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-5 py-3">
+          <Link href="/" className="flex flex-1 items-center gap-2.5">
+            <BrandMark className="h-7 w-7" />
+            <span className="text-sm font-semibold tracking-tight">Clip Catchers</span>
+          </Link>
+
+          <nav className="hidden items-center gap-1 sm:flex">
+            <Button asChild variant="ghost" size="sm" className="rounded-full">
+              <Link href="#how-it-works">How it works</Link>
             </Button>
-          ) : (
-            <>
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/login">Sign in</Link>
-              </Button>
-              <Button asChild size="sm">
-                <Link href="/signup">Start a campaign</Link>
-              </Button>
-            </>
-          )}
+            <Button asChild variant="ghost" size="sm" className="rounded-full">
+              <Link href="#creators">For creators</Link>
+            </Button>
           </nav>
+
+          <div className="flex flex-1 items-center justify-end gap-2">
+            {user ? (
+              <Button asChild size="sm" className="rounded-full">
+                <Link href="/dashboard">
+                  Dashboard
+                  <ArrowRight />
+                </Link>
+              </Button>
+            ) : (
+              <>
+                <Button asChild variant="outline" size="sm" className="rounded-full">
+                  <Link href="/login">Sign in</Link>
+                </Button>
+                <Button asChild size="sm" className="rounded-full">
+                  <Link href="/signup">Start a campaign</Link>
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
