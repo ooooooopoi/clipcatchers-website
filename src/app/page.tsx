@@ -103,7 +103,10 @@ export default async function HomePage() {
 
       {/* Nav — stays put while the page scrolls, so Sign in and Start a
           campaign are always one click away rather than a scroll back up. */}
-      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
+      {/* Glass rather than a solid bar, so content scrolling underneath stays
+          visible through it. The fallback stays near-opaque: without backdrop
+          blur, 70% alone leaves text sitting on whatever passes behind. */}
+      <header className="sticky top-0 z-50 border-b border-border/70 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70">
         {/* Three zones: mark, then the explainer links centred, then the two
             actions. Keeping the centre column empty-but-present on mobile is
             what stops the logo drifting off-centre when the links hide. */}
