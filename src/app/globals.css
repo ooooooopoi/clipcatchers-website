@@ -14,18 +14,24 @@
     --card-foreground: 96 12% 5%;
     --popover: 0 0% 100%;
     --popover-foreground: 96 12% 5%;
-    /* #7ED321 — the exact green in the logo and in the bot's embeds. */
+    /* #7ED321 — the exact green in the logo and in the bot's embeds. Right for
+       fills, hopeless as text: on white it lands around 1.75:1 contrast, far
+       under the 4.5:1 text needs. `ink` is the same hue taken dark enough to
+       read, so brand colour on a white page is still legible. */
     --primary: 89 73% 48%;
     --primary-foreground: 89 60% 6%;
+    --primary-ink: 89 78% 28%;
     --secondary: 96 8% 96%;
     --secondary-foreground: 96 10% 10%;
     --muted: 96 8% 96%;
     --muted-foreground: 96 6% 42%;
     --accent: 96 8% 95%;
     --accent-foreground: 96 10% 10%;
-    /* #F5A623 — the gold half of the mark, promoted to a real accent. */
+    /* #F5A623 — the gold half of the mark, promoted to a real accent. Same
+       story as the green: fine as a fill, needs darkening to be read. */
     --gold: 38 91% 55%;
     --gold-foreground: 38 80% 8%;
+    --gold-ink: 36 95% 31%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
     --success: 142 71% 45%;
@@ -50,6 +56,8 @@
     --popover-foreground: 90 8% 97%;
     --primary: 89 70% 55%;
     --primary-foreground: 89 60% 6%;
+    /* On a dark page the readable version is the brighter one, not the darker. */
+    --primary-ink: 89 70% 62%;
     --secondary: 96 7% 14%;
     --secondary-foreground: 90 8% 97%;
     --muted: 96 7% 14%;
@@ -58,6 +66,7 @@
     --accent-foreground: 90 8% 97%;
     --gold: 38 91% 60%;
     --gold-foreground: 38 80% 8%;
+    --gold-ink: 38 91% 64%;
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 98%;
     --success: 142 69% 50%;

@@ -150,14 +150,15 @@ export default async function HomePage() {
       {/* Hero */}
       <section className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-16 pt-12 text-center sm:pt-20">
         <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3.5 py-1.5 text-xs text-muted-foreground">
-          <Sparkles className="h-3.5 w-3.5 text-primary" />
+          <Sparkles className="h-3.5 w-3.5 text-primary-ink" />
           Pay for performance, not promises
         </span>
 
         <h1 className="mx-auto mt-6 max-w-4xl text-4xl font-semibold leading-[1.08] tracking-tight sm:text-6xl">
           Get your content clipped by{" "}
-          {/* Green into gold, the two colours of the mark. */}
-          <span className="bg-gradient-to-r from-primary via-primary to-gold bg-clip-text text-transparent">
+          {/* Green into gold, the two colours of the mark — in the ink
+              variants, since this is type on a white page. */}
+          <span className="bg-gradient-to-r from-primary-ink via-primary-ink to-gold-ink bg-clip-text text-transparent">
             hundreds of creators
           </span>
         </h1>
@@ -201,7 +202,7 @@ export default async function HomePage() {
             <div key={stat.label}>
               <p
                 className={`font-mono text-2xl font-semibold sm:text-3xl ${
-                  stat.gold ? "text-gold" : "text-primary"
+                  stat.gold ? "text-gold-ink" : "text-primary-ink"
                 }`}
               >
                 {stat.value}
@@ -215,7 +216,7 @@ export default async function HomePage() {
       {/* How it works */}
       <section id="how-it-works" className="relative z-10 mx-auto w-full max-w-6xl px-5 py-20">
         <div className="text-center">
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-primary">For brands</p>
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-primary-ink">For brands</p>
           <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
             Live in three steps
           </h2>
@@ -228,7 +229,7 @@ export default async function HomePage() {
                 0{i + 1}
               </span>
               <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-background/60">
-                <step.icon className="h-5 w-5 text-primary" />
+                <step.icon className="h-5 w-5 text-primary-ink" />
               </span>
               <h3 className="mt-5 text-lg font-medium">{step.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
@@ -255,7 +256,7 @@ export default async function HomePage() {
               className="group p-6 transition-colors hover:border-border/90"
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-background/60 transition-colors group-hover:border-primary/30">
-                <feature.icon className="h-4 w-4 text-primary" />
+                <feature.icon className="h-4 w-4 text-primary-ink" />
               </span>
               <h3 className="mt-4 font-medium">{feature.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{feature.body}</p>
@@ -269,7 +270,7 @@ export default async function HomePage() {
         <Card className="overflow-hidden border-primary/20 p-8 sm:p-12">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.16em] text-primary">
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-primary-ink">
                 For creators
               </p>
               <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -293,7 +294,7 @@ export default async function HomePage() {
                   key={step.title}
                   className="flex items-start gap-4 rounded-xl border border-border/70 bg-background/40 p-4"
                 >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 font-mono text-sm font-semibold text-primary">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 font-mono text-sm font-semibold text-primary-ink">
                     {i + 1}
                   </span>
                   <div>
