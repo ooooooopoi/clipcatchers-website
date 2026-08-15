@@ -94,12 +94,17 @@ export default async function HomePage() {
   const user = await getSessionUser();
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    // overflow-x-clip, not overflow-hidden: `hidden` makes this a scroll
+    // container, which silently stops the sticky header below from sticking.
+    // `clip` still trims the background blur without that side effect.
+    <div className="relative min-h-screen overflow-x-clip">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[600px] bg-grid opacity-[0.25]" />
       <div className="pointer-events-none absolute left-1/2 top-[-120px] h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-primary/10 blur-[150px]" />
 
-      {/* Nav */}
-      <header className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-6">
+      {/* Nav — stays put while the page scrolls, so Sign in and Start a
+          campaign are always one click away rather than a scroll back up. */}
+      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-4">
         <Link href="/" className="flex items-center gap-2.5">
           <BrandMark />
           <span className="text-sm font-semibold tracking-tight">Clip Catchers</span>
@@ -128,7 +133,8 @@ export default async function HomePage() {
               </Button>
             </>
           )}
-        </nav>
+          </nav>
+        </div>
       </header>
 
       {/* Hero */}

@@ -75,6 +75,13 @@
     @apply border-border;
   }
 
+  html {
+    /* Leaves room for the sticky header, so jumping to #how-it-works doesn't
+       land with the heading hidden underneath it. */
+    scroll-padding-top: 5rem;
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
