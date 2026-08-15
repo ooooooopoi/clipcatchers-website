@@ -195,8 +195,9 @@ export default async function HomePage() {
           {[
             { value: "41M+", label: "views delivered" },
             { value: "1,200+", label: "clips published" },
-            // The price is the argument, so it's the one in gold.
-            { value: "$0.08", label: "cost per 1,000 views", gold: true },
+            // The price we charge, not what delivery costs us — publishing the
+            // cost would undercut every quote before it's sent.
+            { value: "$0.30", label: "per 1,000 views", gold: true },
             { value: "113", label: "creator accounts" },
           ].map((stat) => (
             <div key={stat.label}>
