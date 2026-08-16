@@ -8,13 +8,14 @@ import { motion } from "framer-motion";
 import { AlertCircle, ArrowLeft, Eye, EyeOff, MailCheck } from "lucide-react";
 import type { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { GoogleButton } from "@/components/google-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signUpSchema } from "@/lib/validations";
 
 type Values = z.infer<typeof signUpSchema>;
 
-export function SignUpForm() {
+export function SignUpForm({ googleEnabled = false }: { googleEnabled?: boolean }) {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [sent, setSent] = useState<{ email: string; devLink?: string } | null>(null);
@@ -150,6 +151,8 @@ export function SignUpForm() {
           Create account
         </Button>
       </form>
+
+      {googleEnabled && <GoogleButton label="Sign up with Google" />}
 
       <p className="mt-6 text-sm text-muted-foreground">
         Already have an account?{" "}

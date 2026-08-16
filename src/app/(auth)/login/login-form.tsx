@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import type { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { GoogleButton } from "@/components/google-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginSchema } from "@/lib/validations";
@@ -20,10 +21,12 @@ export function LoginForm({
   verified,
   passwordReset,
   initialError,
+  googleEnabled = false,
 }: {
   verified: boolean;
   passwordReset: boolean;
   initialError?: string;
+  googleEnabled?: boolean;
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(
@@ -132,6 +135,8 @@ export function LoginForm({
           Sign in
         </Button>
       </form>
+
+      {googleEnabled && <GoogleButton />}
 
       <p className="mt-6 text-sm text-muted-foreground">
         New to Clip Catchers?{" "}
