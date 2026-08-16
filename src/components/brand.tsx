@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 export function BrandMark({ className }: { className?: string }) {
   return (
     <Image
-      src="/logo.jpg"
+      src="/logo.png"
       alt="Clip Catchers"
       width={64}
       height={64}
