@@ -3,6 +3,7 @@ import Link from "next/link";
 import {
   ArrowRight,
   BarChart3,
+  Check,
   Clapperboard,
   Coins,
   Gauge,
@@ -90,6 +91,62 @@ const CREATOR_STEPS = [
   { icon: Wallet, title: "Get paid", body: "Earn per 1,000 views, cashed out by PayPal or USDT." },
 ];
 
+// Creators join through Discord — that's where campaigns are briefed, clips
+// submitted and payouts run. Pointing them at /signup put them in the client
+// dashboard instead, which is a dead end for a clipper. Falls back to signup
+// if the invite isn't configured, so a missing variable can't leave a dead
+// button on the page.
+const DISCORD_INVITE = process.env.NEXT_PUBLIC_DISCORD_INVITE || "";
+const CREATOR_HREF = DISCORD_INVITE || "/signup";
+
+// Every row is a campaign we've run, taken from the per-clip ledger rather
+// than typed in by hand. Clients aren't named: publishing who hired us isn't
+// ours to decide.
+const RESULTS = [
+  { label: "Campaign 01 · TikTok", views: "11.5M", clips: 495, creators: 51 },
+  { label: "Campaign 02 · TikTok", views: "10.1M", clips: 319, creators: 43 },
+  { label: "Campaign 03 · TikTok", views: "8.7M", clips: 218, creators: 30 },
+  { label: "Campaign 04 · TikTok", views: "4.2M", clips: 187, creators: 41, live: true },
+  { label: "Campaign 05 · TikTok", views: "3.5M", clips: 167, creators: 22 },
+  { label: "Campaign 06 · Instagram", views: "1.8M", clips: 69, creators: 2 },
+];
+
+const INCLUDED = [
+  "Unlimited clips per campaign",
+  "Views read from the live post, per clip",
+  "Creator accounts verified before a clip counts",
+  "Total budget and per-post view caps",
+  "Live dashboard, plus a share link for anyone",
+  "Full per-clip report on request",
+];
+
+const FAQ = [
+  {
+    q: "How do you know the views are real?",
+    a: "Every clip is read directly from the live post on TikTok or Instagram and logged on its own, with a timestamp. Nothing is self-reported by the creator, and any figure on your dashboard can be traced back to the individual video that earned it.",
+  },
+  {
+    q: "What stops someone buying views?",
+    a: "Creators verify ownership of an account before a single clip counts, and clips are checked for the engagement pattern bought views leave behind — view counts that move without the comments, shares and saves that normally come with them. Clips that fail are rejected and earn nothing.",
+  },
+  {
+    q: "What does it cost?",
+    a: "$0.30 per 1,000 delivered views. No retainer, no minimum term, no setup fee. You set the total budget and the campaign closes itself the moment it's spent, so you can't overspend.",
+  },
+  {
+    q: "How quickly do creators start posting?",
+    a: "Usually within a day of a campaign being approved. Clips tend to land fastest in the first 72 hours, which is when a release benefits most.",
+  },
+  {
+    q: "Which platforms do you cover?",
+    a: "TikTok and Instagram. TikTok carries the majority of delivery today; Instagram works well as a second surface on the same assets.",
+  },
+  {
+    q: "Can I see the results without logging in?",
+    a: "Yes. Every campaign has a private share link you can send to a manager, a label or anyone else. It opens the live report with no account required.",
+  },
+];
+
 export default async function HomePage() {
   const user = await getSessionUser();
 
@@ -116,11 +173,20 @@ export default async function HomePage() {
             <span className="text-sm font-semibold tracking-tight">Clip Catchers</span>
           </Link>
 
-          <nav className="hidden items-center gap-1 sm:flex">
-            <Button asChild variant="ghost" size="sm" className="rounded-full">
+          {/* Four links need md to breathe. Below that the whole nav used to
+              vanish, taking Pricing with it — so it stays on its own down to
+              the narrowest screens, where it's the link people want most. */}
+          <nav className="flex items-center gap-1">
+            <Button asChild variant="ghost" size="sm" className="hidden rounded-full md:inline-flex">
+              <Link href="#results">Results</Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm" className="hidden rounded-full md:inline-flex">
               <Link href="#how-it-works">How it works</Link>
             </Button>
             <Button asChild variant="ghost" size="sm" className="rounded-full">
+              <Link href="#pricing">Pricing</Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm" className="hidden rounded-full md:inline-flex">
               <Link href="#creators">For creators</Link>
             </Button>
           </nav>
@@ -180,6 +246,15 @@ export default async function HomePage() {
           </Button>
         </div>
 
+        <div className="mt-6 flex justify-center">
+          <Link
+            href="#pricing"
+            className="text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+          >
+            See pricing
+          </Link>
+        </div>
+
         <p className="mt-5 text-xs text-muted-foreground">
           No retainer · No minimum term · You only pay for delivered views
         </p>
@@ -193,12 +268,14 @@ export default async function HomePage() {
             asking to see the working can be shown the per-clip report. */}
         <div className="mx-auto mt-14 grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-4">
           {[
-            { value: "41M+", label: "views delivered" },
-            { value: "1,200+", label: "clips published" },
+            // Counted from approved clips in the ledger, so each of these can
+            // be re-derived on demand. Deliberately not rounded up.
+            { value: "39.8M", label: "views delivered" },
+            { value: "1,455", label: "clips published" },
             // The price we charge, not what delivery costs us — publishing the
             // cost would undercut every quote before it's sent.
             { value: "$0.30", label: "per 1,000 views", gold: true },
-            { value: "113", label: "creator accounts" },
+            { value: "85", label: "creators paid" },
           ].map((stat) => (
             <div key={stat.label}>
               <p
@@ -212,6 +289,59 @@ export default async function HomePage() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* Results — the campaigns behind the headline number. A single total is
+          easy to claim; the breakdown is what makes it checkable. */}
+      <section id="results" className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-20">
+        <div className="text-center">
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-primary-ink">Results</p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+            Campaigns we&apos;ve actually run
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
+            Every campaign to date, with the views it delivered. Clients aren&apos;t named here —
+            we&apos;ll walk you through the full per-clip report on a call.
+          </p>
+        </div>
+
+        <Card className="mt-10 overflow-hidden p-0">
+          <div className="grid grid-cols-[1fr_auto] gap-x-6 px-5 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground sm:grid-cols-[1fr_7rem_7rem_7rem] sm:px-8">
+            <span>Campaign</span>
+            <span className="hidden text-right sm:block">Clips</span>
+            <span className="hidden text-right sm:block">Creators</span>
+            <span className="text-right">Views</span>
+          </div>
+          {RESULTS.map((r) => (
+            <div
+              key={`${r.label}-${r.views}`}
+              className="grid grid-cols-[1fr_auto] items-center gap-x-6 border-t border-border/70 px-5 py-4 text-sm sm:grid-cols-[1fr_7rem_7rem_7rem] sm:px-8"
+            >
+              <span className="flex items-center gap-2 font-medium">
+                {r.label}
+                {r.live ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-primary-ink">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Live
+                  </span>
+                ) : null}
+              </span>
+              <span className="hidden text-right font-mono text-muted-foreground sm:block">
+                {r.clips}
+              </span>
+              <span className="hidden text-right font-mono text-muted-foreground sm:block">
+                {r.creators}
+              </span>
+              <span className="text-right font-mono font-semibold text-primary-ink">{r.views}</span>
+            </div>
+          ))}
+          <div className="grid grid-cols-[1fr_auto] items-center gap-x-6 border-t border-border bg-muted/40 px-5 py-4 text-sm sm:grid-cols-[1fr_7rem_7rem_7rem] sm:px-8">
+            <span className="font-semibold">Total</span>
+            <span className="hidden text-right font-mono font-semibold sm:block">1,455</span>
+            <span className="hidden text-right font-mono font-semibold sm:block">85</span>
+            <span className="text-right font-mono font-semibold text-primary-ink">39.8M</span>
+          </div>
+        </Card>
       </section>
 
       {/* How it works */}
@@ -266,6 +396,63 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Pricing — one rate, stated plainly. A page that makes people ask what
+          it costs loses the ones who won't bother asking. */}
+      <section id="pricing" className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-20">
+        <div className="text-center">
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-gold-ink">Pricing</p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+            One rate. No retainer.
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
+            You set the budget. We bill against views that actually landed — if nothing delivers,
+            you spend nothing.
+          </p>
+        </div>
+
+        <Card className="mx-auto mt-10 max-w-4xl overflow-hidden border-gold/25 p-0">
+          <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-[auto_1fr] lg:gap-12">
+            <div className="lg:border-r lg:border-border lg:pr-12">
+              <div className="flex items-baseline gap-1.5">
+                <span className="font-mono text-5xl font-semibold text-gold-ink">$0.30</span>
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                per 1,000 delivered views
+              </p>
+              <div className="mt-6 space-y-1.5 text-sm text-muted-foreground">
+                <p>
+                  <span className="font-mono text-foreground">$300</span> ≈ 1M views
+                </p>
+                <p>
+                  <span className="font-mono text-foreground">$1,500</span> ≈ 5M views
+                </p>
+              </div>
+              <Button asChild size="lg" className="mt-7 w-full">
+                <Link href="/signup">
+                  Start a campaign
+                  <ArrowRight />
+                </Link>
+              </Button>
+              <p className="mt-3 text-center text-xs text-muted-foreground">
+                No card needed to brief one
+              </p>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium">Every campaign includes</p>
+              <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                {INCLUDED.map((item) => (
+                  <li key={item} className="flex items-start gap-2.5 text-sm">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary-ink" />
+                    <span className="leading-relaxed text-muted-foreground">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </Card>
+      </section>
+
       {/* For creators */}
       <section id="creators" className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-20">
         <Card className="overflow-hidden border-primary/20 p-8 sm:p-12">
@@ -281,12 +468,22 @@ export default async function HomePage() {
                 Clip content you'd happily post anyway, and get paid for every thousand views it
                 earns. No follower minimum, no exclusivity — just clip, submit and cash out.
               </p>
+              {/* Discord, not /signup: campaigns are briefed and clips
+                  submitted there, and the dashboard signup is for clients. */}
               <Button asChild size="lg" className="mt-7">
-                <Link href="/signup">
+                <a
+                  href={CREATOR_HREF}
+                  {...(DISCORD_INVITE
+                    ? { target: "_blank", rel: "noopener noreferrer" }
+                    : {})}
+                >
                   Join the network
                   <ArrowRight />
-                </Link>
+                </a>
               </Button>
+              <p className="mt-3 text-xs text-muted-foreground">
+                Free to join · Paid per 1,000 views · No follower minimum
+              </p>
             </div>
 
             <div className="space-y-3">
@@ -307,6 +504,34 @@ export default async function HomePage() {
             </div>
           </div>
         </Card>
+      </section>
+
+      {/* FAQ — the objections that otherwise arrive as an email nobody sends.
+          Native <details> so it works without JavaScript and stays keyboard
+          and screen-reader accessible for free. */}
+      <section id="faq" className="relative z-10 mx-auto w-full max-w-3xl px-5 pb-20">
+        <div className="text-center">
+          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+            Questions worth asking
+          </h2>
+        </div>
+
+        <div className="mt-10 space-y-3">
+          {FAQ.map((item) => (
+            <details
+              key={item.q}
+              className="group rounded-xl border border-border bg-card/60 px-5 py-4 transition-colors hover:border-border/90 open:border-primary/25"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium [&::-webkit-details-marker]:hidden">
+                {item.q}
+                <span className="shrink-0 font-mono text-lg text-muted-foreground transition-transform group-open:rotate-45">
+                  +
+                </span>
+              </summary>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.a}</p>
+            </details>
+          ))}
+        </div>
       </section>
 
       {/* CTA */}
@@ -337,13 +562,26 @@ export default async function HomePage() {
             <BrandMark className="h-7 w-7" />
             <span>© {new Date().getFullYear()} Clip Catchers</span>
           </div>
-          <div className="flex items-center gap-5">
-            <Link href="#how-it-works" className="transition-colors hover:text-foreground">
-              How it works
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <Link href="#results" className="transition-colors hover:text-foreground">
+              Results
             </Link>
-            <Link href="#creators" className="transition-colors hover:text-foreground">
-              For creators
+            <Link href="#pricing" className="transition-colors hover:text-foreground">
+              Pricing
             </Link>
+            <Link href="#faq" className="transition-colors hover:text-foreground">
+              FAQ
+            </Link>
+            {DISCORD_INVITE ? (
+              <a
+                href={DISCORD_INVITE}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-foreground"
+              >
+                Discord
+              </a>
+            ) : null}
             <Link href="/login" className="transition-colors hover:text-foreground">
               Client login
             </Link>
