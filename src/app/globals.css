@@ -114,6 +114,62 @@
     box-shadow: 0 0 0 1px hsl(var(--primary) / 0.16), 0 12px 40px -12px hsl(var(--primary) / 0.35);
   }
 
+  /* Cards on a white page need more than a hairline to read as surfaces. A
+     near-invisible top-down sheen plus a soft shadow does it without becoming
+     the drop-shadow-heavy look of a 2015 template. */
+  .surface {
+    background-image: linear-gradient(
+      to bottom,
+      hsl(var(--foreground) / 0.02),
+      transparent 40%
+    );
+    box-shadow:
+      0 1px 2px hsl(var(--foreground) / 0.04),
+      0 8px 24px -16px hsl(var(--foreground) / 0.2);
+  }
+
+  .lift {
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .lift:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 1px 2px hsl(var(--foreground) / 0.05),
+      0 16px 40px -20px hsl(var(--foreground) / 0.28);
+  }
+
+  /* Entrance on scroll, driven by the compositor rather than a scroll
+     listener. Content is visible by default and only animates where the
+     browser supports it, so an unsupporting browser shows the page instead of
+     a blank column — the usual failure mode of JS reveal libraries. */
+  @keyframes reveal-up {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .reveal {
+        animation: reveal-up linear both;
+        animation-timeline: view();
+        /* Finishes once the element is 60% into the viewport. Running it to
+           `cover` instead leaves anything near the fold sitting at zero
+           opacity, which looks like the page failed to load. */
+        animation-range: entry 0% entry 60%;
+      }
+    }
+  }
+
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--border)) transparent;

@@ -16,6 +16,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { BrandMark } from "@/components/brand";
+import { HeroPreview } from "@/components/hero-preview";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getSessionUser } from "@/lib/auth-helpers";
@@ -258,7 +259,14 @@ export default async function HomePage() {
         <p className="mt-5 text-xs text-muted-foreground">
           No retainer · No minimum term · You only pay for delivered views
         </p>
-        <p className="mx-auto mt-3 max-w-xl text-xs text-muted-foreground/80">
+
+        {/* The product itself, this high up. Everything above is a claim; this
+            is the first thing on the page that shows the thing being sold. */}
+        <div className="mx-auto mt-14 max-w-4xl">
+          <HeroPreview />
+        </div>
+
+        <p className="mx-auto mt-14 max-w-xl text-xs text-muted-foreground/80">
           Every figure below comes from campaigns we have actually run. Each view is
           read from the live post and logged per clip, so any number here can be
           traced back to the video that earned it.
@@ -266,7 +274,7 @@ export default async function HomePage() {
 
         {/* Real figures from campaigns we've run, not round numbers. Anyone
             asking to see the working can be shown the per-clip report. */}
-        <div className="mx-auto mt-14 grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="surface mx-auto mt-6 grid max-w-3xl grid-cols-2 divide-border rounded-2xl border border-border bg-card sm:grid-cols-4 sm:divide-x">
           {[
             // Counted from approved clips in the ledger, so each of these can
             // be re-derived on demand. Deliberately not rounded up.
@@ -277,9 +285,9 @@ export default async function HomePage() {
             { value: "$0.30", label: "per 1,000 views", gold: true },
             { value: "85", label: "creators paid" },
           ].map((stat) => (
-            <div key={stat.label}>
+            <div key={stat.label} className="px-4 py-5">
               <p
-                className={`font-mono text-2xl font-semibold sm:text-3xl ${
+                className={`font-mono text-2xl font-semibold tracking-tight sm:text-3xl ${
                   stat.gold ? "text-gold-ink" : "text-primary-ink"
                 }`}
               >
@@ -305,7 +313,7 @@ export default async function HomePage() {
           </p>
         </div>
 
-        <Card className="mt-10 overflow-hidden p-0">
+        <Card className="surface reveal mt-10 overflow-hidden p-0">
           <div className="grid grid-cols-[1fr_auto] gap-x-6 px-5 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground sm:grid-cols-[1fr_7rem_7rem_7rem] sm:px-8">
             <span>Campaign</span>
             <span className="hidden text-right sm:block">Clips</span>
@@ -355,7 +363,7 @@ export default async function HomePage() {
 
         <div className="mt-12 grid gap-5 md:grid-cols-3">
           {BRAND_STEPS.map((step, i) => (
-            <Card key={step.title} className="relative p-6">
+            <Card key={step.title} className="surface lift reveal relative p-6">
               <span className="absolute right-5 top-5 font-mono text-4xl font-semibold text-primary/10">
                 0{i + 1}
               </span>
@@ -384,7 +392,7 @@ export default async function HomePage() {
           {FEATURES.map((feature) => (
             <Card
               key={feature.title}
-              className="group p-6 transition-colors hover:border-border/90"
+              className="surface lift reveal group p-6 hover:border-primary/25"
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-background/60 transition-colors group-hover:border-primary/30">
                 <feature.icon className="h-4 w-4 text-primary-ink" />
@@ -410,7 +418,7 @@ export default async function HomePage() {
           </p>
         </div>
 
-        <Card className="mx-auto mt-10 max-w-4xl overflow-hidden border-gold/25 p-0">
+        <Card className="surface reveal mx-auto mt-10 max-w-4xl overflow-hidden border-gold/25 p-0">
           <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-[auto_1fr] lg:gap-12">
             <div className="lg:border-r lg:border-border lg:pr-12">
               <div className="flex items-baseline gap-1.5">
@@ -455,7 +463,7 @@ export default async function HomePage() {
 
       {/* For creators */}
       <section id="creators" className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-20">
-        <Card className="overflow-hidden border-primary/20 p-8 sm:p-12">
+        <Card className="surface reveal overflow-hidden border-primary/20 p-8 sm:p-12">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-primary-ink">
@@ -520,7 +528,7 @@ export default async function HomePage() {
           {FAQ.map((item) => (
             <details
               key={item.q}
-              className="group rounded-xl border border-border bg-card/60 px-5 py-4 transition-colors hover:border-border/90 open:border-primary/25"
+              className="surface lift group reveal rounded-xl border border-border bg-card/60 px-5 py-4 open:border-primary/25"
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium [&::-webkit-details-marker]:hidden">
                 {item.q}
