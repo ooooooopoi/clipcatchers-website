@@ -1,7 +1,6 @@
 import {
   BarChart3,
   Bell,
-  CreditCard,
   FolderOpen,
   LayoutDashboard,
   LifeBuoy,
@@ -24,7 +23,6 @@ export const MAIN_NAV: NavItem[] = [
   { title: "Campaigns", href: "/campaigns", icon: Megaphone, shortcut: "C" },
   { title: "Create Campaign", href: "/campaigns/new", icon: PlusCircle, shortcut: "N", exact: true },
   { title: "Analytics", href: "/analytics", icon: BarChart3, shortcut: "A" },
-  { title: "Billing", href: "/billing", icon: CreditCard, shortcut: "B" },
   { title: "Files", href: "/files", icon: FolderOpen, shortcut: "F" },
 ];
 

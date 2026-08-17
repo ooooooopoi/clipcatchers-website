@@ -23,6 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { requireUser } from "@/lib/auth-helpers";
 import { getAnalyticsData } from "@/lib/queries";
 import { cpmCents, formatCurrency, formatNumber } from "@/lib/format";
+import { REACH_LABEL, REACH_NOTE } from "@/lib/constants";
 
 export const metadata: Metadata = { title: "Analytics" };
 export const dynamic = "force-dynamic";
@@ -69,7 +70,7 @@ export default async function AnalyticsPage({
             />
             <StatCard
               index={1}
-              label="Reach"
+              label={REACH_LABEL}
               value={data.totals.reach}
               format="compact"
               icon={<Users />}
@@ -95,7 +96,7 @@ export default async function AnalyticsPage({
 
           <Card className="mt-4">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Views & reach</CardTitle>
+              <CardTitle className="text-base">Views &amp; modelled reach</CardTitle>
               <CardDescription>Daily delivery across every active campaign.</CardDescription>
             </CardHeader>
             <CardContent className="pl-2">
@@ -104,7 +105,7 @@ export default async function AnalyticsPage({
                 height={300}
                 keys={[
                   { key: "views", label: "Views", color: "hsl(var(--primary))" },
-                  { key: "reach", label: "Reach", color: "hsl(199 89% 55%)" },
+                  { key: "reach", label: REACH_LABEL, color: "hsl(199 89% 55%)" },
                 ]}
               />
             </CardContent>
@@ -181,7 +182,7 @@ export default async function AnalyticsPage({
                         <TableHead>Campaign</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead className="text-right">Views</TableHead>
-                        <TableHead className="text-right">Reach</TableHead>
+                        <TableHead className="text-right">{REACH_LABEL}</TableHead>
                         <TableHead className="text-right">Spend</TableHead>
                         <TableHead className="text-right">CPM</TableHead>
                       </TableRow>

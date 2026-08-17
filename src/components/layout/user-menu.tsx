@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { signOut } from "next-auth/react";
-import { CreditCard, LifeBuoy, LogOut, Settings, User } from "lucide-react";
+import { LifeBuoy, LogOut, Settings, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -54,12 +54,6 @@ export function UserMenu({
           <Link href="/settings">
             <Settings />
             Settings
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/billing">
-            <CreditCard />
-            Billing
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>

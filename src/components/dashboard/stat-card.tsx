@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
-import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Info } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatCompact, formatCurrency, formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -51,6 +52,7 @@ export function StatCard({
   icon,
   trend,
   hint,
+  note,
   index = 0,
 }: {
   label: string;
@@ -59,6 +61,8 @@ export function StatCard({
   icon: React.ReactNode;
   trend?: number;
   hint?: string;
+  /** How the figure was arrived at, for anything that isn't a direct reading. */
+  note?: string;
   index?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -75,7 +79,28 @@ export function StatCard({
       <Card className="group relative overflow-hidden p-5 transition-colors hover:border-border/80">
         <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-primary/5 blur-2xl transition-opacity group-hover:opacity-100 md:opacity-0" />
         <div className="flex items-start justify-between gap-3">
-          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            {label}
+            {note && (
+              <Tooltip>
+                {/* A button, not a bare icon: a figure that needs explaining
+                    has to be reachable by keyboard, and on touch there's no
+                    hover to reveal it. */}
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    aria-label={`How ${label} is calculated`}
+                    className="rounded-full text-muted-foreground/70 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <Info className="h-3.5 w-3.5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-[16rem] text-xs leading-relaxed">
+                  {note}
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </p>
           <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-background/60 text-muted-foreground [&_svg]:h-4 [&_svg]:w-4">
             {icon}
           </span>

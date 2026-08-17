@@ -12,6 +12,7 @@ import { prisma } from "@/lib/prisma";
 import { combineCampaigns } from "@/lib/combined-campaign";
 import { shareSignatureValid } from "@/lib/share";
 import { formatCurrency, formatDate, formatNumber, initials } from "@/lib/format";
+import { REACH_LABEL, REACH_NOTE } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -106,10 +107,12 @@ export default async function SharedCampaignPage({
           <StatCard index={0} label="Total views" value={campaign.totalViews} format="compact" icon={<Eye />} />
           <StatCard
             index={1}
-            label="Estimated reach"
+            label={REACH_LABEL}
             value={campaign.estimatedReach}
             format="compact"
             icon={<Users />}
+            note={REACH_NOTE}
+            hint="estimated, not measured"
           />
           <StatCard
             index={2}
@@ -132,7 +135,9 @@ export default async function SharedCampaignPage({
         <Card className="mt-4">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Delivery</CardTitle>
-            <CardDescription>Views and reach delivered by your creators.</CardDescription>
+            <CardDescription>
+              Views delivered by your creators, with modelled reach alongside.
+            </CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
             {series.length === 0 ? (
@@ -145,7 +150,7 @@ export default async function SharedCampaignPage({
                 height={300}
                 keys={[
                   { key: "views", label: "Views", color: "hsl(var(--primary))" },
-                  { key: "reach", label: "Reach", color: "hsl(199 89% 55%)" },
+                  { key: "reach", label: REACH_LABEL, color: "hsl(199 89% 55%)" },
                 ]}
               />
             )}

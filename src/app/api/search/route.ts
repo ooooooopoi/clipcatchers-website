@@ -12,7 +12,9 @@ export async function GET(request: Request) {
 
     const like = { contains: query, mode: "insensitive" as const };
 
-    const [campaigns, files, invoices, tickets] = await Promise.all([
+    // Invoices were searchable and linked to /billing, a page for a
+    // subscription product that was never sold. Dropped with it.
+    const [campaigns, files, tickets] = await Promise.all([
       prisma.campaign.findMany({
         where: { userId: user.id, OR: [{ name: like }, { brandName: like }] },
         take: 5,
@@ -22,11 +24,6 @@ export async function GET(request: Request) {
         where: { userId: user.id, name: like },
         take: 4,
         orderBy: { createdAt: "desc" },
-      }),
-      prisma.invoice.findMany({
-        where: { userId: user.id, OR: [{ number: like }, { description: like }] },
-        take: 3,
-        orderBy: { issuedAt: "desc" },
       }),
       prisma.supportTicket.findMany({
         where: { userId: user.id, subject: like },
@@ -50,13 +47,6 @@ export async function GET(request: Request) {
           title: f.name,
           subtitle: f.kind.toLowerCase().replace("_", " "),
           href: "/files",
-        })),
-        ...invoices.map((i) => ({
-          id: i.id,
-          type: "invoice" as const,
-          title: i.number,
-          subtitle: i.description,
-          href: "/billing",
         })),
         ...tickets.map((t) => ({
           id: t.id,

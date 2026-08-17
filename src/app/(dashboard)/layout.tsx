@@ -14,7 +14,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="min-h-screen">
-      <Sidebar plan={account?.plan ?? "STARTER"} unreadCount={unreadCount} />
+      <Sidebar unreadCount={unreadCount} />
       <div className="lg:pl-60">
         <Topbar user={user} unreadCount={unreadCount} />
         <main className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">

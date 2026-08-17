@@ -15,6 +15,7 @@ import { Progress } from "@/components/ui/progress";
 import { requireUser } from "@/lib/auth-helpers";
 import { getDashboardData } from "@/lib/queries";
 import { formatCompact, formatCurrency } from "@/lib/format";
+import { REACH_LABEL, REACH_NOTE } from "@/lib/constants";
 
 export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
@@ -68,11 +69,12 @@ export default async function DashboardPage() {
         />
         <StatCard
           index={2}
-          label="Estimated reach"
+          label={REACH_LABEL}
           value={data.totals.reach}
           format="compact"
           icon={<Users />}
-          hint="unique accounts"
+          note={REACH_NOTE}
+          hint="estimated, not measured"
         />
         <StatCard
           index={3}
@@ -90,7 +92,9 @@ export default async function DashboardPage() {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <CardTitle className="text-base">Performance</CardTitle>
-                <CardDescription>Views and reach over the last 30 days.</CardDescription>
+                <CardDescription>
+                  Views over the last 30 days, with modelled reach alongside.
+                </CardDescription>
               </div>
               <Button asChild variant="ghost" size="sm">
                 <Link href="/analytics">
@@ -105,7 +109,7 @@ export default async function DashboardPage() {
               data={data.series}
               keys={[
                 { key: "views", label: "Views", color: "hsl(var(--primary))" },
-                { key: "reach", label: "Reach", color: "hsl(199 89% 55%)" },
+                { key: "reach", label: REACH_LABEL, color: "hsl(199 89% 55%)" },
               ]}
             />
           </CardContent>
@@ -139,12 +143,7 @@ export default async function DashboardPage() {
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
         <RecentActivity items={data.activity} />
         <QuickActions />
-        <UpcomingUpdates
-          campaigns={data.upcoming}
-          nextInvoice={data.nextInvoice}
-          plan={data.plan}
-          planRenewsAt={data.planRenewsAt}
-        />
+        <UpcomingUpdates campaigns={data.upcoming} />
       </div>
 
       {data.campaigns.length > 0 && (

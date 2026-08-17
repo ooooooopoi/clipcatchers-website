@@ -54,35 +54,16 @@ export const TICKET_STATUS_META: Record<TicketStatus, { label: string; className
   CLOSED: { label: "Closed", className: "border-zinc-500/30 bg-zinc-500/10 text-zinc-400" },
 };
 
-export const PLAN_META = {
-  STARTER: {
-    label: "Starter",
-    priceCents: 29900,
-    tagline: "One live campaign, core analytics.",
-    features: ["1 active campaign", "Core analytics", "5 GB asset storage", "Email support"],
-  },
-  GROWTH: {
-    label: "Growth",
-    priceCents: 79900,
-    tagline: "Scale to a full campaign slate.",
-    features: [
-      "5 active campaigns",
-      "Advanced analytics + CPM",
-      "50 GB asset storage",
-      "Priority support",
-      "Dedicated strategist",
-    ],
-  },
-  SCALE: {
-    label: "Scale",
-    priceCents: 199900,
-    tagline: "Unlimited volume, white-glove service.",
-    features: [
-      "Unlimited campaigns",
-      "Custom reporting",
-      "500 GB asset storage",
-      "24/7 support",
-      "Dedicated account team",
-    ],
-  },
-} as const;
+/**
+ * Reach is modelled, not measured.
+ *
+ * The bot derives it as 72% of views (cogs/client_sync.py) — a flat
+ * assumption about how many of a video's views come from distinct accounts.
+ * No platform reports it to us. Views, by contrast, are read from the live
+ * post per clip. Anywhere reach is shown to a client it carries this note, so
+ * the one number we model is never mistaken for one we counted.
+ */
+export const REACH_LABEL = "Modelled reach";
+
+export const REACH_NOTE =
+  "An estimate, not a measurement: 72% of delivered views, on the assumption that most views come from distinct accounts. Views themselves are read directly from each live post.";

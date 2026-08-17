@@ -1,21 +1,13 @@
 import Link from "next/link";
-import type { Campaign, Invoice, Plan } from "@prisma/client";
-import { CalendarClock, CreditCard, Flag, RefreshCw } from "lucide-react";
+import type { Campaign } from "@prisma/client";
+import { CalendarClock, Flag } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatCurrency, formatDate } from "@/lib/format";
-import { PLAN_META } from "@/lib/constants";
+import { formatDate } from "@/lib/format";
 
-export function UpcomingUpdates({
-  campaigns,
-  nextInvoice,
-  plan,
-  planRenewsAt,
-}: {
-  campaigns: Campaign[];
-  nextInvoice: Invoice | null;
-  plan: Plan;
-  planRenewsAt: Date | null;
-}) {
+// Campaign dates only. Invoice due-dates and plan renewals used to sit here
+// too, both describing a subscription product that was never sold — clients
+// bill per 1,000 delivered views.
+export function UpcomingUpdates({ campaigns }: { campaigns: Campaign[] }) {
   const rows = [
     ...campaigns.map((c) => ({
       key: `c-${c.id}`,
@@ -24,28 +16,6 @@ export function UpcomingUpdates({
       detail: formatDate(c.endDate),
       href: `/campaigns/${c.id}`,
     })),
-    ...(nextInvoice
-      ? [
-          {
-            key: `i-${nextInvoice.id}`,
-            icon: CreditCard,
-            title: `${nextInvoice.number} due`,
-            detail: `${formatCurrency(nextInvoice.amountCents)} · ${formatDate(nextInvoice.dueAt)}`,
-            href: "/billing",
-          },
-        ]
-      : []),
-    ...(planRenewsAt
-      ? [
-          {
-            key: "plan",
-            icon: RefreshCw,
-            title: `${PLAN_META[plan].label} plan renews`,
-            detail: formatDate(planRenewsAt),
-            href: "/billing",
-          },
-        ]
-      : []),
   ].slice(0, 5);
 
   return (

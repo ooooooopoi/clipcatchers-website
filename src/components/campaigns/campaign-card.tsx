@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { StatusBadge } from "@/components/campaigns/status-badge";
 import { CampaignActions } from "@/components/campaigns/campaign-actions";
 import { formatCompact, formatCurrency, formatDate, initials } from "@/lib/format";
+import { REACH_LABEL, REACH_NOTE } from "@/lib/constants";
 
 export function CampaignCard({ campaign, index = 0 }: { campaign: Campaign; index?: number }) {
   const pct = campaign.budgetCents
@@ -78,7 +79,7 @@ export function CampaignCard({ campaign, index = 0 }: { campaign: Campaign; inde
           <div className="rounded-lg border border-border/60 bg-background/40 p-2.5">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Users className="h-3.5 w-3.5" />
-              Reach
+              {REACH_LABEL}
             </div>
             <p className="mt-1 font-mono text-sm font-semibold">
               {formatCompact(campaign.estimatedReach)}

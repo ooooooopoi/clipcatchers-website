@@ -129,11 +129,6 @@ export async function getDashboardData(userId: string) {
     take: 4,
   });
 
-  const nextInvoice = await prisma.invoice.findFirst({
-    where: { userId, status: "OPEN" },
-    orderBy: { dueAt: "asc" },
-  });
-
   return {
     campaigns,
     statusCounts,
@@ -149,9 +144,6 @@ export async function getDashboardData(userId: string) {
     viewsTrend,
     activity,
     upcoming,
-    nextInvoice,
-    plan: user?.plan ?? "STARTER",
-    planRenewsAt: user?.planRenewsAt ?? null,
   };
 }
 

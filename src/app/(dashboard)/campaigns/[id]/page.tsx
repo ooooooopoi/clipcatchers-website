@@ -10,6 +10,7 @@ import {
   ExternalLink,
   Eye,
   FileText,
+  Info,
   MessageSquare,
   Users,
 } from "lucide-react";
@@ -20,6 +21,7 @@ import { AreaTrend } from "@/components/charts/area-trend";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { requireUser } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import {
@@ -29,6 +31,7 @@ import {
   formatNumber,
   initials,
 } from "@/lib/format";
+import { REACH_LABEL, REACH_NOTE } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -126,7 +129,12 @@ export default async function CampaignDetailPage({
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric icon={Eye} label="Total views" value={formatNumber(campaign.totalViews)} />
-        <Metric icon={Users} label="Estimated reach" value={formatNumber(campaign.estimatedReach)} />
+        <Metric
+          icon={Users}
+          label={REACH_LABEL}
+          value={formatNumber(campaign.estimatedReach)}
+          note={REACH_NOTE}
+        />
         <Metric
           icon={DollarSign}
           label="Spent"
@@ -145,7 +153,9 @@ export default async function CampaignDetailPage({
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Delivery</CardTitle>
-            <CardDescription>Views and reach recorded for this campaign.</CardDescription>
+            <CardDescription>
+              Views recorded for this campaign, with modelled reach alongside.
+            </CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
             {series.length === 0 ? (
@@ -157,7 +167,7 @@ export default async function CampaignDetailPage({
                 data={series}
                 keys={[
                   { key: "views", label: "Views", color: "hsl(var(--primary))" },
-                  { key: "reach", label: "Reach", color: "hsl(199 89% 55%)" },
+                  { key: "reach", label: REACH_LABEL, color: "hsl(199 89% 55%)" },
                 ]}
               />
             )}
@@ -359,16 +369,37 @@ function Metric({
   label,
   value,
   sub,
+  note,
 }: {
   icon: typeof Eye;
   label: string;
   value: string;
   sub?: string;
+  /** How the figure was arrived at, for anything that isn't a direct reading. */
+  note?: string;
 }) {
   return (
     <Card className="p-5">
       <div className="flex items-start justify-between gap-3">
-        <p className="text-sm text-muted-foreground">{label}</p>
+        <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          {label}
+          {note && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  aria-label={`How ${label} is calculated`}
+                  className="rounded-full text-muted-foreground/70 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <Info className="h-3.5 w-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[16rem] text-xs leading-relaxed">
+                {note}
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </p>
         <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-background/60">
           <Icon className="h-4 w-4 text-muted-foreground" />
         </span>
