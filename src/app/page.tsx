@@ -170,8 +170,13 @@ export default async function HomePage() {
             what stops the logo drifting off-centre when the links hide. */}
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-5 py-3">
           <Link href="/" className="flex flex-1 items-center gap-2.5">
-            <BrandMark className="h-7 w-7" />
-            <span className="text-sm font-semibold tracking-tight">Clip Catchers</span>
+            <BrandMark className="h-7 w-7 shrink-0" />
+            {/* The mark alone below sm. With the wordmark, the nav and both
+                actions, 375px wraps "Clip Catchers" onto two lines and runs
+                Pricing straight through it. */}
+            <span className="hidden whitespace-nowrap text-sm font-semibold tracking-tight sm:inline">
+              Clip Catchers
+            </span>
           </Link>
 
           {/* Four links need md to breathe. Below that the whole nav used to
@@ -205,8 +210,13 @@ export default async function HomePage() {
                 <Button asChild variant="outline" size="sm" className="rounded-full">
                   <Link href="/login">Sign in</Link>
                 </Button>
-                <Button asChild size="sm" className="rounded-full">
-                  <Link href="/signup">Start a campaign</Link>
+                <Button asChild size="sm" className="whitespace-nowrap rounded-full">
+                  {/* "Start a campaign" is too long for a 375px bar once Sign
+                      in is beside it; the short label only shows there. */}
+                  <Link href="/signup">
+                    <span className="sm:hidden">Start</span>
+                    <span className="hidden sm:inline">Start a campaign</span>
+                  </Link>
                 </Button>
               </>
             )}
