@@ -317,10 +317,10 @@ export default async function HomePage() {
               key={`${r.label}-${r.views}`}
               className="grid grid-cols-[1fr_auto] items-center gap-x-6 border-t border-border/70 px-5 py-4 text-sm sm:grid-cols-[1fr_7rem_7rem_7rem] sm:px-8"
             >
-              <span className="flex items-center gap-2 font-medium">
-                {r.label}
+              <span className="flex flex-wrap items-center gap-x-2 gap-y-1 font-medium">
+                <span className="whitespace-nowrap">{r.label}</span>
                 {r.live ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-primary-ink">
+                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-primary-ink">
                     <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                     Live
                   </span>
