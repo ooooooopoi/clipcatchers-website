@@ -211,11 +211,11 @@ export default async function HomePage() {
                   <Link href="/login">Sign in</Link>
                 </Button>
                 <Button asChild size="sm" className="whitespace-nowrap rounded-full">
-                  {/* "Start a campaign" is too long for a 375px bar once Sign
-                      in is beside it; the short label only shows there. */}
-                  <Link href="/signup">
-                    <span className="sm:hidden">Start</span>
-                    <span className="hidden sm:inline">Start a campaign</span>
+                  {/* "Get a quote" is too long for a 375px bar once Sign in
+                      is beside it; the short label only shows there. */}
+                  <Link href="/quote">
+                    <span className="sm:hidden">Quote</span>
+                    <span className="hidden sm:inline">Get a quote</span>
                   </Link>
                 </Button>
               </>
@@ -247,8 +247,8 @@ export default async function HomePage() {
 
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
           <Button asChild size="lg">
-            <Link href="/signup">
-              Start a campaign
+            <Link href="/quote">
+              Get a quote
               <ArrowRight />
             </Link>
           </Button>
@@ -446,13 +446,13 @@ export default async function HomePage() {
                 </p>
               </div>
               <Button asChild size="lg" className="mt-7 w-full">
-                <Link href="/signup">
-                  Start a campaign
+                <Link href="/quote">
+                  Get a quote
                   <ArrowRight />
                 </Link>
               </Button>
               <p className="mt-3 text-center text-xs text-muted-foreground">
-                No card needed to brief one
+                No obligation · Reply within a day
               </p>
             </div>
 
@@ -558,13 +558,13 @@ export default async function HomePage() {
           Ready to get clipped?
         </h2>
         <p className="mt-4 text-muted-foreground">
-          Set up your first campaign in a few minutes. We&apos;ll have creators posting within a day
-          of approval.
+          Tell us what you&apos;re releasing and we&apos;ll come back with what it would cost.
+          Creators are usually posting within a day of a campaign being approved.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Button asChild size="lg">
-            <Link href="/signup">
-              Start a campaign
+            <Link href="/quote">
+              Get a quote
               <ArrowRight />
             </Link>
           </Button>

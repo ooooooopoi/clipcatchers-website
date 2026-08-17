@@ -24,8 +24,10 @@ export const authConfig = {
       // not by a session — these links go to clients who have no account.
       if (pathname.startsWith("/c/")) return true;
 
-      // Public marketing site.
-      if (pathname === "/") return true;
+      // Public marketing site. /quote is the front door for people who have
+      // never heard of us — gating it behind a login would ask a stranger to
+      // make an account before they're allowed to enquire.
+      if (pathname === "/" || pathname.startsWith("/quote")) return true;
 
       // Internal team view, gated by the signature in the URL rather than a
       // session so it can be opened from Discord without an account.
