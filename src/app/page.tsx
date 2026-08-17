@@ -100,18 +100,6 @@ const CREATOR_STEPS = [
 const DISCORD_INVITE = process.env.NEXT_PUBLIC_DISCORD_INVITE || "";
 const CREATOR_HREF = DISCORD_INVITE || "/signup";
 
-// Every row is a campaign we've run, taken from the per-clip ledger rather
-// than typed in by hand. Clients aren't named: publishing who hired us isn't
-// ours to decide.
-const RESULTS = [
-  { label: "Campaign 01 · TikTok", views: "11.5M", clips: 495, creators: 51 },
-  { label: "Campaign 02 · TikTok", views: "10.1M", clips: 319, creators: 43 },
-  { label: "Campaign 03 · TikTok", views: "8.7M", clips: 218, creators: 30 },
-  { label: "Campaign 04 · TikTok", views: "4.2M", clips: 187, creators: 41, live: true },
-  { label: "Campaign 05 · TikTok", views: "3.5M", clips: 167, creators: 22 },
-  { label: "Campaign 06 · Instagram", views: "1.8M", clips: 69, creators: 2 },
-];
-
 const INCLUDED = [
   "Unlimited clips per campaign",
   "Views read from the live post, per clip",
@@ -288,8 +276,8 @@ export default async function HomePage() {
           {[
             // Counted from approved clips in the ledger, so each of these can
             // be re-derived on demand. Deliberately not rounded up.
-            { value: "39.8M", label: "views delivered" },
-            { value: "1,455", label: "clips published" },
+            { value: "40.7M", label: "views delivered" },
+            { value: "1,486", label: "clips published" },
             // The price we charge, not what delivery costs us — publishing the
             // cost would undercut every quote before it's sent.
             { value: "$0.30", label: "per 1,000 views", gold: true },
@@ -309,56 +297,29 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Results — the campaigns behind the headline number. A single total is
-          easy to claim; the breakdown is what makes it checkable. */}
+      {/* Results — the total only. The per-campaign breakdown that used to sit
+          here published how few campaigns we've run and how many creators are
+          on each, which is competitor intelligence rather than proof. The
+          working still exists; it's shown on a call, not on the open web. */}
       <section id="results" className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-20">
         <div className="text-center">
           <p className="text-xs font-medium uppercase tracking-[0.16em] text-primary-ink">Results</p>
           <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-            Campaigns we&apos;ve actually run
+            Views we&apos;ve actually delivered
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-            Every campaign to date, with the views it delivered. Clients aren&apos;t named here —
-            we&apos;ll walk you through the full per-clip report on a call.
-          </p>
         </div>
 
-        <Card className="surface reveal mt-10 overflow-hidden p-0">
-          <div className="grid grid-cols-[1fr_auto] gap-x-6 px-5 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground sm:grid-cols-[1fr_7rem_7rem_7rem] sm:px-8">
-            <span>Campaign</span>
-            <span className="hidden text-right sm:block">Clips</span>
-            <span className="hidden text-right sm:block">Creators</span>
-            <span className="text-right">Views</span>
-          </div>
-          {RESULTS.map((r) => (
-            <div
-              key={`${r.label}-${r.views}`}
-              className="grid grid-cols-[1fr_auto] items-center gap-x-6 border-t border-border/70 px-5 py-4 text-sm sm:grid-cols-[1fr_7rem_7rem_7rem] sm:px-8"
-            >
-              <span className="flex flex-wrap items-center gap-x-2 gap-y-1 font-medium">
-                <span className="whitespace-nowrap">{r.label}</span>
-                {r.live ? (
-                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-primary-ink">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                    Live
-                  </span>
-                ) : null}
-              </span>
-              <span className="hidden text-right font-mono text-muted-foreground sm:block">
-                {r.clips}
-              </span>
-              <span className="hidden text-right font-mono text-muted-foreground sm:block">
-                {r.creators}
-              </span>
-              <span className="text-right font-mono font-semibold text-primary-ink">{r.views}</span>
-            </div>
-          ))}
-          <div className="grid grid-cols-[1fr_auto] items-center gap-x-6 border-t border-border bg-muted/40 px-5 py-4 text-sm sm:grid-cols-[1fr_7rem_7rem_7rem] sm:px-8">
-            <span className="font-semibold">Total</span>
-            <span className="hidden text-right font-mono font-semibold sm:block">1,455</span>
-            <span className="hidden text-right font-mono font-semibold sm:block">85</span>
-            <span className="text-right font-mono font-semibold text-primary-ink">39.8M</span>
-          </div>
+        <Card className="surface reveal mx-auto mt-10 max-w-2xl p-10 text-center sm:p-14">
+          <p className="font-mono text-5xl font-semibold tracking-tight text-primary-ink sm:text-6xl">
+            40.7M
+          </p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            views delivered across every campaign to date
+          </p>
+          <p className="mx-auto mt-6 max-w-md text-sm leading-relaxed text-muted-foreground">
+            Counted from the individual posts that earned them, not estimated. We&apos;ll walk
+            you through the full per-clip report on a call.
+          </p>
         </Card>
       </section>
 
