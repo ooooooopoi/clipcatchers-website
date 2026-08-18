@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 const REASSURANCE = [
-  ["$0.30", "per 1,000 delivered views"],
+  ["$0.50", "per 1,000 delivered views"],
   ["1 day", "typical reply time"],
   ["40M+", "views delivered so far"],
 ];

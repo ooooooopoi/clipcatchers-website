@@ -120,7 +120,7 @@ const FAQ = [
   },
   {
     q: "What does it cost?",
-    a: "$0.30 per 1,000 delivered views. No retainer, no minimum term, no setup fee. You set the total budget and the campaign closes itself the moment it's spent, so you can't overspend.",
+    a: "$0.50 per 1,000 delivered views. No retainer, no minimum term, no setup fee. You set the total budget and the campaign closes itself the moment it's spent, so you can't overspend. For comparison, running the same reach as paid social costs several times that, and doesn't tell you which post earned it.",
   },
   {
     q: "How quickly do creators start posting?",
@@ -280,7 +280,7 @@ export default async function HomePage() {
             { value: "1,486", label: "clips published" },
             // The price we charge, not what delivery costs us — publishing the
             // cost would undercut every quote before it's sent.
-            { value: "$0.30", label: "per 1,000 views", gold: true },
+            { value: "$0.50", label: "per 1,000 views", gold: true },
             { value: "85", label: "creators paid" },
           ].map((stat) => (
             <div key={stat.label} className="px-4 py-5">
@@ -393,17 +393,17 @@ export default async function HomePage() {
           <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-[auto_1fr] lg:gap-12">
             <div className="lg:border-r lg:border-border lg:pr-12">
               <div className="flex items-baseline gap-1.5">
-                <span className="font-mono text-5xl font-semibold text-gold-ink">$0.30</span>
+                <span className="font-mono text-5xl font-semibold text-gold-ink">$0.50</span>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
                 per 1,000 delivered views
               </p>
               <div className="mt-6 space-y-1.5 text-sm text-muted-foreground">
                 <p>
-                  <span className="font-mono text-foreground">$300</span> ≈ 1M views
+                  <span className="font-mono text-foreground">$500</span> ≈ 1M views
                 </p>
                 <p>
-                  <span className="font-mono text-foreground">$1,500</span> ≈ 5M views
+                  <span className="font-mono text-foreground">$2,500</span> ≈ 5M views
                 </p>
               </div>
               <Button asChild size="lg" className="mt-7 w-full">
