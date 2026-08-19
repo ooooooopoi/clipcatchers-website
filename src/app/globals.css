@@ -3,10 +3,13 @@
 @tailwind utilities;
 
 @layer base {
-  /* The logo is a green bolt through a gold mark on charcoal. The palette
-     follows it: green leads, gold is the second voice, and the greys carry a
-     faint green cast instead of the blue one they had — blue-grey against a
-     green brand is what made the whole thing read as a default template. */
+  /* The logo is an orange-to-amber bolt on charcoal. The palette follows it:
+     orange leads, amber is the second voice, and the greys keep their faint
+     warm cast — a blue-grey against this mark is what made the whole thing
+     read as a default template.
+
+     It was green until the mark was redrawn. If you find green anywhere in
+     here, it's left over from that. */
   :root {
     --background: 0 0% 100%;
     --foreground: 96 12% 5%;
@@ -14,22 +17,23 @@
     --card-foreground: 96 12% 5%;
     --popover: 0 0% 100%;
     --popover-foreground: 96 12% 5%;
-    /* #7ED321 — the exact green in the logo and in the bot's embeds. Right for
-       fills, hopeless as text: on white it lands around 1.75:1 contrast, far
+    /* #FC7800 — sampled from the logo, and the same value the bot's embeds
+       use. Right for fills, hopeless as text: on white it lands near 2.7:1,
        under the 4.5:1 text needs. `ink` is the same hue taken dark enough to
-       read, so brand colour on a white page is still legible. */
-    --primary: 89 73% 48%;
-    --primary-foreground: 89 60% 6%;
-    --primary-ink: 89 78% 28%;
+       read (5.5:1), so brand colour on a white page is still legible. */
+    --primary: 29 100% 49%;
+    --primary-foreground: 29 90% 10%;
+    --primary-ink: 29 100% 33%;
     --secondary: 96 8% 96%;
     --secondary-foreground: 96 10% 10%;
     --muted: 96 8% 96%;
     --muted-foreground: 96 6% 42%;
     --accent: 96 8% 95%;
     --accent-foreground: 96 10% 10%;
-    /* #F5A623 — the gold half of the mark, promoted to a real accent. Same
-       story as the green: fine as a fill, needs darkening to be read. */
-    --gold: 38 91% 55%;
+    /* #FCA800 — the amber end of the mark's gradient, where --primary is the
+       orange end. Two stops of the same logo rather than two unrelated hues.
+       Same story as before: fine as a fill, needs darkening to be read. */
+    --gold: 40 100% 49%;
     --gold-foreground: 38 80% 8%;
     --gold-ink: 36 95% 31%;
     --destructive: 0 72% 51%;
@@ -40,7 +44,7 @@
     --warning-foreground: 48 96% 9%;
     --border: 96 8% 88%;
     --input: 96 8% 88%;
-    --ring: 89 73% 48%;
+    --ring: 29 100% 49%;
     --radius: 0.65rem;
   }
 
@@ -54,19 +58,19 @@
     --card-foreground: 90 8% 97%;
     --popover: 96 9% 9%;
     --popover-foreground: 90 8% 97%;
-    --primary: 89 70% 55%;
-    --primary-foreground: 89 60% 6%;
+    --primary: 29 100% 56%;
+    --primary-foreground: 29 90% 10%;
     /* On a dark page the readable version is the brighter one, not the darker. */
-    --primary-ink: 89 70% 62%;
+    --primary-ink: 29 100% 64%;
     --secondary: 96 7% 14%;
     --secondary-foreground: 90 8% 97%;
     --muted: 96 7% 14%;
     --muted-foreground: 96 6% 62%;
     --accent: 96 7% 17%;
     --accent-foreground: 90 8% 97%;
-    --gold: 38 91% 60%;
+    --gold: 40 100% 56%;
     --gold-foreground: 38 80% 8%;
-    --gold-ink: 38 91% 64%;
+    --gold-ink: 40 100% 66%;
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 98%;
     --success: 142 69% 50%;
@@ -75,7 +79,7 @@
     --warning-foreground: 48 96% 9%;
     --border: 96 7% 17%;
     --input: 96 7% 19%;
-    --ring: 89 70% 52%;
+    --ring: 29 100% 52%;
   }
 }
 
