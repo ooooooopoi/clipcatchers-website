@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button";
 // subscription tiers that were never for sale. Replaced with the one thing a
 // client on this screen might actually want next.
 export function Sidebar({ unreadCount }: { unreadCount: number }) {
+  // bg-background, matching the topbar and the page. Tinting only this panel
+  // made it read as a separate window sitting next to the app.
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-border bg-card/40 lg:flex">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-border bg-background lg:flex">
       <div className="flex h-14 items-center px-5">
         <Link href="/dashboard">
           <BrandWordmark />
@@ -21,7 +23,7 @@ export function Sidebar({ unreadCount }: { unreadCount: number }) {
       </div>
 
       <div className="p-3">
-        <div className="rounded-xl border border-border bg-background/60 p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-2">
             <LifeBuoy className="h-3.5 w-3.5 text-primary" />
             <span className="text-xs font-semibold">Need a hand?</span>

@@ -7,10 +7,12 @@ import { prisma } from "@/lib/prisma";
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
 
-  const [unreadCount, account] = await Promise.all([
-    prisma.notification.count({ where: { userId: user.id, read: false } }),
-    prisma.user.findUnique({ where: { id: user.id }, select: { plan: true } }),
-  ]);
+  // The plan lookup that used to sit beside this fed the sidebar's upgrade
+  // card. That card is gone with the rest of the subscription UI, so the query
+  // was running on every dashboard page and being thrown away.
+  const unreadCount = await prisma.notification.count({
+    where: { userId: user.id, read: false },
+  });
 
   return (
     <div className="min-h-screen">
