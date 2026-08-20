@@ -145,7 +145,10 @@ export default async function HomePage() {
     // `clip` still trims the background blur without that side effect.
     <div className="relative min-h-screen overflow-x-clip">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[600px] bg-grid opacity-[0.25]" />
-      <div className="pointer-events-none absolute left-1/2 top-[-120px] h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-primary/10 blur-[150px]" />
+      {/* 6%, not 10%. The same wash that was barely there in green reads as a
+          peach cast in orange — orange carries far more weight at low alpha,
+          so the value that was subtle before had to come down with the hue. */}
+      <div className="pointer-events-none absolute left-1/2 top-[-120px] h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-primary/[0.06] blur-[150px]" />
 
       {/* Nav — stays put while the page scrolls, so Sign in and Start a
           campaign are always one click away rather than a scroll back up. */}
@@ -223,7 +226,11 @@ export default async function HomePage() {
           Get your content clipped by{" "}
           {/* Green into gold, the two colours of the mark — in the ink
               variants, since this is type on a white page. */}
-          <span className="bg-gradient-to-r from-primary-ink via-primary-ink to-gold-ink bg-clip-text text-transparent">
+          {/* Brighter than the ink tokens, which are tuned for body text at
+              4.5:1 and read as two browns at display size. These are the
+              logo's own orange and amber, held at 3.4:1 — the threshold for
+              large text, which this is at 4rem. */}
+          <span className="bg-gradient-to-r from-[hsl(24_100%_45%)] to-[hsl(42_100%_36%)] bg-clip-text text-transparent">
             hundreds of creators
           </span>
         </h1>
