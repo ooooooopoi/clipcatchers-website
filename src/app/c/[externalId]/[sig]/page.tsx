@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
-import { Clapperboard, DollarSign, ExternalLink, Eye, Users } from "lucide-react";
+import { Clapperboard, DollarSign, Eye, Users } from "lucide-react";
 import { BrandWordmark } from "@/components/brand";
 import { AreaTrend } from "@/components/charts/area-trend";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { StatusBadge } from "@/components/campaigns/status-badge";
+import { ClipsExplorer } from "@/components/team/clips-explorer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { prisma } from "@/lib/prisma";
@@ -202,7 +203,8 @@ export default async function SharedCampaignPage({
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Clips</CardTitle>
             <CardDescription>
-              Every approved clip running on this campaign. Open any one to see the live post.
+              Every approved clip running on this campaign. Search by creator, filter
+              by platform, and open any one to see the live post.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -211,37 +213,17 @@ export default async function SharedCampaignPage({
                 Approved clips appear here as creators post them.
               </p>
             ) : (
-              <ul className="divide-y divide-border">
-                {campaign.clips.map((clip) => (
-                  <li
-                    key={clip.id}
-                    className="flex items-center justify-between gap-4 py-2.5 first:pt-0 last:pb-0"
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">
-                        {clip.handle ? `@${clip.handle}` : "Creator"}
-                      </p>
-                      {clip.platform && (
-                        <p className="text-xs text-muted-foreground">{clip.platform}</p>
-                      )}
-                    </div>
-                    <div className="flex shrink-0 items-center gap-4">
-                      <span className="font-mono text-sm tabular-nums">
-                        {formatNumber(clip.views)}
-                        <span className="ml-1 text-xs text-muted-foreground">views</span>
-                      </span>
-                      <a
-                        href={clip.url}
-                        target="_blank"
-                        rel="noopener noreferrer nofollow"
-                        className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-xs transition-colors hover:bg-accent hover:text-accent-foreground"
-                      >
-                        View <ExternalLink className="h-3 w-3" />
-                      </a>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              <ClipsExplorer
+                clips={campaign.clips.map((clip) => ({
+                  id: clip.id,
+                  url: clip.url,
+                  handle: clip.handle,
+                  platform: clip.platform,
+                  views: clip.views,
+                  // Serialised: a Date can't cross into a client component.
+                  createdAt: clip.createdAt.toISOString(),
+                }))}
+              />
             )}
           </CardContent>
         </Card>
