@@ -6,7 +6,12 @@ import { QuoteForm } from "@/components/quote-form";
 import { RATE_PER_THOUSAND } from "@/lib/pricing";
 import { SITE_STATS } from "@/lib/site-stats";
 
-const TITLE = "Launch a campaign — Clip Catchers";
+// Two forms on purpose. The <title> goes through the root layout's
+// "%s · Clip Catchers" template, so it must not carry the brand itself or it
+// renders twice. Open Graph and Twitter have no template and are read
+// standalone in a link preview, so those spell it out.
+const TITLE = "Launch a campaign";
+const SOCIAL_TITLE = "Launch a campaign — Clip Catchers";
 const DESCRIPTION =
   "Tell us what you're promoting and we'll come back with what it would cost and what it should deliver. No retainer, no minimum term, pay only for views that landed.";
 
@@ -16,13 +21,13 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
   alternates: { canonical: "/launch" },
   openGraph: {
-    title: TITLE,
+    title: SOCIAL_TITLE,
     description: DESCRIPTION,
     type: "website",
     url: "/launch",
     images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Clip Catchers" }],
   },
-  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+  twitter: { card: "summary_large_image", title: SOCIAL_TITLE, description: DESCRIPTION },
 };
 
 // Read from the same modules the homepage uses. These were typed in by hand

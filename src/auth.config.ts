@@ -31,7 +31,15 @@ export const authConfig = {
       // /quote is the old path, kept open so the 301 in next.config lands
       // rather than being intercepted here. Links already sent in DMs point at
       // it and there's no way to go back and edit them.
-      if (pathname === "/" || pathname.startsWith("/launch") || pathname.startsWith("/quote")) {
+      if (
+        pathname === "/" ||
+        pathname.startsWith("/launch") ||
+        pathname.startsWith("/quote") ||
+        // Privacy and terms. These are linked from the public footer and are
+        // the first thing a brand's legal or procurement step opens — putting
+        // a login in front of them is how a deal quietly stalls.
+        pathname.startsWith("/legal")
+      ) {
         return true;
       }
 
