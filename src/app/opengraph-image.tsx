@@ -134,7 +134,7 @@ export default async function OpengraphImage() {
               display: "flex",
             }}
           >
-            clipcatchers.net
+            clipcatchers.co
           </div>
         </div>
       </div>

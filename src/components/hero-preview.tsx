@@ -47,7 +47,7 @@ export function HeroPreview() {
             <span className="h-2.5 w-2.5 rounded-full bg-border" />
           </span>
           <span className="mx-auto hidden rounded-md bg-background/80 px-3 py-1 font-mono text-[11px] text-muted-foreground sm:block">
-            clipcatchers.net/c/·····
+            clipcatchers.co/c/·····
           </span>
         </div>
 

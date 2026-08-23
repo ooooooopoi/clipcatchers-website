@@ -37,7 +37,7 @@ export default function PrivacyPage() {
 
       <p>
         This explains what we collect, why we collect it, and who else sees it. It covers
-        clipcatchers.net, the client dashboard, and the Discord bot creators use to submit
+        clipcatchers.co, the client dashboard, and the Discord bot creators use to submit
         clips.
       </p>
 
