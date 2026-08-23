@@ -26,14 +26,25 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0a0b",
+  // White, matching the page. This was #0a0a0b, which painted a near-black
+  // band of browser chrome above a white site on every mobile visit — the
+  // first thing anyone saw on a phone was a colour the product doesn't use.
+  themeColor: "#ffffff",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${mono.variable}`}>
+    // data-scroll-behavior is what tells Next to suppress the smooth scroll
+    // set in globals.css during a route change — without it a navigation
+    // animates the scroll position instead of jumping, and Next warns.
+    <html
+      lang="en"
+      suppressHydrationWarning
+      data-scroll-behavior="smooth"
+      className={`${inter.variable} ${mono.variable}`}
+    >
       <body className="min-h-screen bg-background font-sans">
         <Providers>{children}</Providers>
       </body>

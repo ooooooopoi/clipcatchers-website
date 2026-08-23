@@ -24,10 +24,42 @@ export const authConfig = {
       // not by a session — these links go to clients who have no account.
       if (pathname.startsWith("/c/")) return true;
 
-      // Public marketing site. /quote is the front door for people who have
+      // Public marketing site. /launch is the front door for people who have
       // never heard of us — gating it behind a login would ask a stranger to
       // make an account before they're allowed to enquire.
-      if (pathname === "/" || pathname.startsWith("/quote")) return true;
+      //
+      // /quote is the old path, kept open so the 301 in next.config lands
+      // rather than being intercepted here. Links already sent in DMs point at
+      // it and there's no way to go back and edit them.
+      if (
+        pathname === "/" ||
+        pathname.startsWith("/launch") ||
+        pathname.startsWith("/quote") ||
+        // Privacy and terms. These are linked from the public footer and are
+        // the first thing a brand's legal or procurement step opens — putting
+        // a login in front of them is how a deal quietly stalls.
+        pathname.startsWith("/legal")
+      ) {
+        return true;
+      }
+
+      // Crawler and link-preview files. These were being bounced to /login,
+      // which silently defeats the point of having them: Google got a sign-in
+      // page instead of the sitemap, and every link pasted into Discord, X or
+      // iMessage asked the unfurler to authenticate and so rendered blank.
+      // None of them expose anything private.
+      if (
+        pathname === "/robots.txt" ||
+        pathname === "/sitemap.xml" ||
+        pathname === "/manifest.webmanifest" ||
+        pathname === "/favicon.ico" ||
+        // Route-generated OG and Twitter images, at the root or nested under a
+        // public page. Next appends a cache-busting suffix in production, so
+        // this matches the segment rather than the exact path.
+        /(^|\/)(opengraph-image|twitter-image)(-[\w-]+)?\/?$/.test(pathname)
+      ) {
+        return true;
+      }
 
       // Internal team view, gated by the signature in the URL rather than a
       // session so it can be opened from Discord without an account.

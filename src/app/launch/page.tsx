@@ -3,18 +3,39 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { BrandMark } from "@/components/brand";
 import { QuoteForm } from "@/components/quote-form";
+import { RATE_PER_THOUSAND } from "@/lib/pricing";
+import { SITE_STATS } from "@/lib/site-stats";
+
+// Two forms on purpose. The <title> goes through the root layout's
+// "%s · Clip Catchers" template, so it must not carry the brand itself or it
+// renders twice. Open Graph and Twitter have no template and are read
+// standalone in a link preview, so those spell it out.
+const TITLE = "Launch a campaign";
+const SOCIAL_TITLE = "Launch a campaign — Clip Catchers";
+const DESCRIPTION =
+  "Tell us what you're promoting and we'll come back with what it would cost and what it should deliver. No retainer, no minimum term, pay only for views that landed.";
 
 export const metadata: Metadata = {
-  title: "Get a quote — Clip Catchers",
-  description:
-    "Tell us about your release and we'll come back with what it would cost and what it should deliver. No retainer, no minimum term.",
+  title: TITLE,
+  description: DESCRIPTION,
   robots: { index: true, follow: true },
+  alternates: { canonical: "/launch" },
+  openGraph: {
+    title: SOCIAL_TITLE,
+    description: DESCRIPTION,
+    type: "website",
+    url: "/launch",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Clip Catchers" }],
+  },
+  twitter: { card: "summary_large_image", title: SOCIAL_TITLE, description: DESCRIPTION },
 };
 
+// Read from the same modules the homepage uses. These were typed in by hand
+// and had already drifted — the homepage said 40.7M here and 40M+ there.
 const REASSURANCE = [
-  ["$0.50", "per 1,000 delivered views"],
+  [`$${RATE_PER_THOUSAND.toFixed(2)}`, "per 1,000 delivered views"],
   ["1 day", "typical reply time"],
-  ["40M+", "views delivered so far"],
+  [SITE_STATS.viewsDelivered, "views delivered so far"],
 ];
 
 export default function QuotePage() {
@@ -40,7 +61,7 @@ export default function QuotePage() {
       <main className="relative z-10 mx-auto w-full max-w-3xl px-5 pb-24 pt-6">
         <div className="text-center">
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            Tell us about your release
+            Tell us what you&apos;re promoting
           </h1>
           <p className="mx-auto mt-4 max-w-xl leading-relaxed text-muted-foreground">
             We&apos;ll come back with what it would cost and what it should realistically

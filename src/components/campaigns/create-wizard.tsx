@@ -27,6 +27,7 @@ import {
 import { Dropzone, UploadedList, type UploadedFile } from "@/components/files/dropzone";
 import { CAMPAIGN_GOALS, PLATFORMS } from "@/lib/validations";
 import { formatCurrency } from "@/lib/format";
+import { RATE_PER_THOUSAND, estimateViews } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 
 const STEPS = [
@@ -399,13 +400,19 @@ export function CreateCampaignWizard() {
                         />
                       </Field>
                     </div>
+                    {/* This used to estimate against a hardcoded $2.50 CPM
+                        while the site sold $0.50, so a client who typed 2500
+                        here was quoted 1M views on a page that had just
+                        promised 5M. Both now read the same module. */}
                     {Number(form.budget) > 0 && (
                       <p className="rounded-lg border border-border bg-background/50 p-3 text-sm text-muted-foreground">
-                        At a typical{" "}
-                        <span className="font-medium text-foreground">$2.50 CPM</span>, this budget
-                        targets roughly{" "}
+                        At our published{" "}
+                        <span className="font-medium text-foreground">
+                          ${RATE_PER_THOUSAND.toFixed(2)} per 1,000 views
+                        </span>
+                        , this budget targets roughly{" "}
                         <span className="font-mono font-medium text-foreground">
-                          {Math.round((Number(form.budget) / 2.5) * 1000).toLocaleString()}
+                          {estimateViews(Number(form.budget)).toLocaleString()}
                         </span>{" "}
                         views.
                       </p>
