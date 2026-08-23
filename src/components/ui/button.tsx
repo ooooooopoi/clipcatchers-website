@@ -18,7 +18,7 @@ const buttonVariants = cva(
         // only thing separating primary from secondary now, so don't flatten
         // it without replacing the distinction with something else.
         default:
-          "border border-border bg-background text-foreground shadow-[0_1px_2px_hsl(var(--foreground)/0.06),0_4px_12px_-6px_hsl(var(--foreground)/0.18)] hover:bg-accent hover:shadow-[0_1px_2px_hsl(var(--foreground)/0.08),0_8px_20px_-8px_hsl(var(--foreground)/0.25)]",
+          "border border-[hsl(var(--border-strong))] bg-background text-foreground shadow-[0_1px_2px_hsl(var(--foreground)/0.06),0_4px_12px_-6px_hsl(var(--foreground)/0.18)] hover:bg-accent hover:shadow-[0_1px_2px_hsl(var(--foreground)/0.08),0_8px_20px_-8px_hsl(var(--foreground)/0.25)]",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:

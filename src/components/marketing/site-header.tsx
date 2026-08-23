@@ -160,7 +160,7 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                 "flex h-11 shrink-0 items-center overflow-hidden rounded-full sm:h-14",
                 signedIn
                   ? "lg:hidden"
-                  : "border border-border bg-background text-foreground shadow-[0_1px_2px_hsl(var(--foreground)/0.06),0_4px_12px_-6px_hsl(var(--foreground)/0.18)]",
+                  : "border border-[hsl(var(--border-strong))] bg-background text-foreground shadow-[0_1px_2px_hsl(var(--foreground)/0.06),0_4px_12px_-6px_hsl(var(--foreground)/0.18)]",
               )}
             >
               {!signedIn && (
