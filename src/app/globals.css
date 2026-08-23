@@ -17,25 +17,43 @@
     --card-foreground: 96 12% 5%;
     --popover: 0 0% 100%;
     --popover-foreground: 96 12% 5%;
-    /* #FC7800 — sampled from the logo, and the same value the bot's embeds
-       use. Right for fills, hopeless as text: on white it lands near 2.7:1,
-       under the 4.5:1 text needs. `ink` is the same hue taken dark enough to
-       read (5.5:1), so brand colour on a white page is still legible. */
-    --primary: 29 100% 49%;
+    /* ─────────────────────────────────────────────────────────────────────
+       THE ACCENT LIVES HERE. Two settings, one line each — swap the commented
+       block to change the whole site. Every button, stat, icon, underline and
+       chart reads from these three tokens, so nothing else needs touching.
+
+       WHITE / MONOCHROME (current): page is white, ink is near-black, and the
+       logo is the only coloured thing on it. Buttons can't be literally white
+       — a white fill on a white page isn't a button — so "white theme" means
+       a white surface with dark ink.
+
+       ORANGE (the logo's own #FC7800): uncomment the three lines below and
+       comment out the monochrome set. Also restore --gold underneath.
+       ───────────────────────────────────────────────────────────────────── */
+    --primary: 96 12% 9%;
+    --primary-foreground: 0 0% 100%;
+    --primary-ink: 96 12% 14%;
+
+    /* --primary: 29 100% 49%;
     --primary-foreground: 29 90% 10%;
-    --primary-ink: 29 100% 33%;
+    --primary-ink: 29 100% 33%; */
     --secondary: 96 8% 96%;
     --secondary-foreground: 96 10% 10%;
     --muted: 96 8% 96%;
     --muted-foreground: 96 6% 42%;
     --accent: 96 8% 95%;
     --accent-foreground: 96 10% 10%;
-    /* #FCA800 — the amber end of the mark's gradient, where --primary is the
-       orange end. Two stops of the same logo rather than two unrelated hues.
-       Same story as before: fine as a fill, needs darkening to be read. */
-    --gold: 40 100% 49%;
+    /* The second accent, used on the pricing block. Grey in monochrome; the
+       amber end of the logo's gradient (#FCA800) in the orange scheme. Swap
+       these together with --primary above — half of one and half of the other
+       is what makes a palette look accidental. */
+    --gold: 96 6% 55%;
+    --gold-foreground: 0 0% 100%;
+    --gold-ink: 96 8% 30%;
+
+    /* --gold: 40 100% 49%;
     --gold-foreground: 38 80% 8%;
-    --gold-ink: 36 95% 31%;
+    --gold-ink: 36 95% 31%; */
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
     --success: 142 71% 45%;
@@ -44,7 +62,7 @@
     --warning-foreground: 48 96% 9%;
     --border: 96 8% 88%;
     --input: 96 8% 88%;
-    --ring: 29 100% 49%;
+    --ring: 96 12% 25%;
     --radius: 0.65rem;
   }
 
@@ -90,8 +108,11 @@
 
   html {
     /* Leaves room for the sticky header, so jumping to #how-it-works doesn't
-       land with the heading hidden underneath it. */
-    scroll-padding-top: 5rem;
+       land with the heading hidden underneath it. 7rem, not 5: the marketing
+       header is a floating capsule that sits ~1rem below the top of the
+       viewport and stands ~5rem tall, so the old value left headings tucked
+       just under its bottom edge. */
+    scroll-padding-top: 7rem;
     scroll-behavior: smooth;
   }
 

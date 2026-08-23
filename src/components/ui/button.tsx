@@ -9,8 +9,16 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        // White, with a border and real elevation — a deliberate choice, not
+        // an oversight. The whole site is white and nothing is filled; the
+        // primary action is built from a shadow rather than a fill, and the
+        // lift is what says "pressable" where colour normally would.
+        //
+        // The shadow is deliberately heavier than `outline`'s. That gap is the
+        // only thing separating primary from secondary now, so don't flatten
+        // it without replacing the distinction with something else.
         default:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 shadow-primary/20",
+          "border border-border bg-background text-foreground shadow-[0_1px_2px_hsl(var(--foreground)/0.06),0_4px_12px_-6px_hsl(var(--foreground)/0.18)] hover:bg-accent hover:shadow-[0_1px_2px_hsl(var(--foreground)/0.08),0_8px_20px_-8px_hsl(var(--foreground)/0.25)]",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:

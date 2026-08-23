@@ -16,6 +16,10 @@ const Lead = z.object({
   email: z.string().trim().email().max(200),
   artist: z.string().trim().max(160).optional().default(""),
   releaseDate: z.string().trim().max(60).optional().default(""),
+  // Which vertical the enquiry is from. Zod strips unknown keys rather than
+  // rejecting them, so a field missing from this schema doesn't fail loudly —
+  // it just never arrives.
+  category: z.string().trim().max(60).optional().default(""),
   budget: z.string().trim().max(60).optional().default(""),
   link: z.string().trim().max(400).optional().default(""),
   notes: z.string().trim().max(2000).optional().default(""),
@@ -41,7 +45,7 @@ export async function POST(request: Request) {
   if (!secret) {
     console.error("quote: INGEST_SECRET isn't set, so the lead can't be delivered");
     return NextResponse.json(
-      { error: "We couldn't send that just now. Please email us instead." },
+      { error: "We couldn't send that just now — please try again in a moment." },
       { status: 503 },
     );
   }
@@ -58,7 +62,7 @@ export async function POST(request: Request) {
       // should still exist somewhere we can read it back out of.
       console.error("quote: bot refused the lead", res.status, JSON.stringify(parsed.data));
       return NextResponse.json(
-        { error: "We couldn't send that just now. Please email us instead." },
+        { error: "We couldn't send that just now — please try again in a moment." },
         { status: 502 },
       );
     }
@@ -66,7 +70,7 @@ export async function POST(request: Request) {
   } catch (e) {
     console.error("quote: couldn't reach the bot", e, JSON.stringify(parsed.data));
     return NextResponse.json(
-      { error: "We couldn't send that just now. Please email us instead." },
+      { error: "We couldn't send that just now — please try again in a moment." },
       { status: 502 },
     );
   }

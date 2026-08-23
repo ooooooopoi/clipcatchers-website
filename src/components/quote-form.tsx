@@ -10,8 +10,27 @@ import { Button } from "@/components/ui/button";
  * Only a name and an email are required. Everything else is context that
  * makes the first reply useful, and asking for it as a requirement costs more
  * enquiries than the detail is worth.
+ *
+ * It used to ask for an artist, a release date and a link to the track, which
+ * quietly told seven of the eight categories we sell to that this wasn't for
+ * them — a gaming studio or a SaaS founder reads "label" in the placeholder
+ * and closes the tab. The fields are the same questions asked in a way any
+ * category can answer, plus an explicit category so the first reply can be
+ * about their vertical rather than generic.
  */
 const BUDGETS = ["Under $500", "$500 – $1,000", "$1,000 – $5,000", "$5,000+", "Not sure yet"];
+
+const CATEGORIES = [
+  "Music / label",
+  "Gaming",
+  "App",
+  "Crypto / web3",
+  "iGaming / casino",
+  "Podcast",
+  "Consumer brand",
+  "Startup / SaaS",
+  "Something else",
+];
 
 export function QuoteForm() {
   const [state, setState] = useState<"idle" | "sending" | "sent">("idle");
@@ -61,32 +80,61 @@ export function QuoteForm() {
     <form onSubmit={onSubmit} className="surface rounded-2xl border border-border bg-card p-6 sm:p-8">
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Your name" name="name" required placeholder="Alex Rivera" />
-        <Field label="Email" name="email" type="email" required placeholder="you@label.com" />
-        <Field label="Artist or label" name="artist" placeholder="Optional" />
-        <Field label="Release date" name="releaseDate" placeholder="Optional — or 'already out'" />
+        <Field label="Email" name="email" type="email" required placeholder="you@company.com" />
+        <Field label="Brand, artist or company" name="artist" placeholder="Optional" />
+        <Field
+          label="Launch or release date"
+          name="releaseDate"
+          placeholder="Optional — or 'already live'"
+        />
+      </div>
+
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor="category" className="text-sm font-medium">
+            What are you promoting?
+          </label>
+          <select
+            id="category"
+            name="category"
+            defaultValue=""
+            className="mt-1.5 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none transition-colors focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <option value="">Pick a category</option>
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="budget" className="text-sm font-medium">
+            Rough budget
+          </label>
+          <select
+            id="budget"
+            name="budget"
+            defaultValue=""
+            className="mt-1.5 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none transition-colors focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <option value="">Prefer not to say</option>
+            {BUDGETS.map((b) => (
+              <option key={b} value={b}>
+                {b}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="mt-4">
-        <label htmlFor="budget" className="text-sm font-medium">
-          Rough budget
-        </label>
-        <select
-          id="budget"
-          name="budget"
-          defaultValue=""
-          className="mt-1.5 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none transition-colors focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <option value="">Prefer not to say</option>
-          {BUDGETS.map((b) => (
-            <option key={b} value={b}>
-              {b}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="mt-4">
-        <Field label="Link to the track or video" name="link" placeholder="Optional" />
+        <Field
+          label="Link to what you're promoting"
+          name="link"
+          placeholder="Optional — a track, trailer, app store page, site"
+        />
       </div>
 
       <div className="mt-4">
@@ -97,7 +145,7 @@ export function QuoteForm() {
           id="notes"
           name="notes"
           rows={4}
-          placeholder="What you're releasing, what you want it to do, anything we should know."
+          placeholder="What you're promoting, what you want it to do, anything we should know."
           className="mt-1.5 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-ring"
         />
       </div>

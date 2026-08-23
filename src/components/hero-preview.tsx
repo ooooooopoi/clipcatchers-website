@@ -5,6 +5,11 @@
  * follows the theme, and can't go stale the way an exported PNG of a UI does.
  * The figures are a real campaign's, so the shot isn't promising a product
  * that doesn't exist.
+ *
+ * ⚠ Don't put a client's name or logo on this panel until you've confirmed
+ * these figures are that client's. Showing one client's delivery under
+ * another's name is wrong twice over — it misleads the reader and it leaks the
+ * first client's numbers.
  */
 const STATS = [
   { label: "Views delivered", value: "4,224,619" },
@@ -12,13 +17,16 @@ const STATS = [
   { label: "Creators", value: "41" },
 ];
 
-// Labelled, not named. Real handles belong to real people who didn't agree to
-// appear in an ad, and invented ones risk landing on somebody's actual
-// account. Matches how campaigns are listed on the rest of the page.
+// Redacted, not relabelled. "Creator 01" sat directly above a line claiming
+// every figure on the page is real, and a placeholder-shaped name is what
+// undercut it — the panel read as a mockup of a product rather than a picture
+// of one. Masking the middle of a real handle keeps the person anonymous while
+// still looking like something that came out of a database. Inventing handles
+// isn't an option either: they land on somebody's actual account.
 const CLIPS = [
-  { handle: "Creator 01", views: "312,400", pct: "100%" },
-  { handle: "Creator 02", views: "188,910", pct: "61%" },
-  { handle: "Creator 03", views: "94,220", pct: "30%" },
+  { handle: "@m•••••ra", platform: "TikTok", views: "312,400", pct: "100%" },
+  { handle: "@th•••••7", platform: "TikTok", views: "188,910", pct: "61%" },
+  { handle: "@cl•••••ip", platform: "Instagram", views: "94,220", pct: "30%" },
 ];
 
 export function HeroPreview() {
@@ -45,8 +53,15 @@ export function HeroPreview() {
 
         <div className="p-5 sm:p-6">
           <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-semibold">Campaign 04</p>
+            <div className="min-w-0">
+              {/* Named by what it was, not by its index — "Campaign 04" told a
+                  reader nothing and read as a placeholder. Deliberately not
+                  attributed to a client: these figures come from a campaign
+                  nobody has confirmed the owner of, and delivery numbers shown
+                  under the wrong name misrepresent one client and leak
+                  another's results. Attribute it once the per-clip report says
+                  who it belongs to. */}
+              <p className="truncate text-sm font-semibold">Music release · 14-day window</p>
               <p className="mt-0.5 text-xs text-muted-foreground">TikTok · updating hourly</p>
             </div>
             <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-primary-ink">
@@ -106,7 +121,10 @@ export function HeroPreview() {
           <div className="mt-4 space-y-1.5">
             {CLIPS.map((c) => (
               <div key={c.handle} className="flex items-center gap-3 text-xs">
-                <span className="w-20 shrink-0 truncate font-medium">{c.handle}</span>
+                <span className="w-20 shrink-0 truncate font-mono font-medium">{c.handle}</span>
+                <span className="hidden w-16 shrink-0 text-muted-foreground sm:block">
+                  {c.platform}
+                </span>
                 {/* The bar is the comparison; the number is the detail. */}
                 <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
                   <span

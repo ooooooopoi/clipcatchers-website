@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
-import { Clapperboard, DollarSign, Eye, Users } from "lucide-react";
+import { Clapperboard, DollarSign, Eye, Gauge, Users } from "lucide-react";
 import { BrandWordmark } from "@/components/brand";
 import { AreaTrend } from "@/components/charts/area-trend";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { StatusBadge } from "@/components/campaigns/status-badge";
 import { ClipsExplorer } from "@/components/team/clips-explorer";
+import { ExportClips } from "@/components/team/export-clips";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { prisma } from "@/lib/prisma";
 import { combineCampaigns } from "@/lib/combined-campaign";
+import { effectiveCpm } from "@/lib/pricing";
 import { shareSignatureValid } from "@/lib/share";
 import { formatCurrency, formatDate, formatNumber, initials } from "@/lib/format";
 import { REACH_LABEL, REACH_NOTE } from "@/lib/constants";
@@ -64,6 +66,24 @@ export default async function SharedCampaignPage({
     ? Math.min(100, (campaign.spentCents / campaign.budgetCents) * 100)
     : 0;
 
+  // Serialised once and shared: a Date can't cross into a client component,
+  // and both the table and the export need the same rows.
+  const explorerClips = campaign.clips.map((clip) => ({
+    id: clip.id,
+    url: clip.url,
+    handle: clip.handle,
+    platform: clip.platform,
+    views: clip.views,
+    createdAt: clip.createdAt.toISOString(),
+  }));
+
+  // The homepage sells "views, reach, spend and effective CPM per campaign"
+  // and this report — the one a client actually forwards to their manager —
+  // was the one surface that didn't show the CPM. It's computed from real
+  // spend against real views rather than assumed to equal the list rate: a
+  // campaign that closed early or was trimmed to budget won't match.
+  const cpm = effectiveCpm(campaign.spentCents, campaign.totalViews);
+
   return (
     <div className="relative min-h-screen">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-grid opacity-[0.25]" />
@@ -108,12 +128,11 @@ export default async function SharedCampaignPage({
           <StatCard index={0} label="Total views" value={campaign.totalViews} format="compact" icon={<Eye />} />
           <StatCard
             index={1}
-            label={REACH_LABEL}
-            value={campaign.estimatedReach}
-            format="compact"
-            icon={<Users />}
-            note={REACH_NOTE}
-            hint="estimated, not measured"
+            label="Effective CPM"
+            value={Math.round(cpm * 100)}
+            format="currency"
+            icon={<Gauge />}
+            hint="spend per 1,000 views delivered"
           />
           <StatCard
             index={2}
@@ -130,6 +149,26 @@ export default async function SharedCampaignPage({
             format="number"
             icon={<Clapperboard />}
             hint="approved and live"
+          />
+        </div>
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <StatCard
+            index={4}
+            label={REACH_LABEL}
+            value={campaign.estimatedReach}
+            format="compact"
+            icon={<Users />}
+            note={REACH_NOTE}
+            hint="estimated, not measured"
+          />
+          <StatCard
+            index={5}
+            label="Creators"
+            value={new Set(explorerClips.map((c) => c.handle).filter(Boolean)).size}
+            format="number"
+            icon={<Users />}
+            hint="posting on this campaign"
           />
         </div>
 
@@ -201,29 +240,24 @@ export default async function SharedCampaignPage({
 
         <Card className="mt-4">
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Clips</CardTitle>
-            <CardDescription>
-              Every approved clip running on this campaign. Search by creator, filter
-              by platform, and open any one to see the live post.
-            </CardDescription>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <CardTitle className="text-base">Clips</CardTitle>
+                <CardDescription>
+                  Every approved clip running on this campaign. Search by creator, filter
+                  by platform, and open any one to see the live post.
+                </CardDescription>
+              </div>
+              <ExportClips clips={explorerClips} campaignName={campaign.name} />
+            </div>
           </CardHeader>
           <CardContent>
-            {campaign.clips.length === 0 ? (
+            {explorerClips.length === 0 ? (
               <p className="py-10 text-center text-sm text-muted-foreground">
                 Approved clips appear here as creators post them.
               </p>
             ) : (
-              <ClipsExplorer
-                clips={campaign.clips.map((clip) => ({
-                  id: clip.id,
-                  url: clip.url,
-                  handle: clip.handle,
-                  platform: clip.platform,
-                  views: clip.views,
-                  // Serialised: a Date can't cross into a client component.
-                  createdAt: clip.createdAt.toISOString(),
-                }))}
-              />
+              <ClipsExplorer clips={explorerClips} />
             )}
           </CardContent>
         </Card>
