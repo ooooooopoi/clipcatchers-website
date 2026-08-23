@@ -199,10 +199,22 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                 </button>
               </SheetTrigger>
             </div>
-            <SheetContent side="right" className="w-[85vw] max-w-sm">
-              <SheetHeader>
+            {/* SheetContent ships with no padding of its own — only a gap —
+                and SheetHeader carries its own p-4. So the header looked
+                indented while everything below it sat flush against the
+                edge, dividers running right off the side. Padding goes on
+                the container and comes back off the header, so one value
+                governs the whole panel.
+
+                flex-col + overflow-y-auto so a short screen scrolls the menu
+                rather than cutting the buttons off the bottom. */}
+            <SheetContent
+              side="right"
+              className="flex w-[85vw] max-w-sm flex-col gap-0 overflow-y-auto p-6"
+            >
+              <SheetHeader className="p-0">
                 <SheetTitle className="flex items-center gap-2.5">
-                  <BrandMark className="h-7 w-7" />
+                  <BrandMark className="h-8 w-8" />
                   Clip Catchers
                 </SheetTitle>
               </SheetHeader>
