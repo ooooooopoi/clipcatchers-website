@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Ban, Gauge, ReceiptText, ShieldCheck } from "lucide-react";
-import { Clients } from "@/components/marketing/clients";
 import { Comparison } from "@/components/marketing/comparison";
 import { HowItWorks } from "@/components/marketing/how-it-works";
 import { Industries } from "@/components/marketing/industries";
@@ -219,7 +218,6 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <Clients />
         <HowItWorks />
 
         {/* The mock client report used to sit here. It was built from a real
