@@ -26,7 +26,7 @@ import { effectiveCpm } from "@/lib/pricing";
  * Keep this in step with the logo strip in components/marketing/clients.tsx —
  * a client named in one place and anonymised in the other looks like a leak.
  */
-const NAMED_CLIENTS = ["Silent Collision"];
+export const NAMED_CLIENTS = ["Silent Collision"];
 
 const PUBLIC_CLIENTS = new Set(
   [...NAMED_CLIENTS, ...(process.env.PUBLIC_CLIENTS || "").split(",")]
@@ -118,6 +118,92 @@ const cached = unstable_cache(query, ["public-stats"], {
   revalidate: 3600,
   tags: ["public-stats"],
 });
+
+export type CaseStudyCampaign = {
+  name: string;
+  views: number;
+  clips: number;
+  spentCents: number;
+  cpm: number;
+  platforms: string[];
+  startedAt: string | null;
+};
+
+export type CaseStudy = {
+  brand: string;
+  campaigns: CaseStudyCampaign[];
+  totalViews: number;
+  totalClips: number;
+  totalSpentCents: number;
+  cpm: number;
+  creators: number;
+};
+
+/**
+ * One named client's campaigns, for their case-study page.
+ *
+ * Only ever returns a client on the allowlist. A slug that happens to match
+ * an unlisted brand gets nothing rather than a page — otherwise the URL
+ * becomes a way to read out clients who never agreed to be named, which is
+ * the one thing the allowlist exists to prevent.
+ */
+export async function getCaseStudy(slug: string): Promise<CaseStudy | null> {
+  const wanted = [...PUBLIC_CLIENTS];
+  const match = wanted.find((name) => slugify(name) === slug);
+  if (!match) return null;
+
+  try {
+    const rows = await prisma.campaign.findMany({
+      where: {
+        brandName: { equals: match, mode: "insensitive" },
+        status: { not: "PENDING" },
+      },
+      orderBy: { createdAt: "asc" },
+      select: {
+        name: true, totalViews: true, clipCount: true, spentCents: true,
+        platforms: true, startDate: true, createdAt: true, brandName: true,
+      },
+    });
+    if (rows.length === 0) return null;
+
+    const handles = await prisma.campaignClip.findMany({
+      where: { campaign: { brandName: { equals: match, mode: "insensitive" } },
+               handle: { not: "" } },
+      distinct: ["handle"],
+      select: { handle: true },
+    });
+
+    const campaigns = rows.map((r) => ({
+      name: r.name,
+      views: r.totalViews,
+      clips: r.clipCount,
+      spentCents: r.spentCents,
+      cpm: effectiveCpm(r.spentCents, r.totalViews),
+      platforms: r.platforms,
+      startedAt: (r.startDate ?? r.createdAt)?.toISOString() ?? null,
+    }));
+
+    const totalViews = campaigns.reduce((s, c) => s + c.views, 0);
+    const totalSpentCents = campaigns.reduce((s, c) => s + c.spentCents, 0);
+    return {
+      brand: rows[0].brandName,
+      campaigns,
+      totalViews,
+      totalClips: campaigns.reduce((s, c) => s + c.clips, 0),
+      totalSpentCents,
+      cpm: effectiveCpm(totalSpentCents, totalViews),
+      creators: handles.length,
+    };
+  } catch (error) {
+    console.error("case-study: couldn't read", slug, error);
+    return null;
+  }
+}
+
+/** URL form of a brand name. Kept here so the page and the link agree. */
+export function slugify(name: string): string {
+  return name.trim().toLowerCase().replace(/[^\w]+/g, "-").replace(/^-|-$/g, "");
+}
 
 export async function getPublicStats(): Promise<PublicStats> {
   try {

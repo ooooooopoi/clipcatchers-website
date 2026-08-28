@@ -38,7 +38,11 @@ export const authConfig = {
         // Privacy and terms. These are linked from the public footer and are
         // the first thing a brand's legal or procurement step opens — putting
         // a login in front of them is how a deal quietly stalls.
-        pathname.startsWith("/legal")
+        pathname.startsWith("/legal") ||
+        // Case studies. Marketing pages linked from the homepage — a sign-in
+        // wall on the page a prospect clicks to check our numbers is the
+        // worst possible place for one.
+        pathname.startsWith("/case-studies")
       ) {
         return true;
       }

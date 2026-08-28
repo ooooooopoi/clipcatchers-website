@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { NAMED_CLIENTS, slugify } from "@/lib/public-stats";
 
 /**
  * There wasn't one, and the root layout defaults every route to noindex — so
@@ -16,5 +17,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/launch`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/legal/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
     { url: `${BASE}/legal/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
+    // Case studies are generated per named client, so they're listed from the
+    // same allowlist the pages themselves check — a slug here that the page
+    // would refuse is a sitemap advertising a 404.
+    ...NAMED_CLIENTS.map((name) => ({
+      url: `${BASE}/case-studies/${slugify(name)}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })),
   ];
 }

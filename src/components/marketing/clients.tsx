@@ -1,6 +1,8 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import Image from "next/image";
+import Link from "next/link";
+import { slugify } from "@/lib/public-stats";
 
 /**
  * Named clients.
@@ -85,9 +87,14 @@ export function Clients() {
 
       <div className="mt-7 flex flex-wrap items-center justify-center gap-4">
         {RESOLVED.map(({ logo, ...client }) => (
-          <div
+          // A link, because a named client is the one thing on this page a
+          // brand wants to interrogate rather than read. The case study behind
+          // it is generated from the same reporting the client sees, so it can
+          // be taken apart campaign by campaign.
+          <Link
             key={client.name}
-            className="surface reveal flex items-center gap-4 rounded-2xl border border-border bg-card px-6 py-4"
+            href={`/case-studies/${slugify(client.name)}`}
+            className="surface lift reveal group flex items-center gap-4 rounded-2xl border border-border bg-card px-6 py-4 hover:border-primary/25"
           >
             {logo ? (
               <Image
@@ -105,8 +112,11 @@ export function Clients() {
             <div>
               <p className="font-semibold tracking-tight">{client.name}</p>
               <p className="mt-0.5 text-xs text-muted-foreground">{client.detail}</p>
+              <p className="mt-1 text-xs text-primary-ink opacity-0 transition-opacity group-hover:opacity-100">
+                See the numbers →
+              </p>
             </div>
-          </div>
+          </Link>
         ))}
 
         {/* Says the list is short because we're careful, not because it's all
