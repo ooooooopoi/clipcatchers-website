@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Ban, Gauge, ReceiptText, ShieldCheck } from "lucide-react";
-import { HeroPreview } from "@/components/hero-preview";
-import { ArtistShowcase } from "@/components/marketing/artist-showcase";
 import { Clients } from "@/components/marketing/clients";
 import { Comparison } from "@/components/marketing/comparison";
 import { HowItWorks } from "@/components/marketing/how-it-works";
@@ -191,17 +189,9 @@ export default async function HomePage() {
             No retainer · No minimum term · You only pay for delivered views
           </p>
 
-          {/* A client, shown large. The dashboard mock that used to sit here
-              has moved down beside the "track real results" step, where it has
-              context — it was doing the job of a product screenshot before the
-              reader knew what the product was. */}
-          <div className="mt-14">
-            <ArtistShowcase />
-          </div>
-
           {/* One line, on the way past. The full per-client breakdown lives in
               Results, which reads the same cached query. */}
-          <p className="mt-12 text-sm text-muted-foreground">
+          <p className="mt-14 text-sm text-muted-foreground">
             <span className="font-mono text-base font-semibold text-foreground">
               {totalViews}
             </span>{" "}
@@ -232,18 +222,12 @@ export default async function HomePage() {
         <Clients />
         <HowItWorks />
 
-        {/* The product itself, directly under the three steps — so it lands as
-            "here's what step three actually looks like" rather than as a
-            decorative panel someone has to interpret. */}
-        <section className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-20">
-          <div className="mx-auto max-w-4xl">
-            <HeroPreview />
-          </div>
-          <p className="mx-auto mt-5 max-w-lg text-center text-sm leading-relaxed text-muted-foreground">
-            This is the report your client sees. Every campaign gets a private link that
-            opens it live — no account, no login, nothing to install.
-          </p>
-        </section>
+        {/* The mock client report used to sit here. It was built from a real
+            campaign's figures, but nobody could say whose — and a panel of
+            invented-looking numbers under a line promising every figure is
+            real was doing the opposite of its job. The claim it carried
+            ("a private link, no login") is made in Results and the FAQ, both
+            of which can point at something true. */}
 
         <Comparison />
         <Verification />
