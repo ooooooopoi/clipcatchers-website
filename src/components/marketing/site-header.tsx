@@ -230,6 +230,18 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                     </Link>
                   </SheetClose>
                 ))}
+                {/* Two the desktop bar doesn't carry. The sheet is a vertical
+                    list with room to spare; the bar is four items, a wordmark
+                    and a CTA already touching each other at lg, and a fifth
+                    link there wraps the capsule. */}
+                <SheetClose asChild>
+                  <Link
+                    href="#after-launch"
+                    className="border-b border-border/60 py-3.5 text-base font-medium transition-colors hover:text-primary-ink"
+                  >
+                    After you launch
+                  </Link>
+                </SheetClose>
                 <SheetClose asChild>
                   <Link
                     href="#faq"

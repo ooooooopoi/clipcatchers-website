@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Ban, Gauge, ReceiptText, ShieldCheck } from "lucide-react";
+import { AfterLaunch } from "@/components/marketing/after-launch";
 import { Clients } from "@/components/marketing/clients";
 import { Comparison } from "@/components/marketing/comparison";
 import { HowItWorks } from "@/components/marketing/how-it-works";
@@ -234,6 +235,12 @@ export default async function HomePage() {
         <Results />
         <Industries />
         <Pricing />
+
+        {/* Deliberately after the price. Everything above argues the case; the
+            last thing standing between a convinced reader and the form is
+            procedural — what the next week actually looks like — and it's
+            cheapest to answer immediately before the ask. */}
+        <AfterLaunch />
 
         {/* For creators — deliberately one panel, deliberately late. They're
             the supply side and they arrive through Discord anyway; the top of

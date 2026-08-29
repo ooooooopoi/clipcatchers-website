@@ -72,6 +72,15 @@ export function QuoteForm() {
           We&apos;ll come back to you within one working day, usually much sooner. If your
           release is close, say so in your reply and we&apos;ll prioritise it.
         </p>
+        {/* The moment the question actually gets asked. Someone who has just
+            sent this is wondering what they've started, and until now the only
+            answer was to wait for an email. */}
+        <a
+          href="/#after-launch"
+          className="mt-5 inline-block text-sm text-primary-ink underline-offset-4 hover:underline"
+        >
+          What happens next →
+        </a>
       </div>
     );
   }
