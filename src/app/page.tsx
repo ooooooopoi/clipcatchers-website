@@ -16,7 +16,7 @@ import { Card } from "@/components/ui/card";
 import { getSessionUser } from "@/lib/auth-helpers";
 import { formatCompact } from "@/lib/format";
 import { RATE_PER_THOUSAND } from "@/lib/pricing";
-import { getPublicStats } from "@/lib/public-stats";
+import { NAMED_CLIENTS, getPublicStats, slugify } from "@/lib/public-stats";
 import { SITE_STATS } from "@/lib/site-stats";
 
 const TITLE = "Clip Catchers — Performance-based creator distribution for brands";
@@ -139,6 +139,11 @@ export default async function HomePage() {
   // delivered" during a blip is worse than one an hour out of date.
   const live = stats.live && stats.totalViews > 0;
   const totalViews = live ? formatCompact(stats.totalViews) : SITE_STATS.viewsDelivered;
+
+  // The closing CTA's secondary action. Derived from the allowlist rather than
+  // hardcoded, so emptying NAMED_CLIENTS drops the button instead of leaving
+  // one pointed at a page that would refuse to render.
+  const caseStudyHref = NAMED_CLIENTS[0] ? `/case-studies/${slugify(NAMED_CLIENTS[0])}` : null;
 
   return (
     // overflow-x-clip, not overflow-hidden: `hidden` makes this a scroll
@@ -308,31 +313,72 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Final conversion */}
+        {/* Final conversion.
+
+            The heading used to be "Tell us what you're promoting" over the
+            same paragraph the /launch page opens with, word for word — so
+            clicking the button showed you the sentence you'd just read and
+            looked like a page that hadn't loaded. It closes the loop from the
+            section above instead: the reader has just been told there's no
+            lock-in, and this is the sentence that spends it.
+
+            The secondary button was "Client sign in", which is the wrong ask
+            for someone who has read the whole page and hasn't bought yet, and
+            it's repeated in the footer a few hundred pixels below. It's now
+            the exit an undecided reader actually wants — real numbers from a
+            named client, which is the one thing we can offer that a deck
+            can't. */}
         <section className="relative z-10 mx-auto w-full max-w-4xl px-5 pb-24">
-          <div className="surface reveal rounded-3xl border border-border bg-card px-6 py-14 text-center sm:px-12">
-            <h2 className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
-              Tell us what you&apos;re promoting
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl leading-relaxed text-muted-foreground">
-              We&apos;ll come back with what it would cost and what it should realistically
-              deliver — based on campaigns we&apos;ve actually run, not a projection.
-              Creators are usually posting within a day of approval.
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Button asChild size="lg">
-                <Link href="/launch">
-                  Launch a Campaign
-                  <ArrowRight />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline">
-                <Link href="/login">Client sign in</Link>
-              </Button>
+          <div className="surface reveal overflow-hidden rounded-3xl border border-border bg-card">
+            <div className="px-6 py-14 text-center sm:px-12">
+              <h2 className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
+                Start with one campaign
+              </h2>
+              <p className="mx-auto mt-4 max-w-xl leading-relaxed text-muted-foreground">
+                Tell us what you&apos;re promoting and roughly what you&apos;d spend, and
+                we&apos;ll come back with what it should realistically deliver — drawn
+                from campaigns we&apos;ve run, not a projection. If it isn&apos;t a fit,
+                we&apos;ll tell you that instead.
+              </p>
+              <div className="mt-8 flex flex-wrap justify-center gap-3">
+                <Button asChild size="lg">
+                  <Link href="/launch">
+                    Launch a Campaign
+                    <ArrowRight />
+                  </Link>
+                </Button>
+                {caseStudyHref && (
+                  <Button asChild size="lg" variant="outline">
+                    <Link href={caseStudyHref}>See a real campaign&apos;s numbers</Link>
+                  </Button>
+                )}
+              </div>
+              {/* Countable, checkable claims rather than "no obligation" —
+                  the form really does require two fields, and a reader who
+                  believes that is a reader who starts filling it in. */}
+              <p className="mt-5 text-xs text-muted-foreground">
+                Two required fields · No card at any point · Reply within one working day
+              </p>
             </div>
-            <p className="mt-5 text-xs text-muted-foreground">
-              No obligation · No card required · Reply within one working day
-            </p>
+
+            {/* The three numbers that decide it, at the point of deciding.
+                They're all stated further up the page, but nobody scrolls back
+                to check a figure before clicking — so they're repeated here
+                where the decision is actually made. */}
+            <div className="grid divide-y divide-border border-t border-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+              {[
+                { value: `$${RATE_PER_THOUSAND.toFixed(2)}`, label: "per 1,000 delivered views" },
+                { value: totalViews, label: "views delivered for brands" },
+                { value: "24 hrs", label: "typical time to first clips" },
+              ].map((stat) => (
+                <div key={stat.label} className="px-5 py-6 text-center">
+                  <p className="font-mono text-xl font-semibold tracking-tight text-primary-ink">
+                    {stat.value}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">{stat.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       </main>
