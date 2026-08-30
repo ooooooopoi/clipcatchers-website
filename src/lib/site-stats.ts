@@ -14,9 +14,19 @@
 export const AS_OF = "August 2026";
 
 export const SITE_STATS = {
-  viewsDelivered: "40.7M",
-  clipsPublished: "1,486",
+  // Updated 2026-08-30 against live production figures. The previous values
+  // (40.7M views, 1,486 clips) were roughly a third of reality, and that only
+  // shows when the database is unreachable — so the one moment this fallback
+  // exists for was the one moment it would have understated the business by
+  // 3x on its own homepage. Recheck these whenever the database is known good.
+  viewsDelivered: "130M",
+  clipsPublished: "3,734",
+  // Not verified in that pass, and probably still low: 117 clippers are owed
+  // money right now, which is already more than this claims have ever been
+  // paid. Left rather than guessed — the bot's endpoints report clips and
+  // amounts, not distinct creators across all time. Fix it from the database
+  // (`SELECT COUNT(DISTINCT handle)`) next time it's reachable.
   creatorsPaid: "85",
   /** Numeric form, for the comparison maths on the homepage. */
-  viewsDeliveredRaw: 40_700_000,
+  viewsDeliveredRaw: 130_000_000,
 } as const;
