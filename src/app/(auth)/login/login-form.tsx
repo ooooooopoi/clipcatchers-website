@@ -138,10 +138,14 @@ export function LoginForm({
 
       {googleEnabled && <GoogleButton />}
 
+      {/* No "create an account" link. Client accounts are set up by us when a
+          campaign is assigned to them — a stranger self-registering here lands
+          in an empty dashboard with nothing to look at, which is a worse first
+          impression than the enquiry form they should have used. */}
       <p className="mt-6 text-sm text-muted-foreground">
-        New to Clip Catchers?{" "}
-        <Link href="/signup" className="font-medium text-foreground underline-offset-4 hover:underline">
-          Create an account
+        Want to run a campaign?{" "}
+        <Link href="/launch" className="font-medium text-foreground underline-offset-4 hover:underline">
+          Tell us what you&apos;re promoting
         </Link>
       </p>
     </motion.div>

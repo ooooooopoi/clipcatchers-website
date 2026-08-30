@@ -38,7 +38,9 @@ const COLUMNS = [
     links: [
       { label: "Launch a Campaign", href: "/launch" },
       { label: "Client sign in", href: "/login" },
-      { label: "Create an account", href: "/signup" },
+      // No "create an account". Accounts are set up when a campaign is
+      // assigned to a client, so anyone following a public signup link arrives
+      // in an empty dashboard — the enquiry form above is the real front door.
     ],
   },
 ] as const;
