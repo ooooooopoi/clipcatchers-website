@@ -4,6 +4,7 @@ import { ArrowRight, Ban, Gauge, ReceiptText, ShieldCheck } from "lucide-react";
 import { AfterLaunch } from "@/components/marketing/after-launch";
 import { Clients } from "@/components/marketing/clients";
 import { Comparison } from "@/components/marketing/comparison";
+import { Control } from "@/components/marketing/control";
 import { HowItWorks } from "@/components/marketing/how-it-works";
 import { Industries } from "@/components/marketing/industries";
 import { Pricing } from "@/components/marketing/pricing";
@@ -233,6 +234,11 @@ export default async function HomePage() {
 
         <Comparison />
         <Verification />
+        {/* Straight after verification on purpose. That section answers "is
+            the number real"; this one answers "and what stops the number
+            costing me more than I meant" — the same reader, one question
+            later. */}
+        <Control />
         <Results />
         <Industries />
         <Pricing />
