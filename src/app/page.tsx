@@ -7,6 +7,7 @@ import { Comparison } from "@/components/marketing/comparison";
 import { HowItWorks } from "@/components/marketing/how-it-works";
 import { Industries } from "@/components/marketing/industries";
 import { Pricing } from "@/components/marketing/pricing";
+import { Proof } from "@/components/marketing/proof";
 import { Results } from "@/components/marketing/results";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SiteHeader } from "@/components/marketing/site-header";
@@ -128,11 +129,8 @@ export default async function HomePage() {
   const user = await getSessionUser();
   const stats = await getPublicStats();
 
-  // One number, not three. Clips published and creators paid are our operating
-  // detail — a brand reading the hero is asking "how much reach can you
-  // actually deliver", and two extra figures beside the answer make it take
-  // longer to find. The full breakdown is still in Results for anyone who
-  // wants it.
+  // The headline figure, for the closing CTA's stat strip. The proof band
+  // under the hero does its own formatting from the same `stats` object.
   //
   // Live where the database answered, the last recorded total where it didn't.
   // Falling back rather than rendering a zero: a homepage claiming "0 views
@@ -194,16 +192,14 @@ export default async function HomePage() {
           <p className="mt-5 text-xs text-muted-foreground">
             No retainer · No minimum term · You only pay for delivered views
           </p>
-
-          {/* One line, on the way past. The full per-client breakdown lives in
-              Results, which reads the same cached query. */}
-          <p className="mt-14 text-sm text-muted-foreground">
-            <span className="font-mono text-base font-semibold text-foreground">
-              {totalViews}
-            </span>{" "}
-            views delivered for brands so far
-          </p>
         </section>
+
+        {/* The single "40.7M views delivered so far" line used to close the
+            hero. One number on its own answers "are you real" and nothing
+            else; the same query already knows the clips, the creators and the
+            campaigns behind it, and a brand deciding whether to keep reading
+            does that in the first screen. */}
+        <Proof stats={stats} />
 
         {/* The four risk answers, before anything else has to be read. */}
         <section className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-4">
