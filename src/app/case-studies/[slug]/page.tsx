@@ -5,8 +5,8 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { BrandMark } from "@/components/brand";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { Button } from "@/components/ui/button";
-import { formatCompact, formatCurrency } from "@/lib/format";
-import { PAID_SOCIAL_CPM } from "@/lib/pricing";
+import { formatCompact } from "@/lib/format";
+import { PAID_SOCIAL_CPM, RATE_PER_THOUSAND } from "@/lib/pricing";
 import { getCaseStudy } from "@/lib/public-stats";
 
 /**
@@ -33,7 +33,7 @@ export async function generateMetadata(
   const description =
     `${study.campaigns.length} campaign${study.campaigns.length === 1 ? "" : "s"}, ` +
     `${formatCompact(study.totalViews)} views delivered by ${study.creators} creators ` +
-    `at a $${study.cpm.toFixed(2)} effective CPM. Every figure read from live reporting.`;
+    `across ${study.totalClips.toLocaleString()} clips. Every figure read from live reporting.`;
 
   return {
     title,
@@ -52,8 +52,14 @@ export default async function CaseStudyPage(
   // be a way to read out a client who never agreed to be named.
   if (!study) notFound();
 
+  // What this delivery would have cost bought as ads, against our list rate.
+  // Deliberately not against what this client actually spent: reported spend
+  // is our clipper cost until client_budget is set on a campaign, so printing
+  // it here would publish the margin. See the note on ClientRow in
+  // lib/public-stats.ts.
   const paidSocial = (study.totalViews / 1000) * PAID_SOCIAL_CPM.meta;
-  const saved = Math.max(paidSocial - study.totalSpentCents / 100, 0);
+  const atListRate = (study.totalViews / 1000) * RATE_PER_THOUSAND;
+  const saved = Math.max(paidSocial - atListRate, 0);
 
   return (
     <div className="relative min-h-screen">
@@ -91,7 +97,10 @@ export default async function CaseStudyPage(
             { value: formatCompact(study.totalViews), label: "views delivered" },
             { value: study.totalClips.toLocaleString(), label: "clips published" },
             { value: study.creators.toLocaleString(), label: "creators" },
-            { value: `$${study.cpm.toFixed(2)}`, label: "effective CPM" },
+            {
+              value: study.campaigns.length.toLocaleString(),
+              label: `campaign${study.campaigns.length === 1 ? "" : "s"}`,
+            },
           ].map((s) => (
             <div key={s.label} className="px-5 py-7 text-center">
               <p className="font-mono text-2xl font-semibold tracking-tight text-primary-ink sm:text-3xl">
@@ -104,17 +113,16 @@ export default async function CaseStudyPage(
 
         <h2 className="mt-12 text-xl font-semibold tracking-tight">Campaign by campaign</h2>
         <div className="surface mt-4 overflow-hidden rounded-2xl border border-border bg-card">
-          <div className="hidden grid-cols-[1fr_auto_auto_auto] gap-6 border-b border-border px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground/70 sm:grid">
+          <div className="hidden grid-cols-[1fr_auto_auto] gap-6 border-b border-border px-6 py-3 text-xs uppercase tracking-wider text-muted-foreground/70 sm:grid">
             <span>Campaign</span>
             <span className="text-right">Views</span>
             <span className="text-right">Clips</span>
-            <span className="text-right">CPM</span>
           </div>
           <ul className="divide-y divide-border">
             {study.campaigns.map((c) => (
               <li
                 key={c.name}
-                className="grid grid-cols-[1fr_auto] gap-x-6 gap-y-2 px-6 py-4 sm:grid-cols-[1fr_auto_auto_auto]"
+                className="grid grid-cols-[1fr_auto] gap-x-6 gap-y-2 px-6 py-4 sm:grid-cols-[1fr_auto_auto]"
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{c.name}</p>
@@ -129,9 +137,6 @@ export default async function CaseStudyPage(
                 </span>
                 <span className="hidden text-right font-mono text-sm text-muted-foreground tabular-nums sm:block">
                   {c.clips.toLocaleString()}
-                </span>
-                <span className="hidden text-right font-mono text-sm text-muted-foreground tabular-nums sm:block">
-                  {c.cpm > 0 ? `$${c.cpm.toFixed(2)}` : "—"}
                 </span>
               </li>
             ))}
@@ -149,16 +154,17 @@ export default async function CaseStudyPage(
               <span className="font-mono text-foreground">
                 ${Math.round(paidSocial).toLocaleString()}
               </span>
-              . {study.brand} spent{" "}
+              . At our rate of ${RATE_PER_THOUSAND.toFixed(2)} per 1,000, the same
+              delivery comes to{" "}
               <span className="font-mono text-foreground">
-                {formatCurrency(study.totalSpentCents)}
+                ${Math.round(atListRate).toLocaleString()}
               </span>
               .
             </p>
             <p className="mt-3 leading-relaxed text-muted-foreground">
               And the posts are still up. Paid impressions stop the moment the spend
-              does; these clips keep earning views the client never paid for — which is
-              why the CPM above falls over time rather than holding.
+              does; these clips keep earning views nobody paid for — so the real cost
+              per thousand falls over time rather than holding.
             </p>
           </div>
         )}

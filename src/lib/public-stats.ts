@@ -1,6 +1,5 @@
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { effectiveCpm } from "@/lib/pricing";
 
 /**
  * The figures on the public homepage, read from the database.
@@ -34,6 +33,25 @@ const PUBLIC_CLIENTS = new Set(
     .filter(Boolean),
 );
 
+/**
+ * ── Why there is no spend or CPM on this type ────────────────────────────
+ * There was, and it was on the homepage. The figure it showed was not what
+ * the client paid. A campaign's reported spend falls back to the *clipper*
+ * budget unless `client_budget` is set on it in the bot, and that column
+ * defaults to 0 — so "their CPM" was our cost per 1,000 views, printed a few
+ * sections above a Pricing block advertising $0.50. That makes the margin
+ * public and, worse, arithmetic.
+ *
+ * Views are ours to publish. What delivery cost us is not, and it stays off
+ * every type the marketing pages can reach, so it can't return by someone
+ * rendering a field that happened to be sitting there. A client's own spend
+ * is still on their own signed report and in their dashboard, which is where
+ * it belongs.
+ *
+ * If `client_budget` is ever filled in per campaign, the reported figure
+ * becomes what the client was actually invoiced and a real client-side CPM
+ * can come back — deliberately, not by leftover.
+ */
 export type ClientRow = {
   /** Display label — the real brand name, or an anonymised stand-in. */
   label: string;
@@ -41,15 +59,6 @@ export type ClientRow = {
   views: number;
   clips: number;
   campaigns: number;
-  spentCents: number;
-  /**
-   * What this client actually paid per 1,000 views — their own number, from
-   * their own spend and their own delivery. Not the list rate and not an
-   * average across everyone: a campaign that closed early, got trimmed to
-   * budget or overdelivered lands somewhere different, and that difference is
-   * the whole point of showing it.
-   */
-  cpm: number;
 };
 
 export type PublicStats = {
@@ -67,7 +76,7 @@ async function query(): Promise<PublicStats> {
   // several campaigns is one client, and the row count is small either way.
   const grouped = await prisma.campaign.groupBy({
     by: ["brandName"],
-    _sum: { totalViews: true, clipCount: true, spentCents: true },
+    _sum: { totalViews: true, clipCount: true },
     _count: { _all: true },
     // PENDING campaigns haven't been approved and may never run; counting them
     // would inflate the totals with work that hasn't happened.
@@ -86,16 +95,12 @@ async function query(): Promise<PublicStats> {
 
   const clients: ClientRow[] = grouped.map((row) => {
     const named = PUBLIC_CLIENTS.has(row.brandName.trim().toLowerCase());
-    const views = row._sum.totalViews ?? 0;
-    const spentCents = row._sum.spentCents ?? 0;
     return {
       label: named ? row.brandName : "Undisclosed client",
       named,
-      views,
+      views: row._sum.totalViews ?? 0,
       clips: row._sum.clipCount ?? 0,
       campaigns: row._count._all,
-      spentCents,
-      cpm: effectiveCpm(spentCents, views),
     };
   });
 
@@ -119,12 +124,11 @@ const cached = unstable_cache(query, ["public-stats"], {
   tags: ["public-stats"],
 });
 
+/** Same rule as ClientRow above: delivery is public, cost is not. */
 export type CaseStudyCampaign = {
   name: string;
   views: number;
   clips: number;
-  spentCents: number;
-  cpm: number;
   platforms: string[];
   startedAt: string | null;
 };
@@ -134,8 +138,6 @@ export type CaseStudy = {
   campaigns: CaseStudyCampaign[];
   totalViews: number;
   totalClips: number;
-  totalSpentCents: number;
-  cpm: number;
   creators: number;
 };
 
@@ -160,7 +162,7 @@ export async function getCaseStudy(slug: string): Promise<CaseStudy | null> {
       },
       orderBy: { createdAt: "asc" },
       select: {
-        name: true, totalViews: true, clipCount: true, spentCents: true,
+        name: true, totalViews: true, clipCount: true,
         platforms: true, startDate: true, createdAt: true, brandName: true,
       },
     });
@@ -177,21 +179,15 @@ export async function getCaseStudy(slug: string): Promise<CaseStudy | null> {
       name: r.name,
       views: r.totalViews,
       clips: r.clipCount,
-      spentCents: r.spentCents,
-      cpm: effectiveCpm(r.spentCents, r.totalViews),
       platforms: r.platforms,
       startedAt: (r.startDate ?? r.createdAt)?.toISOString() ?? null,
     }));
 
-    const totalViews = campaigns.reduce((s, c) => s + c.views, 0);
-    const totalSpentCents = campaigns.reduce((s, c) => s + c.spentCents, 0);
     return {
       brand: rows[0].brandName,
       campaigns,
-      totalViews,
+      totalViews: campaigns.reduce((s, c) => s + c.views, 0),
       totalClips: campaigns.reduce((s, c) => s + c.clips, 0),
-      totalSpentCents,
-      cpm: effectiveCpm(totalSpentCents, totalViews),
       creators: handles.length,
     };
   } catch (error) {

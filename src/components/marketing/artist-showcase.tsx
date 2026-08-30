@@ -62,15 +62,17 @@ export async function ArtistShowcase() {
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">views delivered</p>
               </div>
-              {/* This campaign's own CPM, from its own spend and delivery —
-                  not the list rate. It's the figure that says what the reach
-                  actually cost, and it's different for every campaign. */}
-              {row && row.cpm > 0 && (
+              {/* A CPM sat here. It was our clipper cost rather than the
+                  client's price, so it came off along with the one in Results
+                  — see the note on ClientRow in lib/public-stats.ts. Clips
+                  published is the honest companion to views: both are things
+                  we delivered, neither says what it cost us. */}
+              {row && row.clips > 0 && (
                 <div className="px-6">
                   <p className="font-mono text-3xl font-semibold tracking-tight text-primary-ink">
-                    ${row.cpm.toFixed(2)}
+                    {row.clips.toLocaleString()}
                   </p>
-                  <p className="mt-1 text-xs text-muted-foreground">their CPM</p>
+                  <p className="mt-1 text-xs text-muted-foreground">clips published</p>
                 </div>
               )}
             </div>

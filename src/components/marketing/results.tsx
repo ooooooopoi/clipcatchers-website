@@ -73,12 +73,11 @@ export async function Results() {
         <div className="surface reveal mx-auto mt-10 max-w-4xl overflow-hidden rounded-2xl border border-border bg-card">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-4">
             <p className="text-sm font-semibold">Delivery by client</p>
-            {/* Views and what they paid per thousand to get them. The CPM is
-                each client's own — worked out from their spend against their
-                delivery — not the list rate and not an average. A campaign
-                that closed early or overdelivered lands somewhere different,
-                and that spread is the honest thing to show. */}
-            <p className="text-xs text-muted-foreground">views · their CPM</p>
+            {/* Views only. There was a CPM column here, and the number in it
+                was our cost rather than the client's price — see the note on
+                ClientRow in lib/public-stats.ts. Delivery is the claim this
+                table exists to make and it stands on its own. */}
+            <p className="text-xs text-muted-foreground">views delivered</p>
           </div>
 
           <ul className="divide-y divide-border">
@@ -111,11 +110,8 @@ export async function Results() {
                     <span className="w-20 text-base font-semibold">
                       {formatCompact(client.views)}
                     </span>
-                    {/* Only rendered where there's real spend behind it — a
-                        "$0.00 CPM" beside a client's name says we worked for
-                        free rather than that the figure is missing. */}
-                    <span className="w-16 text-sm text-muted-foreground">
-                      {client.cpm > 0 ? `$${client.cpm.toFixed(2)}` : "—"}
+                    <span className="w-24 text-sm text-muted-foreground">
+                      {client.clips.toLocaleString()} clips
                     </span>
                   </div>
                 </li>
