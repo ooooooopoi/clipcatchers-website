@@ -9,18 +9,23 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // White, with a border and real elevation — a deliberate choice, not
-        // an oversight. The whole site is white and nothing is filled; the
-        // primary action is built from a shadow rather than a fill, and the
-        // lift is what says "pressable" where colour normally would.
+        // The primary action, and the only filled colour on the page. It was
+        // white-on-white with a shadow doing the work, which is elegant and
+        // asks the eye to hunt for it; on a page whose whole job is getting
+        // one button pressed, the button should be the thing you see first.
         //
-        // The shadow is deliberately heavier than `outline`'s. That gap is the
-        // only thing separating primary from secondary now, so don't flatten
-        // it without replacing the distinction with something else.
+        // Orange is reserved for this. If you find it anywhere that isn't a
+        // call to action, that's a bug — see the token note in globals.css.
         default:
-          "border border-[hsl(var(--border-strong))] bg-background text-foreground shadow-[0_1px_2px_hsl(var(--foreground)/0.06),0_4px_12px_-6px_hsl(var(--foreground)/0.18)] hover:bg-accent hover:shadow-[0_1px_2px_hsl(var(--foreground)/0.08),0_8px_20px_-8px_hsl(var(--foreground)/0.25)]",
+          "bg-cta text-cta-foreground shadow-[0_1px_2px_hsl(var(--cta)/0.24),0_6px_16px_-6px_hsl(var(--cta)/0.45)] hover:bg-[hsl(var(--cta)/0.92)] hover:shadow-[0_1px_2px_hsl(var(--cta)/0.3),0_10px_24px_-8px_hsl(var(--cta)/0.55)]",
+        // The secondary call to action — "See how it works" beside "Launch a
+        // Campaign". Orange to say it belongs to the same pair, unfilled to
+        // say which one is the main event.
+        ctaOutline:
+          "border border-cta/40 bg-background text-cta-ink shadow-[0_1px_2px_hsl(var(--foreground)/0.04)] hover:border-cta/70 hover:bg-[hsl(var(--cta)/0.06)]",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+        // Neutral secondary, for anything that isn't a call to action.
         outline:
           "border border-border bg-transparent hover:bg-accent hover:text-accent-foreground",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",

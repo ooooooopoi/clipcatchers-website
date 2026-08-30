@@ -18,25 +18,42 @@
     --popover: 0 0% 100%;
     --popover-foreground: 96 12% 5%;
     /* ─────────────────────────────────────────────────────────────────────
-       THE ACCENT LIVES HERE. Two settings, one line each — swap the commented
-       block to change the whole site. Every button, stat, icon, underline and
-       chart reads from these three tokens, so nothing else needs touching.
+       TWO ACCENTS, DELIBERATELY SEPARATE.
 
-       WHITE / MONOCHROME (current): page is white, ink is near-black, and the
-       logo is the only coloured thing on it. Buttons can't be literally white
-       — a white fill on a white page isn't a button — so "white theme" means
-       a white surface with dark ink.
+       This used to be one set of tokens doing two unrelated jobs: "this is
+       the thing to click" and "this is our accent ink". They were tied
+       together, so turning the buttons orange also turned every section
+       eyebrow, timeline dot, chart bar and nav underline orange — and calming
+       those back down turned the buttons white again. The palette flipped
+       between all-orange and all-white four times before anyone noticed the
+       two jobs were fighting over one variable.
 
-       ORANGE (the logo's own #FC7800): uncomment the three lines below and
-       comment out the monochrome set. Also restore --gold underneath.
+       --primary  is INK. Eyebrows, dots, bars, underlines, stat figures.
+                  Near-black, so a page of it reads as typography.
+       --cta      is the BUTTON, and only ever the button. The logo's own
+                  #FC7800, used sparingly enough that it always means
+                  "press this".
+
+       Change one without touching the other. That's the whole point.
        ───────────────────────────────────────────────────────────────────── */
     --primary: 96 12% 9%;
     --primary-foreground: 0 0% 100%;
     --primary-ink: 96 12% 14%;
 
-    /* --primary: 29 100% 49%;
-    --primary-foreground: 29 90% 10%;
-    --primary-ink: 29 100% 33%; */
+    /* The bolt in the logo.
+
+       --cta-foreground is near-black, not white, and that is not a style
+       choice. White on #FC7800 measures 2.69:1 — it fails AA's 4.5:1 for
+       body text and fails even the 3:1 large-text allowance. Orange is the
+       hue this catches people on: it reads as dark enough for white text and
+       isn't. Near-black on the same fill clears 8:1.
+
+       --cta-ink is the same hue at 33% lightness, for the outlined secondary
+       where the orange has to work as text on white. The 49% DEFAULT is a
+       fill only and would fail as text. */
+    --cta: 29 100% 49%;
+    --cta-foreground: 29 90% 10%;
+    --cta-ink: 29 100% 33%;
     --secondary: 96 8% 96%;
     --secondary-foreground: 96 10% 10%;
     --muted: 96 8% 96%;

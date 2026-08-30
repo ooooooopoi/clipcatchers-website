@@ -61,6 +61,17 @@ const config: Config = {
           foreground: "hsl(var(--gold-foreground))",
           ink: "hsl(var(--gold-ink))",
         },
+        // The call-to-action orange, and the reason the palette stopped
+        // flip-flopping: `primary` was doing two unrelated jobs — "this is the
+        // thing to click" and "this is our accent ink" — so making the buttons
+        // orange also turned every eyebrow, timeline dot, chart bar and nav
+        // underline orange, and making those calm turned the buttons white.
+        // One token per job. `cta` is only ever a button.
+        cta: {
+          DEFAULT: "hsl(var(--cta))",
+          foreground: "hsl(var(--cta-foreground))",
+          ink: "hsl(var(--cta-ink))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

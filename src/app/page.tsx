@@ -186,7 +186,7 @@ export default async function HomePage() {
                 <ArrowRight />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline">
+            <Button asChild size="lg" variant="ctaOutline">
               <Link href="#how-it-works">See how it works</Link>
             </Button>
           </div>
