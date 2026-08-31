@@ -35,13 +35,13 @@ type Client = {
   detail: string;
 };
 
-const CLIENTS: Client[] = [
-  {
-    name: "Silent Collision",
-    slug: "silent-collision",
-    detail: "TikTok campaign · music release",
-  },
-];
+// Silent Collision was here and has been withdrawn. Their artwork is still in
+// public/clients, so restoring the row means re-adding the entry below plus
+// the name in NAMED_CLIENTS — nothing else.
+//
+// With the list empty the whole section stops rendering, which is right: a
+// "brands we've worked with" strip that names nobody argues against itself.
+const CLIENTS: Client[] = [];
 
 const EXTENSIONS = ["png", "jpg", "jpeg", "webp", "avif"];
 

@@ -25,7 +25,17 @@ import { prisma } from "@/lib/prisma";
  * Keep this in step with the logo strip in components/marketing/clients.tsx —
  * a client named in one place and anonymised in the other looks like a leak.
  */
-export const NAMED_CLIENTS = ["Silent Collision"];
+// Empty by choice. Silent Collision was named here and has been withdrawn —
+// their campaigns still contribute every figure on the site, they're just
+// anonymised like everyone else now.
+//
+// Removing a name from this list is all it takes: the Results rows relabel to
+// "Undisclosed client", the case-study page stops resolving that slug, the
+// sitemap stops advertising it, and the closing CTA drops its "see a real
+// campaign's numbers" button rather than pointing at a page that would refuse
+// to render. Nothing else needs editing — except the card in
+// components/marketing/clients.tsx, which keeps its own list.
+export const NAMED_CLIENTS: string[] = [];
 
 const PUBLIC_CLIENTS = new Set(
   [...NAMED_CLIENTS, ...(process.env.PUBLIC_CLIENTS || "").split(",")]
