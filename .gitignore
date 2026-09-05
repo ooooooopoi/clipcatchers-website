@@ -22,3 +22,9 @@ local-db-utf8.mjs
 
 .vercel
 .env*
+
+# Agent skills installed via `npx skills add`. The .claude/skills symlinks are
+# absolute paths into this checkout, so they break on any other machine.
+# skills-lock.json is committed so the set is reproducible.
+.agents/
+.claude/skills/
