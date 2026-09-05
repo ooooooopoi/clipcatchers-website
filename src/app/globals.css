@@ -71,11 +71,24 @@
     /* --gold: 40 100% 49%;
     --gold-foreground: 38 80% 8%;
     --gold-ink: 36 95% 31%; */
-    --destructive: 0 72% 51%;
+    /* 51% measured 4.13:1 as `text-destructive` on `bg-destructive/10` — just
+       under AA, and this is the colour every form error uses. 47% measures
+       4.62:1 and also lifts the solid destructive button from 4.60:1 to
+       5.19:1, so both jobs this token does get better. The hue is unchanged;
+       the difference is not visible side by side. */
+    --destructive: 0 72% 47%;
     --destructive-foreground: 0 0% 98%;
-    --success: 142 71% 45%;
+    /* Same reasoning as --warning below: 45% measured 2.11:1 against its own
+       /10 tint. 27% measures 4.95:1. Nothing used this token when it changed,
+       so the only consumers are the status pills it was introduced for. */
+    --success: 142 71% 27%;
     --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
+    /* Dark enough to read as text on the pale `bg-warning/10` wash the
+       callouts use. At 50% lightness `text-warning` measured 1.97:1 against
+       that tint, well under the 4.5:1 AA floor — on a white page the copy was
+       nearly invisible. 30% measures 4.73:1. The dark-theme value below is
+       left as it was; against the dark background it already scores 8.57:1. */
+    --warning: 38 92% 30%;
     --warning-foreground: 48 96% 9%;
     --border: 96 8% 88%;
     /* A border dark enough to be a component boundary rather than a hairline

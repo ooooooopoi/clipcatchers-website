@@ -51,10 +51,10 @@ function cellFor(key: string, value: unknown) {
     const v = String(value);
     const tone =
       v === "approved"
-        ? "border-lime-500/30 bg-lime-500/10 text-lime-400"
+        ? "border-success/30 bg-success/10 text-success"
         : v === "pending"
-          ? "border-amber-500/30 bg-amber-500/10 text-amber-400"
-          : "border-red-500/30 bg-red-500/10 text-red-400";
+          ? "border-warning/30 bg-warning/10 text-warning"
+          : "border-destructive/30 bg-destructive/10 text-destructive";
     return (
       <span className={cn("rounded-full border px-2 py-0.5 text-xs font-medium", tone)}>{v}</span>
     );
@@ -174,7 +174,7 @@ export default async function TeamPage({ params }: { params: Promise<{ sig: stri
       <div className="mx-auto w-full max-w-[1500px] px-4 py-8 sm:px-6">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <BrandWordmark />
-          <span className="rounded-full border border-border px-3 py-1 text-xs font-medium uppercase tracking-wider text-amber-400">
+          <span className="rounded-full border border-border px-3 py-1 text-xs font-medium uppercase tracking-wider text-warning">
             Team — internal
           </span>
         </header>
@@ -202,7 +202,7 @@ export default async function TeamPage({ params }: { params: Promise<{ sig: stri
         </div>
 
         {!snapshot && (
-          <p className="mt-6 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-300">
+          <p className="mt-6 rounded-xl border border-warning/30 bg-warning/10 p-4 text-sm text-warning">
             No data yet — run <code className="font-mono">/sync-dashboard</code> in Discord to push
             the first snapshot.
           </p>

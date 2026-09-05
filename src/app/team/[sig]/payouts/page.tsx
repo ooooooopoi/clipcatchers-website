@@ -59,7 +59,7 @@ export default async function PayoutsPage({
       <div className="mx-auto w-full max-w-[1200px] px-4 py-8 sm:px-6">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <BrandWordmark />
-          <span className="rounded-full border border-border px-3 py-1 text-xs font-medium uppercase tracking-wider text-amber-400">
+          <span className="rounded-full border border-border px-3 py-1 text-xs font-medium uppercase tracking-wider text-warning">
             Team — internal
           </span>
         </header>
@@ -78,7 +78,7 @@ export default async function PayoutsPage({
         </p>
 
         {error && (
-          <p className="mt-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">
+          <p className="mt-6 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
             {error}
           </p>
         )}
@@ -110,7 +110,7 @@ export default async function PayoutsPage({
             </div>
 
             {shared.length > 0 && (
-              <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-300">
+              <div className="mt-4 rounded-xl border border-warning/30 bg-warning/10 p-4 text-sm text-warning">
                 <p className="font-medium">
                   {shared.length} payout destination{shared.length > 1 ? "s are" : " is"} shared by
                   more than one account
@@ -153,10 +153,10 @@ export default async function PayoutsPage({
                           {formatNumber(c.views)}
                         </TableCell>
                         <TableCell className="whitespace-nowrap text-sm">
-                          {c.method ?? <span className="text-red-400">not set</span>}
+                          {c.method ?? <span className="text-destructive">not set</span>}
                         </TableCell>
                         <TableCell className="max-w-[280px] truncate font-mono text-xs">
-                          {c.address ?? <span className="text-red-400">not set</span>}
+                          {c.address ?? <span className="text-destructive">not set</span>}
                         </TableCell>
                         <TableCell className="text-right">
                           {c.payout_set ? (
@@ -234,9 +234,9 @@ function Stat({
     <Card className="p-5">
       <div className="flex items-start justify-between gap-3">
         <p className="text-sm text-muted-foreground">{label}</p>
-        <span className={warn ? "text-amber-400" : "text-muted-foreground"}>{icon}</span>
+        <span className={warn ? "text-warning" : "text-muted-foreground"}>{icon}</span>
       </div>
-      <p className={`mt-2 font-mono text-2xl font-semibold ${warn ? "text-amber-400" : ""}`}>
+      <p className={`mt-2 font-mono text-2xl font-semibold ${warn ? "text-warning" : ""}`}>
         {value}
       </p>
     </Card>

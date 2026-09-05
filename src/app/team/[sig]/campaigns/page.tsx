@@ -72,7 +72,7 @@ export default async function TeamCampaignsPage({
       <div className="mx-auto w-full max-w-[1200px] px-4 py-8 sm:px-6">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <BrandWordmark />
-          <span className="rounded-full border border-border px-3 py-1 text-xs font-medium uppercase tracking-wider text-amber-400">
+          <span className="rounded-full border border-border px-3 py-1 text-xs font-medium uppercase tracking-wider text-warning">
             Team — internal
           </span>
         </header>
@@ -91,7 +91,7 @@ export default async function TeamCampaignsPage({
         </p>
 
         {error && (
-          <p className="mt-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">
+          <p className="mt-6 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
             {error}
           </p>
         )}
@@ -122,7 +122,7 @@ export default async function TeamCampaignsPage({
                       <span
                         className={`rounded-full border px-2 py-0.5 text-xs font-medium ${
                           c.active
-                            ? "border-lime-500/30 bg-lime-500/10 text-lime-400"
+                            ? "border-success/30 bg-success/10 text-success"
                             : "border-border text-muted-foreground"
                         }`}
                       >
@@ -134,7 +134,7 @@ export default async function TeamCampaignsPage({
                       {formatNumber(c.totalViews)}
                     </TableCell>
                     <TableCell
-                      className={`text-right font-mono ${over ? "text-amber-400" : ""}`}
+                      className={`text-right font-mono ${over ? "text-warning" : ""}`}
                     >
                       {formatCurrency(c.spentCents)}
                     </TableCell>
@@ -147,7 +147,7 @@ export default async function TeamCampaignsPage({
                           <Progress
                             value={pct}
                             className="h-2"
-                            indicatorClassName={over ? "bg-amber-400" : undefined}
+                            indicatorClassName={over ? "bg-warning" : undefined}
                           />
                           <p className="mt-1 text-[11px] text-muted-foreground">
                             {over
