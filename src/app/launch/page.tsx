@@ -10,8 +10,8 @@ import { SITE_STATS } from "@/lib/site-stats";
 // "%s · Clip Catchers" template, so it must not carry the brand itself or it
 // renders twice. Open Graph and Twitter have no template and are read
 // standalone in a link preview, so those spell it out.
-const TITLE = "Launch a campaign";
-const SOCIAL_TITLE = "Launch a campaign — Clip Catchers";
+const TITLE = "Start a campaign";
+const SOCIAL_TITLE = "Start a campaign — Clip Catchers";
 const DESCRIPTION =
   "Tell us what you're promoting and we'll come back with what it would cost and what it should deliver. No retainer, no minimum term, pay only for views that landed.";
 

@@ -9,18 +9,24 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // The primary action, and the only filled colour on the page. It was
-        // white-on-white with a shadow doing the work, which is elegant and
-        // asks the eye to hunt for it; on a page whose whole job is getting
-        // one button pressed, the button should be the thing you see first.
+        // White, with a border and real elevation. The whole site is white and
+        // nothing is filled; the primary action is built from a shadow rather
+        // than a fill, and the lift is what says "pressable" where colour
+        // normally would.
         //
-        // Orange is reserved for this. If you find it anywhere that isn't a
-        // call to action, that's a bug — see the token note in globals.css.
+        // The shadow is deliberately heavier than `outline`'s. That gap is the
+        // only thing separating primary from secondary, so don't flatten it
+        // without replacing the distinction with something else.
+        //
+        // This is a return to the pre-626339e treatment. The orange fill that
+        // replaced it was introduced because white "asks the eye to hunt for
+        // it"; that trade is being taken deliberately, so if the button starts
+        // getting missed again, that is the known cost and not a new bug.
         default:
-          "bg-cta text-cta-foreground shadow-[0_1px_2px_hsl(var(--cta)/0.24),0_6px_16px_-6px_hsl(var(--cta)/0.45)] hover:bg-[hsl(var(--cta)/0.92)] hover:shadow-[0_1px_2px_hsl(var(--cta)/0.3),0_10px_24px_-8px_hsl(var(--cta)/0.55)]",
-        // The secondary call to action — "See how it works" beside "Launch a
-        // Campaign". Orange to say it belongs to the same pair, unfilled to
-        // say which one is the main event.
+          "border border-[hsl(var(--border-strong))] bg-background text-foreground shadow-[0_1px_2px_hsl(var(--foreground)/0.06),0_4px_12px_-6px_hsl(var(--foreground)/0.18)] hover:bg-accent hover:shadow-[0_1px_2px_hsl(var(--foreground)/0.08),0_8px_20px_-8px_hsl(var(--foreground)/0.25)]",
+        // Kept, but unused while the primary is white — an orange-tinted
+        // secondary beside a colourless primary would be the loudest thing in
+        // the pair, which inverts the hierarchy it exists to express.
         ctaOutline:
           "border border-cta/40 bg-background text-cta-ink shadow-[0_1px_2px_hsl(var(--foreground)/0.04)] hover:border-cta/70 hover:bg-[hsl(var(--cta)/0.06)]",
         destructive:

@@ -82,7 +82,7 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
           {!signedIn && (
             <Button
               asChild
-              variant="ctaOutline"
+              variant="outline"
               className="hidden h-14 rounded-full px-6 text-[15px] lg:inline-flex"
             >
               <Link href="#how-it-works">See how it works</Link>
@@ -104,35 +104,39 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                 down the middle they read as one thing. `overflow-hidden` is
                 what lets two square-cornered children sit inside one fully
                 rounded parent.
-                Orange, because it's the primary call to action — see the
-                token note in globals.css for why that's a separate variable
-                from the site's accent ink. */}
+                White with a border and elevation, matching the `default`
+                button variant. This pill is hand-built rather than a Button,
+                so it does not inherit that variant — if the primary treatment
+                changes again, it has to be changed here too. */}
             <div
               className={cn(
                 "flex h-11 shrink-0 items-center overflow-hidden rounded-full sm:h-14",
                 signedIn
                   ? "border border-border bg-background"
-                  : "bg-cta text-cta-foreground shadow-[0_1px_2px_hsl(var(--cta)/0.24),0_6px_16px_-6px_hsl(var(--cta)/0.45)]",
+                  : "border border-[hsl(var(--border-strong))] bg-background text-foreground shadow-[0_1px_2px_hsl(var(--foreground)/0.06),0_4px_12px_-6px_hsl(var(--foreground)/0.18)]",
               )}
             >
               {!signedIn && (
                 <>
                   <Link
                     href="/launch"
-                    className="flex h-full items-center gap-2 whitespace-nowrap px-4 text-[15px] font-medium transition-colors hover:bg-black/10 sm:px-7"
+                    className="flex h-full items-center gap-2 whitespace-nowrap px-4 text-[15px] font-medium transition-colors hover:bg-accent sm:px-7"
                   >
-                    {/* Three labels, one per width. "Launch a Campaign" doesn't
+                    {/* Two labels, one per width. "Start a campaign" doesn't
                         fit a 375px bar once the wordmark is beside it, and
-                        "Launch" alone reads as a verb with no object — "Start"
-                        is shorter and survives losing the rest of the sentence. */}
-                    <span className="sm:hidden">Start</span>
-                    <span className="hidden sm:inline lg:hidden">Launch</span>
-                    <span className="hidden lg:inline">Launch a Campaign</span>
+                        "Start" survives losing the rest of the sentence in a
+                        way the old "Launch" — a verb with no object — didn't.
+                        The middle rung went with it: once the full label
+                        starts with "Start", a separate mid-width word would
+                        just be the same word twice. */}
+                    <span className="lg:hidden">Start</span>
+                    <span className="hidden lg:inline">Start a campaign</span>
                     <ArrowRight className="size-4 shrink-0" />
                   </Link>
-                  {/* The seam. Darkened against the fill rather than a border
-                      token, which would be invisible on orange. */}
-                  <span aria-hidden className="h-full w-px bg-black/20" />
+                  {/* The seam. Back to the border token now the fill is white
+                      — it was a darkened black wash only because a border
+                      token would have been invisible on orange. */}
+                  <span aria-hidden className="h-full w-px bg-border" />
                 </>
               )}
 
@@ -142,8 +146,7 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                 <button
                   type="button"
                   className={cn(
-                    "flex h-full w-11 items-center justify-center transition-colors sm:w-14",
-                    signedIn ? "text-foreground hover:bg-accent" : "hover:bg-black/10",
+                    "flex h-full w-11 items-center justify-center text-foreground transition-colors hover:bg-accent sm:w-14",
                   )}
                   aria-label="Open menu"
                 >
@@ -186,7 +189,7 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                 <SheetClose asChild>
                   <Button asChild size="lg" className="w-full">
                     <Link href="/launch">
-                      Launch a Campaign
+                      Start a campaign
                       <ArrowRight />
                     </Link>
                   </Button>

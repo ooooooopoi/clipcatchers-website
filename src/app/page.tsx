@@ -181,11 +181,11 @@ export default async function HomePage() {
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
             <Button asChild size="lg">
               <Link href="/launch">
-                Launch a Campaign
+                Start a campaign
                 <ArrowRight />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="ctaOutline">
+            <Button asChild size="lg" variant="outline">
               <Link href="#how-it-works">See how it works</Link>
             </Button>
           </div>
@@ -345,7 +345,7 @@ export default async function HomePage() {
               <div className="mt-8 flex flex-wrap justify-center gap-3">
                 <Button asChild size="lg">
                   <Link href="/launch">
-                    Launch a Campaign
+                    Start a campaign
                     <ArrowRight />
                   </Link>
                 </Button>

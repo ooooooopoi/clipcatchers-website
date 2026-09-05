@@ -172,7 +172,7 @@ export default async function CaseStudyPage(
         <div className="mt-12 text-center">
           <Button asChild size="lg">
             <Link href="/launch">
-              Launch a Campaign
+              Start a campaign
               <ArrowRight />
             </Link>
           </Button>

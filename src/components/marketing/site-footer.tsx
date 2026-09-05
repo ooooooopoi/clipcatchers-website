@@ -36,7 +36,7 @@ const COLUMNS = [
   {
     heading: "Account",
     links: [
-      { label: "Launch a Campaign", href: "/launch" },
+      { label: "Start a campaign", href: "/launch" },
       { label: "Client sign in", href: "/login" },
       // No "create an account". Accounts are set up when a campaign is
       // assigned to a client, so anyone following a public signup link arrives
@@ -63,7 +63,7 @@ export function SiteFooter() {
               href="/launch"
               className="mt-4 inline-block text-sm text-primary-ink underline-offset-4 hover:underline"
             >
-              Launch a campaign →
+              Start a campaign →
             </Link>
           </div>
 

@@ -137,7 +137,7 @@ export function Pricing() {
 
             <Button asChild size="lg" className="mt-7 w-full">
               <Link href="/launch">
-                Launch a Campaign
+                Start a campaign
                 <ArrowRight />
               </Link>
             </Button>
