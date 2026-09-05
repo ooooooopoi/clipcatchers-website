@@ -66,16 +66,18 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
             : "border border-border/60 bg-card/70 backdrop-blur-md",
         )}
       >
-        <Link href="/" className="flex shrink-0 items-center gap-2 min-[360px]:gap-3">
-          <BrandMark className="h-9 w-9 shrink-0 rounded-xl min-[360px]:h-11 min-[360px]:w-11 min-[360px]:rounded-2xl sm:h-14 sm:w-14" />
-          {/* Shown at every width. It used to hide below sm, which left a phone
-              looking at an unlabelled icon — the one place a visitor is least
-              likely to already know whose site they're on. */}
-          {/* Steps down below 360px. The bar is the mark, the name and a
-              two-part pill, and at 320 that does not fit — it already
-              overflowed by 6px before the name was enlarged, the wrapper's
-              overflow-x-clip just hid it rather than producing a scrollbar. */}
-          <span className="wordmark whitespace-nowrap text-base min-[360px]:text-lg sm:text-2xl">
+        {/* The name on its own. The icon tile sat to its left and the two were
+            saying the same thing twice in a bar with room for neither; the
+            wordmark is the half that works without being recognised first.
+            BrandMark is still the avatar on the app surfaces and is still the
+            favicon and the OG image — it has just stopped introducing a page
+            that already says who it belongs to.
+
+            Dropping it also freed the ~50px that made this bar overflow at
+            320px, so the size steps that were fighting for those pixels are
+            gone with it. */}
+        <Link href="/" className="flex shrink-0 items-center">
+          <span className="wordmark whitespace-nowrap text-lg sm:text-2xl">
             Clip Catchers
           </span>
         </Link>
@@ -124,7 +126,7 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                 <>
                   <Link
                     href="/launch"
-                    className="flex h-full items-center gap-1.5 whitespace-nowrap px-3 text-sm font-medium transition-colors hover:bg-accent min-[360px]:gap-2 min-[360px]:px-4 min-[360px]:text-[15px] sm:px-7"
+                    className="flex h-full items-center gap-2 whitespace-nowrap px-4 text-[15px] font-medium transition-colors hover:bg-accent sm:px-7"
                   >
                     {/* Two labels, one per width. "Start a campaign" doesn't
                         fit a 375px bar once the wordmark is beside it, and
@@ -150,7 +152,7 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                 <button
                   type="button"
                   className={cn(
-                    "flex h-full w-9 items-center justify-center text-foreground transition-colors hover:bg-accent min-[360px]:w-11 sm:w-14",
+                    "flex h-full w-11 items-center justify-center text-foreground transition-colors hover:bg-accent sm:w-14",
                   )}
                   aria-label="Open menu"
                 >
