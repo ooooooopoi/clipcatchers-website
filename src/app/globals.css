@@ -223,6 +223,19 @@
     }
   }
 
+  /* One definition for the wordmark, because it is set in two places — the
+     marketing header and BrandWordmark — and they had drifted to different
+     weights and tracking.
+
+     It is set in the body face on purpose. A mono version was tried, tying the
+     name to the voice of the stat figures, and it read as a dev tool rather
+     than as a brand. Size carries the presence here instead of a novelty face;
+     see the call sites. */
+  .wordmark {
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+
   .glow {
     box-shadow: 0 0 0 1px hsl(var(--primary) / 0.16), 0 12px 40px -12px hsl(var(--primary) / 0.35);
   }

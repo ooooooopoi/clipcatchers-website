@@ -21,8 +21,11 @@ export function BrandWordmark({ className }: { className?: string }) {
   return (
     <span className={cn("flex items-center gap-2.5", className)}>
       <BrandMark />
-      <span className="text-sm font-semibold tracking-tight">
+      <span className="wordmark text-base">
         Clip Catchers
+        {/* The badge keeps its own smaller size and normal tracking. It labels
+            the wordmark, it isn't part of it, and letting it inherit made the
+            name and its qualifier read as one string. */}
         <span className="ml-1.5 rounded border border-border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
           Client
         </span>

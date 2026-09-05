@@ -66,12 +66,16 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
             : "border border-border/60 bg-card/70 backdrop-blur-md",
         )}
       >
-        <Link href="/" className="flex shrink-0 items-center gap-3">
-          <BrandMark className="h-11 w-11 shrink-0 rounded-2xl sm:h-14 sm:w-14" />
+        <Link href="/" className="flex shrink-0 items-center gap-2 min-[360px]:gap-3">
+          <BrandMark className="h-9 w-9 shrink-0 rounded-xl min-[360px]:h-11 min-[360px]:w-11 min-[360px]:rounded-2xl sm:h-14 sm:w-14" />
           {/* Shown at every width. It used to hide below sm, which left a phone
               looking at an unlabelled icon — the one place a visitor is least
               likely to already know whose site they're on. */}
-          <span className="whitespace-nowrap text-[15px] font-semibold tracking-tight sm:text-base">
+          {/* Steps down below 360px. The bar is the mark, the name and a
+              two-part pill, and at 320 that does not fit — it already
+              overflowed by 6px before the name was enlarged, the wrapper's
+              overflow-x-clip just hid it rather than producing a scrollbar. */}
+          <span className="wordmark whitespace-nowrap text-base min-[360px]:text-lg sm:text-2xl">
             Clip Catchers
           </span>
         </Link>
@@ -120,7 +124,7 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                 <>
                   <Link
                     href="/launch"
-                    className="flex h-full items-center gap-2 whitespace-nowrap px-4 text-[15px] font-medium transition-colors hover:bg-accent sm:px-7"
+                    className="flex h-full items-center gap-1.5 whitespace-nowrap px-3 text-sm font-medium transition-colors hover:bg-accent min-[360px]:gap-2 min-[360px]:px-4 min-[360px]:text-[15px] sm:px-7"
                   >
                     {/* Two labels, one per width. "Start a campaign" doesn't
                         fit a 375px bar once the wordmark is beside it, and
@@ -146,7 +150,7 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                 <button
                   type="button"
                   className={cn(
-                    "flex h-full w-11 items-center justify-center text-foreground transition-colors hover:bg-accent sm:w-14",
+                    "flex h-full w-9 items-center justify-center text-foreground transition-colors hover:bg-accent min-[360px]:w-11 sm:w-14",
                   )}
                   aria-label="Open menu"
                 >
