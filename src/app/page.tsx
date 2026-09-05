@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Ban, Gauge, ReceiptText, ShieldCheck } from "lucide-react";
 import { AfterLaunch } from "@/components/marketing/after-launch";
+import { ClipField } from "@/components/marketing/clip-field";
 import { Clients } from "@/components/marketing/clients";
 import { Comparison } from "@/components/marketing/comparison";
 import { Control } from "@/components/marketing/control";
@@ -148,12 +149,16 @@ export default async function HomePage() {
     // overflow-x-clip, not overflow-hidden: `hidden` makes this a scroll
     // container, which silently stops the sticky header from sticking.
     <div className="relative min-h-screen overflow-x-clip">
-      {/* The grid, and nothing else. There used to be a tinted glow behind the
-          hero as well; once the accent went from orange to near-black it
-          stopped reading as warmth and started reading as a grey smudge across
-          the top of a white page — a monochrome scheme has no colour to bloom,
-          so the honest version is to drop it and let the page be white. */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[560px] bg-grid opacity-[0.25]" />
+      {/* The clip field, and nothing else. There used to be a tinted glow
+          behind the hero as well; once the accent went from orange to
+          near-black it stopped reading as warmth and started reading as a grey
+          smudge across the top of a white page — a monochrome scheme has no
+          colour to bloom, so the honest version is to drop it and let the page
+          be white. The field replaced a 56px square grid that was shared with
+          the auth screens and said nothing about the product; see
+          clip-field.tsx. Taller than the old 560px because it now fades on a
+          mask instead of stopping at an edge. */}
+      <ClipField className="h-[760px]" />
 
       <SiteHeader signedIn={Boolean(user)} />
 

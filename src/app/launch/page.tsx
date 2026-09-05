@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { BrandMark } from "@/components/brand";
+import { ClipField } from "@/components/marketing/clip-field";
 import { QuoteForm } from "@/components/quote-form";
 import { RATE_PER_THOUSAND } from "@/lib/pricing";
 import { SITE_STATS } from "@/lib/site-stats";
@@ -41,8 +42,16 @@ const REASSURANCE = [
 export default function QuotePage() {
   return (
     <div className="relative min-h-screen overflow-x-clip">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-grid opacity-[0.25]" />
-      <div className="pointer-events-none absolute left-1/2 top-[-140px] h-[420px] w-[760px] -translate-x-1/2 rounded-full bg-primary/10 blur-[150px]" />
+      {/* Same field as the homepage — this is the page that button leads to,
+          and the two surfaces reading differently made the handoff feel like
+          leaving the site.
+
+          The tinted glow that sat here is gone for the reason the homepage
+          dropped its own: --primary is near-black in the light theme, so
+          `bg-primary/10 blur-[150px]` isn't warmth, it's a grey smudge across
+          the top of a white page. That decision was made on the homepage and
+          never carried over here. */}
+      <ClipField className="h-[600px]" />
 
       <header className="relative z-10 mx-auto flex w-full max-w-3xl items-center justify-between gap-4 px-5 py-5">
         <Link href="/" className="flex items-center gap-2.5">

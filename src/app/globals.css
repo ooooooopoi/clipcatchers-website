@@ -172,6 +172,57 @@
     background-size: 56px 56px;
   }
 
+  /* The marketing pages get a field of 9:16 cells instead of the square
+     lattice above — the aspect ratio of every TikTok and Reel this business
+     runs on. The vertical rules are deliberately about twice the weight of
+     the horizontal ones; at equal weight it reads as graph paper, and the
+     whole point is that it should read as columns of portrait video.
+
+     36x64 keeps the ratio exact (36/64 = 0.5625) and lands on whole pixels,
+     which a 1px hairline needs or it renders as a grey smear. */
+  .bg-clipfield {
+    background-image:
+      linear-gradient(to right, hsl(var(--border) / 0.55) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.22) 1px, transparent 1px);
+    background-size: 36px 64px;
+    /* Density is the pitch — heaviest behind the hero, gone by the time the
+       argument starts. A mask rather than a fixed height and a hard edge. */
+    mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
+  }
+
+  /* A cell filling and fading: one clip being read off its live post. The
+     cycle is long and the stagger uneven on purpose — clips don't land on a
+     beat, and anything regular enough to tap along to stops being ambient. */
+  .clip-read {
+    position: absolute;
+    width: 35px;
+    height: 63px;
+    background: hsl(var(--foreground) / 0.055);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .clip-read {
+      animation: clip-read 19s ease-in-out infinite;
+    }
+  }
+
+  @keyframes clip-read {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    5% {
+      opacity: 1;
+    }
+    26% {
+      opacity: 0.35;
+    }
+    48% {
+      opacity: 0;
+    }
+  }
+
   .glow {
     box-shadow: 0 0 0 1px hsl(var(--primary) / 0.16), 0 12px 40px -12px hsl(var(--primary) / 0.35);
   }
