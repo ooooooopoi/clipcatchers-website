@@ -77,7 +77,10 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
             320px, so the size steps that were fighting for those pixels are
             gone with it. */}
         <Link href="/" className="flex shrink-0 items-center">
-          <span className="wordmark whitespace-nowrap text-lg sm:text-2xl">
+          {/* Uppercase costs about 33px of width over sentence case at the same
+              size, which is enough to push the menu back outside the capsule at
+              320. One step down below 360 pays for it. */}
+          <span className="wordmark whitespace-nowrap text-base min-[360px]:text-lg sm:text-2xl">
             Clip Catchers
           </span>
         </Link>
@@ -126,7 +129,7 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                 <>
                   <Link
                     href="/launch"
-                    className="flex h-full items-center gap-2 whitespace-nowrap px-4 text-[15px] font-medium transition-colors hover:bg-accent sm:px-7"
+                    className="flex h-full items-center gap-2 whitespace-nowrap px-3 text-[15px] font-medium transition-colors hover:bg-accent min-[360px]:px-4 sm:px-7"
                   >
                     {/* Two labels, one per width. "Start a campaign" doesn't
                         fit a 375px bar once the wordmark is beside it, and
