@@ -60,11 +60,21 @@ export function Proof({ stats }: { stats: PublicStats }) {
   // ours, which is what keeps a visitor whose system clock is days out from
   // seeing a wild number.
   //
-  // Capped at two hours — twice the cache's own lifetime. If `asOf` is ever
-  // older than that, something is wrong with the cache or the clock rather
-  // than with delivery, and projecting days forward would turn a stale
-  // figure into an invented one.
-  const CATCH_UP_CAP_SECONDS = 2 * 60 * 60;
+  // The cap exists to bound a corrupt `asOf` — a clock jump, a cache entry
+  // from another era — not to bound honest staleness.
+  //
+  // It was two hours, which was wrong, and wrong in a way the client already
+  // proved: a tab left open ticks forward indefinitely, so the projection is
+  // already trusted over long spans. Capping the server at two hours while
+  // the browser runs unbounded is the same arithmetic under two rules.
+  //
+  // Twelve hours covers the case this is actually for. unstable_cache only
+  // revalidates when someone asks, so an overnight lull leaves the figure
+  // untouched until the first visitor in the morning — measured here, it sat
+  // on one value for hours. At two hours that visitor saw a number ten hours
+  // behind. Their request refreshes the cache, so the projection is a bridge
+  // to the next real read rather than a substitute for one.
+  const CATCH_UP_CAP_SECONDS = 12 * 60 * 60;
   const staleSeconds = Math.min(
     Math.max(0, (Date.now() - stats.asOf) / 1000),
     CATCH_UP_CAP_SECONDS,
