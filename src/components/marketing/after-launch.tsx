@@ -140,7 +140,7 @@ export function AfterLaunch() {
           {NO_STRINGS.map((item) => (
             <div
               key={item.title}
-              className="surface reveal rounded-2xl border border-border bg-card p-5"
+              className="surface lift reveal rounded-2xl border border-border bg-card p-5 hover:border-[hsl(var(--border-strong))]"
             >
               <h3 className="text-sm font-semibold">{item.title}</h3>
               <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">

@@ -213,7 +213,7 @@ export default async function HomePage() {
             {GUARANTEES.map((item) => (
               <div
                 key={item.title}
-                className="surface reveal rounded-2xl border border-border bg-card p-5"
+                className="surface lift reveal rounded-2xl border border-border bg-card p-5 hover:border-[hsl(var(--border-strong))]"
               >
                 <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background">
                   <item.icon className="h-4 w-4 text-primary-ink" />

@@ -67,7 +67,7 @@ export function Verification() {
           {CHAIN.map((link, i) => (
             <div
               key={link.step}
-              className="surface reveal relative rounded-2xl border border-border bg-card p-6"
+              className="surface lift reveal relative rounded-2xl border border-border bg-card p-6 hover:border-[hsl(var(--border-strong))]"
             >
               {/* The arrow between cards. Hidden on the last one, and hidden
                   entirely below lg where the cards stack in pairs and a
