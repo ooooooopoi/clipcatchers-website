@@ -142,12 +142,28 @@ function SheetTable({
   );
 }
 
+// The bot pushes every 10 minutes. Anything much older means the ingest is
+// failing, and a failed ingest leaves the previous snapshot in place — so the
+// page looks fine and quietly shows yesterday.
+const STALE_AFTER_MINUTES = 30;
+
+function formatAge(minutes: number) {
+  if (minutes < 90) return `${Math.round(minutes)} minutes`;
+  const hours = minutes / 60;
+  if (hours < 36) return `${Math.round(hours)} hours`;
+  return `${Math.round(hours / 24)} days`;
+}
+
 export default async function TeamPage({ params }: { params: Promise<{ sig: string }> }) {
   const { sig } = await params;
   if (!teamSignatureValid(sig)) notFound();
 
   const snapshot = await prisma.botSnapshot.findUnique({ where: { id: "latest" } });
   const data = (snapshot?.data ?? {}) as Snapshot;
+
+  const staleMinutes = snapshot
+    ? (Date.now() - new Date(snapshot.updatedAt).getTime()) / 60000
+    : 0;
 
   const clips = data.clips ?? [];
   const clippers = data.clippers ?? [];
@@ -207,6 +223,15 @@ export default async function TeamPage({ params }: { params: Promise<{ sig: stri
           <p className="mt-6 rounded-xl border border-warning/30 bg-warning/10 p-4 text-sm text-warning">
             No data yet — run <code className="font-mono">/sync-dashboard</code> in Discord to push
             the first snapshot.
+          </p>
+        )}
+
+        {snapshot && staleMinutes > STALE_AFTER_MINUTES && (
+          <p className="mt-6 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+            <strong>This data is {formatAge(staleMinutes)} old.</strong> The bot pushes every 10
+            minutes, so the ingest is failing — everything below is a stale picture. A rejected
+            snapshot leaves the last good one in place and reports the error only to the bot&apos;s
+            logs, which is how this can go unnoticed for a day.
           </p>
         )}
 

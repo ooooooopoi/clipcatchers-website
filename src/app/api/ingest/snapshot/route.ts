@@ -12,12 +12,27 @@ export const dynamic = "force-dynamic";
  * always replaced wholesale, and the bot's schema is free to change without
  * needing a migration here.
  */
+/**
+ * The caps guard against a runaway payload; they are not business limits, so
+ * they sit far above anything real. The previous clips cap of 5,000 was passed
+ * in ordinary operation and rejected the *entire* snapshot — one oversized
+ * array is total failure for a whole-payload validator — and the team view
+ * silently froze for a day. Anything that grows with usage needs headroom
+ * measured in years.
+ *
+ * Unlisted keys are a second trap: z.object strips them rather than
+ * complaining, so the bot sent `snapshots` for hours and it vanished on
+ * arrival behind a 200. A new table on the bot has to be added here as well.
+ */
+const rows = (max: number) => z.array(z.record(z.string(), z.unknown())).max(max).optional();
+
 const schema = z.object({
-  campaigns: z.array(z.record(z.string(), z.unknown())).max(500).optional(),
-  clips: z.array(z.record(z.string(), z.unknown())).max(5000).optional(),
-  clippers: z.array(z.record(z.string(), z.unknown())).max(2000).optional(),
-  accounts: z.array(z.record(z.string(), z.unknown())).max(5000).optional(),
-  invites: z.array(z.record(z.string(), z.unknown())).max(5000).optional(),
+  campaigns: rows(5_000),
+  clips: rows(200_000),
+  clippers: rows(50_000),
+  accounts: rows(50_000),
+  invites: rows(50_000),
+  snapshots: rows(200_000),
 });
 
 function secretMatches(provided: string | null) {
