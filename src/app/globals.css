@@ -172,60 +172,44 @@
     background-size: 56px 56px;
   }
 
-  /* The marketing pages get a field of 9:16 cells instead of the square
-     lattice above — the aspect ratio of every TikTok and Reel this business
-     runs on. The vertical rules are deliberately about twice the weight of
-     the horizontal ones; at equal weight it reads as graph paper, and the
-     whole point is that it should read as columns of portrait video.
+  /* The marketing pages get a starfield.
 
-     36x64 keeps the ratio exact (36/64 = 0.5625) and lands on whole pixels,
-     which a 1px hairline needs or it renders as a grey smear. */
-  .bg-clipfield {
-    background-image:
-      linear-gradient(to right, hsl(var(--border) / 0.55) 1px, transparent 1px),
-      linear-gradient(to bottom, hsl(var(--border) / 0.22) 1px, transparent 1px);
-    background-size: 36px 64px;
-    /* Density is the pitch — heaviest behind the hero, gone by the time the
-       argument starts. A mask rather than a fixed height and a hard edge. */
-    mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
+     Drawn in --foreground rather than a fixed colour, so it inverts with the
+     theme: dark points on the white page, and genuinely light points on dark
+     when the theme is flipped. Density thins down the page on a mask, so the
+     hero has the most of it and the argument below has none. */
+  .starfield {
+    mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 100%);
   }
 
-  /* A cell filling and fading: one clip being read off its live post. The
-     cycle is long and the stagger uneven on purpose — clips don't land on a
-     beat, and anything regular enough to tap along to stops being ambient. */
-  .clip-read {
+  .star {
     position: absolute;
-    width: 35px;
-    height: 63px;
-    background: hsl(var(--foreground) / 0.055);
+    border-radius: 9999px;
+    background: hsl(var(--foreground));
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .clip-read {
-      /* `backwards` matters more than it looks. Without a fill mode a cell
-         keeps its own styles until its delay elapses, and its own styles are
-         a plain visible block — so every cell sat fully lit for up to fifteen
-         seconds after load, and the field arrived crowded and then thinned
-         out as the animations finally took over. With `backwards` each cell
-         holds the 0% frame, opacity 0, until its turn comes. */
-      animation: clip-read 19s ease-in-out infinite backwards;
+    .star {
+      /* `backwards` so a star holds the 0% frame through its delay. Without a
+         fill mode it keeps its own style until its turn, which for a plain
+         element means fully opaque — the field would arrive as a solid sky and
+         then thin out. That bug cost an hour on the version before this one. */
+      animation: twinkle 6s ease-in-out infinite backwards;
     }
   }
 
-  @keyframes clip-read {
+  /* Never fully out. A star that disappears reads as a dead pixel; one that
+     dims and comes back reads as atmosphere. The floor is the resting opacity
+     and the peak is roughly double it, which is enough to notice across a
+     field and not enough to see any single one blink. */
+  @keyframes twinkle {
     0%,
     100% {
-      opacity: 0;
+      opacity: var(--star-dim, 0.35);
     }
-    5% {
-      opacity: 1;
-    }
-    26% {
-      opacity: 0.35;
-    }
-    48% {
-      opacity: 0;
+    50% {
+      opacity: var(--star-lit, 0.85);
     }
   }
 
