@@ -203,7 +203,13 @@
 
   @media (prefers-reduced-motion: no-preference) {
     .clip-read {
-      animation: clip-read 19s ease-in-out infinite;
+      /* `backwards` matters more than it looks. Without a fill mode a cell
+         keeps its own styles until its delay elapses, and its own styles are
+         a plain visible block — so every cell sat fully lit for up to fifteen
+         seconds after load, and the field arrived crowded and then thinned
+         out as the animations finally took over. With `backwards` each cell
+         holds the 0% frame, opacity 0, until its turn comes. */
+      animation: clip-read 19s ease-in-out infinite backwards;
     }
   }
 

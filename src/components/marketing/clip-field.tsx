@@ -27,18 +27,42 @@ import { cn } from "@/lib/utils";
  * are deliberately not evenly spaced: an even stagger reads as a loading
  * animation, and this is meant to read as weather.
  *
- * Rows avoid 2-5 on purpose. That band is where the headline sits, and a cell
+ * Rows avoid 3-5 on purpose. That band is where the headline sits, and a cell
  * brightening directly behind display type reads as a rendering fault rather
  * than as atmosphere. These sit above it, around the eyebrow, and below it,
  * around the buttons and the proof strip.
+ *
+ * ── On the number of them ───────────────────────────────────────────────
+ * Six was too quiet. On a 19s loop that is one visible read every three
+ * seconds across the whole width, which at a glance is a still page with an
+ * occasional flicker rather than a page with something going on.
+ *
+ * Sixteen is closer to honest as well as livelier: there are 4,640 clips
+ * being polled, so several being read at once is what actually happens.
+ *
+ * Each one keeps its own duration rather than sharing a single 19s cycle.
+ * With one duration the whole field silently repeats every 19 seconds, and
+ * once a viewer catches that it stops reading as activity and starts reading
+ * as a loop. Durations that don't divide into each other take a very long
+ * time to line up again.
  */
 const READS = [
-  { col: 4, row: 1, delay: "5.5s" },
-  { col: 15, row: 0, delay: "2.6s" },
-  { col: 28, row: 1, delay: "14.4s" },
-  { col: 1, row: 6, delay: "0s" },
-  { col: 9, row: 7, delay: "11.2s" },
-  { col: 21, row: 6, delay: "8.1s" },
+  { col: 2, row: 0, delay: "3.1s", dur: "17s" },
+  { col: 4, row: 1, delay: "5.5s", dur: "21s" },
+  { col: 7, row: 2, delay: "12.8s", dur: "14s" },
+  { col: 11, row: 0, delay: "1.4s", dur: "23s" },
+  { col: 15, row: 1, delay: "2.6s", dur: "19s" },
+  { col: 19, row: 2, delay: "9.7s", dur: "16s" },
+  { col: 24, row: 0, delay: "15.2s", dur: "22s" },
+  { col: 28, row: 1, delay: "14.4s", dur: "18s" },
+  { col: 33, row: 2, delay: "6.3s", dur: "25s" },
+  { col: 1, row: 6, delay: "0s", dur: "20s" },
+  { col: 5, row: 8, delay: "8.9s", dur: "15s" },
+  { col: 9, row: 7, delay: "11.2s", dur: "24s" },
+  { col: 14, row: 9, delay: "4.7s", dur: "18s" },
+  { col: 21, row: 6, delay: "8.1s", dur: "26s" },
+  { col: 26, row: 8, delay: "13.6s", dur: "13s" },
+  { col: 31, row: 7, delay: "7.2s", dur: "21s" },
 ] as const;
 
 export function ClipField({ className }: { className?: string }) {
@@ -61,6 +85,10 @@ export function ClipField({ className }: { className?: string }) {
             left: `calc(${r.col} * 36px + 1px)`,
             top: `calc(${r.row} * 64px + 1px)`,
             animationDelay: r.delay,
+            // Overrides the 19s in the stylesheet. Set here rather than there
+            // because the point is that no two are the same — a shared
+            // duration makes the whole field repeat on one visible cycle.
+            animationDuration: r.dur,
           }}
         />
       ))}
