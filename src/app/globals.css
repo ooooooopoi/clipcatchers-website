@@ -178,40 +178,47 @@
      theme: dark points on the white page, and genuinely light points on dark
      when the theme is flipped. Density thins down the page on a mask, so the
      hero has the most of it and the argument below has none. */
+  /* Two masks, intersected.
+
+     The vertical one thins the field down the page, so the hero carries it
+     and the argument below is left alone.
+
+     The elliptical one punches a soft hole through the middle, because the
+     lines were being drawn straight across the headline. A 1px line at 0.3
+     alpha doesn't make display type illegible, but it does put moving
+     geometry behind the one sentence the page needs read, and the eye
+     follows movement. Clearing the centre keeps the effect at the edges where
+     there is nothing to compete with. */
   .starfield {
-    mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 100%);
+    mask-image:
+      linear-gradient(to bottom, black 0%, black 55%, transparent 100%),
+      radial-gradient(ellipse 42% 34% at 50% 44%, transparent 35%, black 100%);
+    mask-composite: intersect;
+    -webkit-mask-image:
+      linear-gradient(to bottom, black 0%, black 55%, transparent 100%),
+      radial-gradient(ellipse 42% 34% at 50% 44%, transparent 35%, black 100%);
+    -webkit-mask-composite: source-in;
   }
 
-  .star {
-    position: absolute;
-    border-radius: 9999px;
-    background: hsl(var(--foreground));
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .star {
-      /* `backwards` so a star holds the 0% frame through its delay. Without a
-         fill mode it keeps its own style until its turn, which for a plain
-         element means fully opaque — the field would arrive as a solid sky and
-         then thin out. That bug cost an hour on the version before this one. */
-      animation: twinkle 6s ease-in-out infinite backwards;
+  /* The hole is a percentage of the container, but the text isn't — copy fills
+     nearly the full width of a phone and only the middle of a desktop. At 42%
+     the cleared area was 157px against a 340px column, so the mesh came back
+     over the subhead and the buttons. Wider and taller below sm. */
+  @media (max-width: 639px) {
+    .starfield {
+      mask-image:
+        linear-gradient(to bottom, black 0%, black 55%, transparent 100%),
+        radial-gradient(ellipse 72% 40% at 50% 46%, transparent 40%, black 100%);
+      -webkit-mask-image:
+        linear-gradient(to bottom, black 0%, black 55%, transparent 100%),
+        radial-gradient(ellipse 72% 40% at 50% 46%, transparent 40%, black 100%);
     }
   }
 
-  /* Never fully out. A star that disappears reads as a dead pixel; one that
-     dims and comes back reads as atmosphere. The floor is the resting opacity
-     and the peak is roughly double it, which is enough to notice across a
-     field and not enough to see any single one blink. */
-  @keyframes twinkle {
-    0%,
-    100% {
-      opacity: var(--star-dim, 0.35);
-    }
-    50% {
-      opacity: var(--star-lit, 0.85);
-    }
-  }
+  /* The points and the lines between them are painted on a canvas, so there
+     is no per-star rule here any more — see star-field.tsx. Only the mask
+     above stays, because it fades the whole canvas out down the page and
+     that is cheaper as a mask than as alpha applied per point per frame. */
 
   /* One definition for the wordmark, because it is set in two places — the
      marketing header and BrandWordmark — and they had drifted to different
