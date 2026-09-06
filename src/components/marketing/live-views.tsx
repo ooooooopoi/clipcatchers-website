@@ -71,10 +71,15 @@ export function LiveViews({
 
   return (
     // tabular-nums so the digits don't shuffle sideways on every tick.
+    //
+    // whitespace-nowrap because toLocaleString inserts commas, and a comma is
+    // a legal break opportunity — an eleven-digit figure in a quarter-width
+    // tile otherwise wraps onto two or three lines at narrow widths.
+    //
     // aria-live is deliberately off: a figure that changes every second would
     // make a screen reader unusable. The number is decorative movement over a
     // value that is announced correctly on load.
-    <span className="tabular-nums" aria-live="off">
+    <span className="whitespace-nowrap tabular-nums" aria-live="off">
       {/* Locale pinned. A bare toLocaleString() formats with the ambient
           locale, which is Node's on the server and the visitor's in the
           browser — 136,240,182 against 136.240.182 — and React would flag the

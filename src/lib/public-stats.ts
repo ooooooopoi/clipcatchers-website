@@ -123,12 +123,43 @@ async function query(): Promise<PublicStats> {
   // Delivery over the rate window, for the ticking counter on the homepage.
   // Excludes PENDING for the same reason the totals do: work that may never
   // happen shouldn't set the rate at which the page claims work is happening.
+  //
+  // ── Why the first row of each campaign is thrown away ──────────────────
+  // The bot differences consecutive snapshots to get a daily delta, and it
+  // starts each campaign from zero:
+  //
+  //     metrics, prev_views, prev_spend = [], 0, 0
+  //     for row in await database.snapshots_for(camp["id"]):
+  //         d_views = max(0, row["views"] - prev_views)
+  //
+  // So a campaign's earliest row isn't a day's delivery — it's that
+  // campaign's entire history to that point, recorded as one day. Summing the
+  // window naively meant every campaign that started inside it dumped its
+  // whole lifetime into the rate. Measured on production that put 30-day
+  // delivery at 184.8M against a lifetime total of 188.5M: 98% of everything
+  // ever delivered, supposedly in one month.
+  //
+  // Cheap to drop: 19 campaigns over 30 days is a few hundred rows, so the
+  // filtering happens here rather than as a second round trip.
   const since = new Date(Date.now() - RATE_WINDOW_SECONDS * 1000);
-  const window = await prisma.campaignMetric.aggregate({
-    _sum: { views: true },
-    where: { date: { gte: since }, campaign: { status: { not: "PENDING" } } },
-  });
-  const viewsInWindow = window._sum.views ?? 0;
+  const [windowRows, firstDates] = await Promise.all([
+    prisma.campaignMetric.findMany({
+      where: { date: { gte: since }, campaign: { status: { not: "PENDING" } } },
+      select: { campaignId: true, date: true, views: true },
+    }),
+    prisma.campaignMetric.groupBy({
+      by: ["campaignId"],
+      _min: { date: true },
+    }),
+  ]);
+
+  const seedRow = new Map(
+    firstDates.map((r) => [r.campaignId, r._min.date?.getTime() ?? -1]),
+  );
+  const viewsInWindow = windowRows.reduce(
+    (sum, r) => (r.date.getTime() === seedRow.get(r.campaignId) ? sum : sum + r.views),
+    0,
+  );
 
   const clients: ClientRow[] = grouped.map((row) => {
     const named = PUBLIC_CLIENTS.has(row.brandName.trim().toLowerCase());
@@ -141,13 +172,22 @@ async function query(): Promise<PublicStats> {
     };
   });
 
+  const totalViews = clients.reduce((sum, c) => sum + c.views, 0);
+
+  // A month cannot have delivered more than everything ever delivered. If it
+  // reads that way the deltas are wrong again in some new way, and a counter
+  // racing on bad arithmetic is worse than one that sits still — so this
+  // stops rather than guesses. Seed rows were one cause; this catches the
+  // next one without needing to know what it is.
+  const rateIsCredible = viewsInWindow > 0 && viewsInWindow <= totalViews;
+
   return {
-    totalViews: clients.reduce((sum, c) => sum + c.views, 0),
+    totalViews,
     totalClips: clients.reduce((sum, c) => sum + c.clips, 0),
     creators: handles.length,
     campaigns: clients.reduce((sum, c) => sum + c.campaigns, 0),
     clients,
-    viewsPerSecond: viewsInWindow / RATE_WINDOW_SECONDS,
+    viewsPerSecond: rateIsCredible ? viewsInWindow / RATE_WINDOW_SECONDS : 0,
     live: true,
   };
 }
