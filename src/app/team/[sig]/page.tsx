@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Coins, Eye, Megaphone, Users, Wallet } from "lucide-react";
 import { BrandWordmark } from "@/components/brand";
 import { ClipActions } from "@/components/team/clip-actions";
+import { GrowthChart } from "@/components/team/growth-chart";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -29,6 +30,7 @@ type Snapshot = {
   clippers?: Row[];
   accounts?: Row[];
   invites?: Row[];
+  snapshots?: Row[];
 };
 
 const SHEETS = [
@@ -215,6 +217,8 @@ export default async function TeamPage({ params }: { params: Promise<{ sig: stri
           <Stat icon={<Coins />} label="Owed" value={`$${totals.owed.toFixed(2)}`} accent />
           <Stat icon={<Wallet />} label="Paid out" value={`$${totals.paid.toFixed(2)}`} />
         </div>
+
+        <GrowthChart rows={data.snapshots ?? []} />
 
         {topClips.length > 0 && (
           <Card className="mt-4 p-5">
