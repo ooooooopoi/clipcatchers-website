@@ -77,9 +77,26 @@ export type PublicStats = {
   creators: number;
   campaigns: number;
   clients: ClientRow[];
+  /**
+   * Delivery rate in views per second, measured over the last 30 days.
+   *
+   * CampaignMetric.views is a daily delta, not a running total — the bot
+   * differences consecutive snapshots before it sends them ("Consecutive
+   * snapshots differ by that day's delivery") — so summing a date range gives
+   * real delivery for that range rather than double-counting a cumulative
+   * figure.
+   *
+   * 0 when there is no delivery in the window, which is the signal to show a
+   * still number rather than a counter ticking at a rate nothing supports.
+   */
+  viewsPerSecond: number;
   /** False when the database couldn't be reached, so callers can fall back. */
   live: boolean;
 };
+
+/** 30 days in seconds — the window the delivery rate is measured over. */
+const RATE_WINDOW_DAYS = 30;
+const RATE_WINDOW_SECONDS = RATE_WINDOW_DAYS * 24 * 60 * 60;
 
 async function query(): Promise<PublicStats> {
   // Grouped in the database rather than pulled and reduced here: a brand with
@@ -103,6 +120,16 @@ async function query(): Promise<PublicStats> {
     select: { handle: true },
   });
 
+  // Delivery over the rate window, for the ticking counter on the homepage.
+  // Excludes PENDING for the same reason the totals do: work that may never
+  // happen shouldn't set the rate at which the page claims work is happening.
+  const since = new Date(Date.now() - RATE_WINDOW_SECONDS * 1000);
+  const window = await prisma.campaignMetric.aggregate({
+    _sum: { views: true },
+    where: { date: { gte: since }, campaign: { status: { not: "PENDING" } } },
+  });
+  const viewsInWindow = window._sum.views ?? 0;
+
   const clients: ClientRow[] = grouped.map((row) => {
     const named = PUBLIC_CLIENTS.has(row.brandName.trim().toLowerCase());
     return {
@@ -120,6 +147,7 @@ async function query(): Promise<PublicStats> {
     creators: handles.length,
     campaigns: clients.reduce((sum, c) => sum + c.campaigns, 0),
     clients,
+    viewsPerSecond: viewsInWindow / RATE_WINDOW_SECONDS,
     live: true,
   };
 }
@@ -225,6 +253,9 @@ export async function getPublicStats(): Promise<PublicStats> {
       creators: 0,
       campaigns: 0,
       clients: [],
+      // Nothing was read, so there is no measured rate to tick at. The
+      // fallback path shows the hand-recorded totals, which don't move.
+      viewsPerSecond: 0,
       live: false,
     };
   }

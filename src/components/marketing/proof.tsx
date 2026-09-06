@@ -1,4 +1,4 @@
-import { formatCompact } from "@/lib/format";
+import { LiveViews } from "@/components/marketing/live-views";
 import type { PublicStats } from "@/lib/public-stats";
 import { AS_OF, SITE_STATS } from "@/lib/site-stats";
 
@@ -32,10 +32,22 @@ export function Proof({ stats }: { stats: PublicStats }) {
   // one an hour out of date. Campaigns run has no hand-recorded fallback, so
   // it drops rather than being invented — three true tiles beat four with a
   // guess in them.
+  // The rate is only trustworthy if there was delivery in the window to
+  // measure. No delivery, no counter — the tile falls back to a still figure
+  // rather than ticking at a rate nothing supports.
+  const ticking = live && stats.viewsPerSecond > 0;
+
   const metrics = [
     {
-      value: live ? formatCompact(stats.totalViews) : SITE_STATS.viewsDelivered,
+      value: live ? (
+        <LiveViews initial={stats.totalViews} perSecond={stats.viewsPerSecond} />
+      ) : (
+        SITE_STATS.viewsDelivered
+      ),
       label: "views delivered for clients",
+      // Every digit, where the others are rounded — see live-views.tsx for
+      // why a compact figure can't visibly tick.
+      wide: true,
     },
     {
       value: live ? stats.totalClips.toLocaleString() : SITE_STATS.clipsPublished,
@@ -71,7 +83,14 @@ export function Proof({ stats }: { stats: PublicStats }) {
                 : ""
             }`}
           >
-            <p className="font-mono text-2xl font-semibold tracking-tight text-primary-ink sm:text-3xl">
+            {/* The ticking tile carries every digit where the others are
+                rounded, so it needs a step down or eleven characters of mono
+                overflow a quarter-width tile. */}
+            <p
+              className={`font-mono font-semibold tracking-tight text-primary-ink ${
+                m.wide ? "text-lg sm:text-xl" : "text-2xl sm:text-3xl"
+              }`}
+            >
               {m.value}
             </p>
             <p className="mt-1.5 text-xs leading-tight text-muted-foreground">{m.label}</p>
@@ -80,9 +99,11 @@ export function Proof({ stats }: { stats: PublicStats }) {
       </div>
 
       <p className="mt-3 text-center text-xs text-muted-foreground/70">
-        {live
-          ? "Read from our live reporting, not written by hand — the same rows each client sees on their own report."
-          : `Across every campaign to date, as of ${AS_OF}.`}
+        {!live
+          ? `Across every campaign to date, as of ${AS_OF}.`
+          : ticking
+            ? "Read from our live reporting, not written by hand. Views climb at our measured 30-day delivery rate between reads, then correct to the logged figure."
+            : "Read from our live reporting, not written by hand — the same rows each client sees on their own report."}
       </p>
     </section>
   );
