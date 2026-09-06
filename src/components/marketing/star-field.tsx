@@ -36,12 +36,37 @@ import { cn } from "@/lib/utils";
  * over the copy. Deriving the count from area keeps it looking the same
  * everywhere and, usefully, does the least work on the smallest device.
  */
-const AREA_PER_POINT = 11_700;
-const MIN_POINTS = 16;
-const MAX_POINTS = 80;
+const AREA_PER_POINT = 15_500;
+const MIN_POINTS = 14;
+const MAX_POINTS = 64;
 
-/** Below this gap a line is drawn, fading out as the pair drifts apart. */
-const LINK_DISTANCE = 132;
+/**
+ * Below this gap a line is drawn, fading out as the pair drifts apart.
+ *
+ * Longer than it was, and paired with fewer points and a fainter stroke. The
+ * three move together: reaching further on its own just thickens the mesh,
+ * because the number of pairs inside the radius grows with its square. Spread
+ * the points out at the same time and the web gets bigger without getting
+ * busier — longer spans, fewer of them, each one lighter.
+ */
+const LINK_DISTANCE = 178;
+/** Faint enough to read as a drawn line rather than a graph edge. */
+const LINK_ALPHA = 0.17;
+
+/**
+ * The most lines any one point will accept.
+ *
+ * Joining every pair inside the radius is what a proximity graph does, and it
+ * looks like one: wherever three or four points drift together they fill in
+ * as a solid polygon, and the field reads as a mesh rather than as stars.
+ *
+ * Capping the degree changes the character completely. Links are taken
+ * shortest-first, so each point keeps its nearest neighbour or two and
+ * everything else goes unjoined — which also means a point on its own stays
+ * on its own instead of being roped into whatever passes nearby.
+ */
+const MAX_LINKS = 2;
+
 const SPEED = 0.16;
 
 type P = { x: number; y: number; vx: number; vy: number; r: number };
@@ -74,6 +99,12 @@ export function StarField({ className }: { className?: string }) {
     let frame = 0;
     let running = false;
 
+    // Both reused between frames rather than reallocated 60 times a second.
+    // `candidates` is emptied with .length = 0 and refilled; `degree` counts
+    // how many lines each point has taken this frame.
+    let degree = new Uint8Array(0);
+    const candidates: { i: number; j: number; d: number }[] = [];
+
     // The ink colour is a token, so it has to be read rather than hardcoded —
     // that's what lets the field invert on the dark theme instead of drawing
     // near-black points on a near-black page.
@@ -98,16 +129,45 @@ export function StarField({ className }: { className?: string }) {
       const count = Math.round(
         Math.min(MAX_POINTS, Math.max(MIN_POINTS, (width * height) / AREA_PER_POINT)),
       );
-      points = Array.from({ length: count }, () => ({
-        x: rand() * width,
-        y: rand() * height,
-        // Angle rather than independent vx/vy, so every point moves at the
-        // same speed in a different direction. Independent components make
-        // diagonal movers noticeably faster than axis-aligned ones.
-        vx: Math.cos(rand() * Math.PI * 2) * SPEED,
-        vy: Math.sin(rand() * Math.PI * 2) * SPEED,
-        r: rand() > 0.9 ? 1.9 : rand() > 0.65 ? 1.4 : 1,
-      }));
+
+      // Stratified, not uniform. Scattering points with two random numbers
+      // each gives clumps and voids — that is what uniform random looks like,
+      // and at these counts it is obvious: the first version put 26.6% of the
+      // ink in the leftmost sixth of the canvas and 8.2% in the rightmost.
+      //
+      // So the area is divided into a grid of roughly `count` cells and one
+      // point is dropped somewhere inside each. Coverage is even, and the
+      // jitter within each cell keeps it from reading as a lattice.
+      const cols = Math.max(1, Math.round(Math.sqrt((count * width) / height)));
+      const rows = Math.max(1, Math.ceil(count / cols));
+      const cellW = width / cols;
+      const cellH = height / rows;
+
+      points = [];
+      for (let i = 0; i < count; i++) {
+        const cx = i % cols;
+        const cy = Math.floor(i / cols);
+        // One rand() per value, in a fixed order. The size used to be picked
+        // with a conditional that consumed one or two numbers depending on
+        // the first, so how much of the sequence each point ate varied —
+        // harmless, but it makes the field impossible to reason about.
+        const jx = rand();
+        const jy = rand();
+        const angle = rand() * Math.PI * 2;
+        const roll = rand();
+        points.push({
+          x: (cx + jx) * cellW,
+          y: (cy + jy) * cellH,
+          // Angle rather than independent vx/vy, so every point moves at the
+          // same speed in a different direction. Independent components make
+          // diagonal movers noticeably faster than axis-aligned ones.
+          vx: Math.cos(angle) * SPEED,
+          vy: Math.sin(angle) * SPEED,
+          r: roll > 0.9 ? 1.9 : roll > 0.65 ? 1.4 : 1,
+        });
+      }
+
+      degree = new Uint8Array(points.length);
     };
 
     const resize = () => {
@@ -136,24 +196,39 @@ export function StarField({ className }: { className?: string }) {
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Lines first so the points sit on top of the joins rather than being
-      // cut through by them.
+      // Every pair inside the radius, gathered first rather than drawn as
+      // found — the shortest ones have to win the degree cap, and that can't
+      // be decided until they've all been seen.
+      candidates.length = 0;
       for (let i = 0; i < points.length; i++) {
         for (let j = i + 1; j < points.length; j++) {
           const dx = points[i].x - points[j].x;
           const dy = points[i].y - points[j].y;
           // Compared squared to skip a sqrt on every pair; the real distance
-          // is only needed for the pairs that actually get a line.
+          // is only needed for the few that survive.
           const d2 = dx * dx + dy * dy;
           if (d2 > LINK_DISTANCE * LINK_DISTANCE) continue;
-          const d = Math.sqrt(d2);
-          ctx.strokeStyle = `rgba(${ink}, ${0.3 * (1 - d / LINK_DISTANCE)})`;
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(points[i].x, points[i].y);
-          ctx.lineTo(points[j].x, points[j].y);
-          ctx.stroke();
+          candidates.push({ i, j, d: Math.sqrt(d2) });
         }
+      }
+      // Only the in-range pairs get sorted, which is a small fraction of the
+      // n² checked above — a few dozen, not a few thousand.
+      candidates.sort((a, b) => a.d - b.d);
+
+      degree.fill(0);
+
+      // Lines before points, so the dots sit on top of the joins rather than
+      // being cut through by them.
+      ctx.lineWidth = 0.6;
+      for (const c of candidates) {
+        if (degree[c.i] >= MAX_LINKS || degree[c.j] >= MAX_LINKS) continue;
+        degree[c.i]++;
+        degree[c.j]++;
+        ctx.strokeStyle = `rgba(${ink}, ${LINK_ALPHA * (1 - c.d / LINK_DISTANCE)})`;
+        ctx.beginPath();
+        ctx.moveTo(points[c.i].x, points[c.i].y);
+        ctx.lineTo(points[c.j].x, points[c.j].y);
+        ctx.stroke();
       }
 
       for (const p of points) {
