@@ -59,20 +59,44 @@ export function LiveViews({
   useEffect(() => {
     if (perSecond <= 0) return;
 
-    // Reduced motion gets the anchor figure and no movement. Someone who has
-    // asked the OS to stop things moving should not be handed a counter.
-    const still = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (still.matches) return;
+    // Reduced motion slows the counter down; it does not stop it.
+    //
+    // It used to return here and leave the figure frozen at whatever it was
+    // when the page loaded. That reads as a different bug depending on the
+    // device: iOS has Reduce Motion switched on far more often than a desktop
+    // does, so the same page ticked on a PC and sat still on a phone. And a
+    // frozen counter is not merely static, it is progressively wrong — at ~69
+    // views a second it is a quarter of a million out after an hour of
+    // reading, on the one figure this page asks to be believed.
+    //
+    // The preference is about motion that can make people ill: parallax,
+    // sliding, spinning. A number refreshing on a half-minute cadence is a
+    // data update, not an animation. Slowing it keeps faith with the request
+    // while keeping the figure true.
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const everyMs = reduced ? 30_000 : 1_000;
 
     // Recomputed from elapsed wall-clock rather than incremented, so a
     // backgrounded tab that stops firing timers catches up on return instead
-    // of showing a number that silently fell behind.
-    const id = window.setInterval(() => {
+    // of showing a number that silently fell behind. That is also what lets
+    // the slow path stay accurate: a 30s tick lands on the same value a 1s
+    // tick would have, it just gets there in fewer steps.
+    const tick = () => {
       const elapsed = (Date.now() - anchor.current.at) / 1000;
       setViews(anchor.current.value + Math.floor(elapsed * perSecond));
-    }, 1000);
+    };
 
-    return () => window.clearInterval(id);
+    // A tab restored from the background may have missed many intervals.
+    // Recompute the moment it becomes visible rather than showing a stale
+    // figure until the next one fires — at the slow cadence that would
+    // otherwise be half a minute of visibly wrong number.
+    document.addEventListener("visibilitychange", tick);
+    const id = window.setInterval(tick, everyMs);
+
+    return () => {
+      document.removeEventListener("visibilitychange", tick);
+      window.clearInterval(id);
+    };
   }, [perSecond]);
 
   return (
