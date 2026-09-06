@@ -6,10 +6,16 @@ import { useEffect, useRef, useState } from "react";
  * The views figure, ticking at the rate we actually deliver.
  *
  * ── What this number is, exactly ────────────────────────────────────────
- * `initial` is read from the database and is true at the moment the page was
- * rendered. `perSecond` is real delivery over the last 30 days divided by the
- * seconds in 30 days. Everything after the first paint is those two
- * multiplied out — a projection, not a reading.
+ * `initial` is true at the moment this request was served — Proof has already
+ * added on whatever accrued while the cached figure sat unread, so this
+ * component never has to know how old the database read was. `perSecond` is
+ * real delivery over the last 30 days divided by the seconds in 30 days.
+ * Everything after the first paint is those two multiplied out — a
+ * projection, not a reading.
+ *
+ * The clock is only ever read locally, as a delta from the anchor set at
+ * mount. Nothing here compares a browser clock against the server's, so a
+ * visitor whose machine is set to next week still sees a sane number.
  *
  * That is a deliberate trade and it needs defending, because this site's whole
  * argument is that its figures are logged rather than invented. The defence:

@@ -90,6 +90,16 @@ export type PublicStats = {
    * still number rather than a counter ticking at a rate nothing supports.
    */
   viewsPerSecond: number;
+  /**
+   * Epoch ms at which `totalViews` was read.
+   *
+   * Captured inside the cached function, so it records when the database
+   * actually answered rather than when a page happened to render. That gap is
+   * up to the full hour of `revalidate`, and at ~69 views a second an hour is
+   * a quarter of a million views — a counter anchored on the figure without
+   * the timestamp starts a quarter-million short and stays there.
+   */
+  asOf: number;
   /** False when the database couldn't be reached, so callers can fall back. */
   live: boolean;
 };
@@ -188,6 +198,7 @@ async function query(): Promise<PublicStats> {
     campaigns: clients.reduce((sum, c) => sum + c.campaigns, 0),
     clients,
     viewsPerSecond: rateIsCredible ? viewsInWindow / RATE_WINDOW_SECONDS : 0,
+    asOf: Date.now(),
     live: true,
   };
 }
@@ -296,6 +307,7 @@ export async function getPublicStats(): Promise<PublicStats> {
       // Nothing was read, so there is no measured rate to tick at. The
       // fallback path shows the hand-recorded totals, which don't move.
       viewsPerSecond: 0,
+      asOf: Date.now(),
       live: false,
     };
   }

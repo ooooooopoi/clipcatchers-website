@@ -43,10 +43,38 @@ export function Proof({ stats }: { stats: PublicStats }) {
   // rather than ticking at a rate nothing supports.
   const ticking = live && stats.viewsPerSecond > 0;
 
+  // ── The counter has to keep time when nobody is watching ─────────────────
+  // `totalViews` is whatever the cache last read, and that cache lives for an
+  // hour. Anchoring the counter straight onto it meant the number restarted
+  // from a figure up to an hour stale every time someone opened the page — at
+  // ~69 views a second, a quarter of a million short — and then climbed from
+  // there. It tracked the visit rather than the clock.
+  //
+  // So the gap is paid off here, before the number is ever rendered: whatever
+  // has accrued between the read and this request is added on. Someone
+  // arriving after a quiet night sees the night's delivery already counted.
+  //
+  // Deliberately computed on the server. `/` is dynamic, so this runs per
+  // request against a clock we control; the client then only ever measures
+  // its own elapsed time from hydration and never compares its clock to
+  // ours, which is what keeps a visitor whose system clock is days out from
+  // seeing a wild number.
+  //
+  // Capped at two hours — twice the cache's own lifetime. If `asOf` is ever
+  // older than that, something is wrong with the cache or the clock rather
+  // than with delivery, and projecting days forward would turn a stale
+  // figure into an invented one.
+  const CATCH_UP_CAP_SECONDS = 2 * 60 * 60;
+  const staleSeconds = Math.min(
+    Math.max(0, (Date.now() - stats.asOf) / 1000),
+    CATCH_UP_CAP_SECONDS,
+  );
+  const anchor = stats.totalViews + Math.floor(staleSeconds * stats.viewsPerSecond);
+
   const metrics = [
     {
       value: live ? (
-        <LiveViews initial={stats.totalViews} perSecond={stats.viewsPerSecond} />
+        <LiveViews initial={anchor} perSecond={stats.viewsPerSecond} />
       ) : (
         SITE_STATS.viewsDelivered
       ),
