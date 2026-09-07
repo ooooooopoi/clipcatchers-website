@@ -98,3 +98,35 @@ export function markPaid(userId: string, campaignId?: number, paid = true) {
     body: JSON.stringify({ user_id: userId, campaign_id: campaignId ?? null, paid }),
   });
 }
+
+export type ClipperClip = {
+  id: number;
+  url: string;
+  status: string;
+  paid: boolean;
+  locked: boolean;
+  views: number;
+  worth: number;
+  campaign: string;
+};
+
+export type ClipperEarnings = {
+  clips: number;
+  owed: number;
+  already_paid: number;
+  rows: ClipperClip[];
+};
+
+export type ClipperAccount = { id: number; platform: string; handle: string };
+
+/** One clipper's clips and what each is worth. Read-only on the bot's side. */
+export function fetchClipperEarnings(userId: string) {
+  return call<ClipperEarnings>(`/api/users/${encodeURIComponent(userId)}/earnings`);
+}
+
+/** Their registered accounts, so the submit form can offer the right ones. */
+export function fetchClipperAccounts(userId: string) {
+  return call<{ accounts: ClipperAccount[] }>(
+    `/api/users/${encodeURIComponent(userId)}/accounts`,
+  );
+}

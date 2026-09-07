@@ -24,6 +24,13 @@ export const authConfig = {
       // not by a session — these links go to clients who have no account.
       if (pathname.startsWith("/c/")) return true;
 
+      // A clipper's own earnings page, on the same terms. Clippers live in
+      // Discord and have no account here at all, so a session check bounces
+      // every one of them to a login they can never satisfy. The signature in
+      // the path is the credential, and the page checks it again before it
+      // reads anything.
+      if (pathname.startsWith("/clipper/")) return true;
+
       // Public marketing site. /launch is the front door for people who have
       // never heard of us — gating it behind a login would ask a stranger to
       // make an account before they're allowed to enquire.
