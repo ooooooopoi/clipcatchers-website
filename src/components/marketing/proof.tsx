@@ -31,12 +31,14 @@ export function Proof({ stats }: { stats: PublicStats }) {
   // didn't. A hero that says "0 views delivered" during a blip is worse than
   // one an hour out of date.
   //
-  // Two tiles, not four. "Creators paid" and "campaigns run" were both
-  // removed: they measure how big we are, and the question this band exists
-  // to answer is whether the numbers are real. Views and clips carry that on
-  // their own — one is the figure being billed, the other is the count of
-  // things it can be traced back to. The other two were scale, and scale is
-  // the argument a young business loses.
+  // One figure, down from four. "Creators paid", "campaigns run" and "clips
+  // published" have all gone: they measure how big we are, and the question
+  // this band exists to answer is whether the number is real. Scale is the
+  // argument a young business loses, and three tiles of it were diluting the
+  // one that is actually being billed.
+  //
+  // What is left is the figure the whole page rests on, alone and moving. The
+  // caption underneath does the work the other tiles were doing badly.
   //
   // The rate is only trustworthy if there was delivery in the window to
   // measure. No delivery, no counter — the tile falls back to a still figure
@@ -81,46 +83,27 @@ export function Proof({ stats }: { stats: PublicStats }) {
   );
   const anchor = stats.totalViews + Math.floor(staleSeconds * stats.viewsPerSecond);
 
-  const metrics = [
-    {
-      value: live ? (
-        <LiveViews initial={anchor} perSecond={stats.viewsPerSecond} />
-      ) : (
-        SITE_STATS.viewsDelivered
-      ),
-      label: "views delivered for clients",
-      // Every digit, where the other is rounded — see live-views.tsx for why
-      // a compact figure can't visibly tick.
-      wide: true,
-    },
-    {
-      value: live ? stats.totalClips.toLocaleString() : SITE_STATS.clipsPublished,
-      label: "clips published",
-    },
-  ];
-
   return (
     <section className="relative z-10 mx-auto w-full max-w-5xl px-5 pb-14">
-      {/* Always two, on every path — the count no longer varies, so the
-          column maths and the odd-tile span that used to sit here are gone
-          with it. Stacked on a phone rather than squeezed side by side: an
-          eleven-digit figure and a label do not both fit in half of 320px. */}
-      <div className="surface reveal grid grid-cols-1 divide-y divide-border rounded-2xl border border-border bg-card sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-        {metrics.map((m) => (
-          <div key={m.label} className="px-4 py-7 text-center sm:px-5">
-            {/* The ticking tile carries every digit where the other is
-                rounded, so it takes a step down — eleven characters of mono
-                overflow a half-width tile otherwise. */}
-            <p
-              className={`font-mono font-semibold tracking-tight text-primary-ink ${
-                m.wide ? "text-xl sm:text-2xl" : "text-2xl sm:text-3xl"
-              }`}
-            >
-              {m.value}
-            </p>
-            <p className="mt-1.5 text-xs leading-tight text-muted-foreground">{m.label}</p>
-          </div>
-        ))}
+      {/* No grid and no dividers any more — there is nothing to divide them
+          from. The figure gets the size the other tiles were taking off it.
+
+          Measured rather than guessed, because the live figure is eleven
+          characters and the fallback is four, so the tight case never shows
+          up locally: "198,505,055" is 190px at the 30px mobile size against
+          240px of usable width at 320, and 304px at the 48px size from sm up.
+          Both clear, with the mobile case the closer of the two. */}
+      <div className="surface reveal rounded-2xl border border-border bg-card px-5 py-10 text-center">
+        <p className="font-mono text-3xl font-semibold tracking-tight text-primary-ink sm:text-5xl">
+          {live ? (
+            <LiveViews initial={anchor} perSecond={stats.viewsPerSecond} />
+          ) : (
+            SITE_STATS.viewsDelivered
+          )}
+        </p>
+        <p className="mt-2.5 text-xs leading-tight text-muted-foreground">
+          views delivered for clients
+        </p>
       </div>
 
       <p className="mt-3 text-center text-xs text-muted-foreground/70">
