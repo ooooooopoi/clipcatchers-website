@@ -31,26 +31,49 @@ export const authConfig = {
       // reads anything.
       if (pathname.startsWith("/clipper/")) return true;
 
-      // Public marketing site. /launch is the front door for people who have
-      // never heard of us — gating it behind a login would ask a stranger to
-      // make an account before they're allowed to enquire.
+      // ── The public marketing site ───────────────────────────────────────
+      // Everything under / needs a session by default, so a marketing page
+      // missing from this list does not 404 — it 307s to /login, which reads
+      // as a broken page rather than a missing one. That has already happened
+      // once here, to /clipper, and it stayed invisible until someone checked
+      // a status code instead of looking at the page.
       //
-      // /quote is the old path, kept open so the 301 in next.config lands
-      // rather than being intercepted here. Links already sent in DMs point at
-      // it and there's no way to go back and edit them.
-      if (
-        pathname === "/" ||
-        pathname.startsWith("/launch") ||
-        pathname.startsWith("/quote") ||
-        // Privacy and terms. These are linked from the public footer and are
-        // the first thing a brand's legal or procurement step opens — putting
-        // a login in front of them is how a deal quietly stalls.
-        pathname.startsWith("/legal") ||
-        // Case studies. Marketing pages linked from the homepage — a sign-in
-        // wall on the page a prospect clicks to check our numbers is the
-        // worst possible place for one.
-        pathname.startsWith("/case-studies")
-      ) {
+      // Deliberately spelled out rather than derived from lib/marketing-nav.
+      // This file is bundled into the edge middleware and runs on every
+      // request; that module imports lib/use-cases, which imports
+      // lucide-react, and a React icon library has no business in an edge
+      // bundle. The duplication is the cheaper of the two costs.
+      //
+      // The way to catch drift is to request every path in
+      // marketing-nav.allMarketingPaths() and assert 200 — not to open the
+      // pages and look at them, because a 307 to /login renders a perfectly
+      // good page and tells you nothing.
+      const PUBLIC_PREFIXES = [
+        // The front door for people who have never heard of us — gating it
+        // would ask a stranger to make an account before they may enquire.
+        "/launch",
+        // The old path, kept open so the 301 in next.config lands rather than
+        // being intercepted here. Links already sent in DMs point at it and
+        // there's no way back to edit them.
+        "/quote",
+        // Privacy and terms. Linked from the public footer and the first
+        // thing a brand's legal or procurement step opens — a login in front
+        // of them is how a deal quietly stalls.
+        "/legal",
+        // A sign-in wall on the page a prospect clicks to check our numbers
+        // is the worst possible place for one.
+        "/case-studies",
+        // The subject pages, for the same reason as everything above: they
+        // exist to be found by someone who has never heard of us.
+        "/how-it-works",
+        "/use-cases",
+        "/pricing",
+        "/verification",
+        "/results",
+        "/for-creators",
+      ];
+
+      if (pathname === "/" || PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))) {
         return true;
       }
 
