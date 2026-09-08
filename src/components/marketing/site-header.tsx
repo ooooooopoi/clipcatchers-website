@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ArrowRight, Menu, Phone } from "lucide-react";
 import { BrandMark } from "@/components/brand";
+import { NavMenu } from "@/components/marketing/nav-menu";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -13,38 +15,40 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { NAV_GROUPS, NAV_LINKS } from "@/lib/marketing-nav";
 import { cn } from "@/lib/utils";
 
 /**
  * The marketing header.
  *
- * It used to carry a four-link section nav across the desktop bar, with an
- * animated underline tracking where you were on the page. That was a nice
- * piece of work and it was solving the wrong problem: this page has one job,
- * and five competing targets in the bar is four ways to not do it. A brand
- * arriving here doesn't need a table of contents, they need the two decisions
- * — see how this works, or start.
+ * ── History, because this has swung twice ───────────────────────────────
+ * It carried a four-link section nav with an animated underline. That was
+ * removed on the grounds that the page had one job and five competing targets
+ * in the bar was four ways to not do it — correct at the time, when every one
+ * of those links was an anchor to a section of the same page. A table of
+ * contents for a document you are already inside is furniture.
  *
- * So the bar is the wordmark, those two actions, and a menu. Everything
- * secondary — the section links, sign-in, FAQ, the creator route — lives in
- * the sheet, at every width. One place for secondary navigation instead of a
- * desktop bar and a phone menu that disagree about what exists.
+ * It is back because the links are no longer anchors. The subjects are real
+ * pages now, and a site with eleven pages and no visible way to reach them is
+ * a worse failure than a busy bar: the pages exist, rank, and are unreachable
+ * from the only page anyone lands on.
  *
- * "Sign in" is deliberately not in the bar signed-out. Someone who has an
- * account knows where the login is; someone who doesn't has no use for it, and
- * it was sitting next to the only button on the page that matters.
+ * What has not come back is the underline, or a link for every section. Four
+ * top-level items, two of which open a menu, and the sheet still owns
+ * everything secondary — sign-in, legal, the creator route.
+ *
+ * ── The CTA is white, and that is deliberate ────────────────────────────
+ * The reference design this nav copies uses a filled black pill. Ours stays
+ * white with a border and elevation, matching the `default` button variant,
+ * because that was an explicit decision made after the filled version had
+ * already been tried and rejected once. Don't flip it back without saying so.
+ *
+ * This pill is hand-built rather than a Button, so it does not inherit that
+ * variant — if the primary treatment changes again, change it here too.
  */
-const SECTIONS = [
-  { id: "how-it-works", label: "How it works" },
-  { id: "comparison", label: "Why us" },
-  { id: "results", label: "Results" },
-  { id: "pricing", label: "Pricing" },
-  { id: "after-launch", label: "After you launch" },
-  { id: "faq", label: "FAQ" },
-] as const;
-
 export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -55,8 +59,8 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
 
   return (
     // A floating capsule rather than a full-width band. The bar is the first
-    // thing on the page and a hairline strip reads as chrome; at this size,
-    // with the mark in its own tile, it reads as the product's own furniture.
+    // thing on the page and a hairline strip reads as chrome; at this size it
+    // reads as the product's own furniture.
     <header className="sticky top-0 z-50 px-4 pt-3 sm:px-6 sm:pt-4">
       <div
         className={cn(
@@ -67,38 +71,40 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
         )}
       >
         {/* The name on its own. The icon tile sat to its left and the two were
-            saying the same thing twice in a bar with room for neither; the
-            wordmark is the half that works without being recognised first.
-            BrandMark is still the avatar on the app surfaces and is still the
-            favicon and the OG image — it has just stopped introducing a page
-            that already says who it belongs to.
-
+            saying the same thing twice in a bar with room for neither.
             Dropping it also freed the ~50px that made this bar overflow at
-            320px, so the size steps that were fighting for those pixels are
-            gone with it. */}
+            320px. */}
         <Link href="/" className="flex shrink-0 items-center">
-          {/* Uppercase costs about 33px of width over sentence case at the same
-              size, which is enough to push the menu back outside the capsule at
-              320. One step down below 360 pays for it. */}
           <span className="wordmark whitespace-nowrap text-base min-[360px]:text-lg sm:text-2xl">
             Clip Catchers
           </span>
         </Link>
 
-        <div className="ml-auto flex items-center gap-2 sm:gap-3">
-          {/* The secondary action, desktop only. On a phone the split pill
-              below is already two targets in the space this would need.
+        {/* The nav proper. Hidden below lg, where the sheet carries the same
+            links — four items plus two chevrons does not fit beside a wordmark
+            and a CTA on a tablet, let alone a phone. */}
+        <nav className="ml-6 hidden items-center gap-5 lg:flex" aria-label="Main">
+          {NAV_LINKS.slice(0, 1).map((link) => (
+            <TopLink key={link.href} href={link.href} label={link.label} pathname={pathname} />
+          ))}
+          {NAV_GROUPS.map((group) => (
+            <NavMenu key={group.label} group={group} />
+          ))}
+          {NAV_LINKS.slice(1).map((link) => (
+            <TopLink key={link.href} href={link.href} label={link.label} pathname={pathname} />
+          ))}
+        </nav>
 
-              It was "See how it works", which is an anchor to a section the
-              sheet already lists and the page scrolls to anyway. Booking is
-              the thing that had no route from the bar at all, and it's the
-              softer of the two asks — which makes it the right neighbour for
-              a pill that says "Start a campaign". */}
+        <div className="ml-auto flex items-center gap-2 sm:gap-3">
+          {/* Booking, at xl and up only. It lost its place at lg when the nav
+              arrived; rather than shrink the nav it moves up a breakpoint,
+              because it is also in the hero, the closing panel and the sheet,
+              and the nav links are in none of those. */}
           {!signedIn && (
             <Button
               asChild
               variant="outline"
-              className="hidden h-14 rounded-full px-6 text-[15px] lg:inline-flex"
+              className="hidden h-12 rounded-full px-5 text-[15px] xl:inline-flex"
             >
               <Link href="/launch?mode=call">
                 <Phone />
@@ -121,11 +127,7 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                 pills with a gap between them; as a single shape with a seam
                 down the middle they read as one thing. `overflow-hidden` is
                 what lets two square-cornered children sit inside one fully
-                rounded parent.
-                White with a border and elevation, matching the `default`
-                button variant. This pill is hand-built rather than a Button,
-                so it does not inherit that variant — if the primary treatment
-                changes again, it has to be changed here too. */}
+                rounded parent. */}
             <div
               className={cn(
                 "flex h-11 shrink-0 items-center overflow-hidden rounded-full sm:h-14",
@@ -144,28 +146,23 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                         fit a 375px bar once the wordmark is beside it, and
                         "Start" survives losing the rest of the sentence in a
                         way the old "Launch" — a verb with no object — didn't.
-                        The middle rung went with it: once the full label
-                        starts with "Start", a separate mid-width word would
-                        just be the same word twice. */}
-                    <span className="lg:hidden">Start</span>
-                    <span className="hidden lg:inline">Start a campaign</span>
+                        The full label returns at xl, not lg: at lg the nav is
+                        already occupying the middle of the bar. */}
+                    <span className="xl:hidden">Start</span>
+                    <span className="hidden xl:inline">Start a campaign</span>
                     <ArrowRight className="size-4 shrink-0" />
                   </Link>
-                  {/* The seam. Back to the border token now the fill is white
-                      — it was a darkened black wash only because a border
-                      token would have been invisible on orange. */}
                   <span aria-hidden className="h-full w-px bg-border" />
                 </>
               )}
 
-              {/* Shown at every width now, not just below lg — it's the only
-                  route to the section links, sign-in and the creator page. */}
+              {/* Shown at every width. Below lg it is the only route to the
+                  nav; at lg and up it still owns sign-in, legal and the
+                  creator link, which are not in the bar. */}
               <SheetTrigger asChild>
                 <button
                   type="button"
-                  className={cn(
-                    "flex h-full w-11 items-center justify-center text-foreground transition-colors hover:bg-accent sm:w-14",
-                  )}
+                  className="flex h-full w-11 items-center justify-center text-foreground transition-colors hover:bg-accent sm:w-14"
                   aria-label="Open menu"
                 >
                   <Menu className="size-5" />
@@ -175,10 +172,9 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
 
             {/* SheetContent ships with no padding of its own — only a gap —
                 and SheetHeader carries its own p-4. So the header looked
-                indented while everything below it sat flush against the edge,
-                dividers running right off the side. Padding goes on the
-                container and comes back off the header, so one value governs
-                the whole panel. */}
+                indented while everything below sat flush against the edge.
+                Padding goes on the container and comes back off the header, so
+                one value governs the whole panel. */}
             <SheetContent
               side="right"
               className="flex w-[85vw] max-w-sm flex-col gap-0 overflow-y-auto p-6"
@@ -190,16 +186,38 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                 </SheetTitle>
               </SheetHeader>
 
-              <nav className="mt-8 flex flex-col">
-                {SECTIONS.map((section) => (
-                  <SheetClose asChild key={section.id}>
+              {/* The same links as the bar, flattened. A nested accordion in a
+                  panel this size is a second thing to open before you can read
+                  the first — the groups become headings and every page is one
+                  tap. */}
+              <nav className="mt-8 flex flex-col" aria-label="All pages">
+                {NAV_LINKS.map((link) => (
+                  <SheetClose asChild key={link.href}>
                     <Link
-                      href={`#${section.id}`}
+                      href={link.href}
                       className="border-b border-border/60 py-3.5 text-base font-medium transition-colors hover:text-cta-ink"
                     >
-                      {section.label}
+                      {link.label}
                     </Link>
                   </SheetClose>
+                ))}
+
+                {NAV_GROUPS.map((group) => (
+                  <div key={group.label} className="mt-6">
+                    <p className="eyebrow text-muted-foreground/70">{group.label}</p>
+                    <div className="mt-2 flex flex-col">
+                      {group.links.map((link) => (
+                        <SheetClose asChild key={link.href}>
+                          <Link
+                            href={link.href}
+                            className="border-b border-border/60 py-3 text-[15px] transition-colors hover:text-cta-ink"
+                          >
+                            {link.label}
+                          </Link>
+                        </SheetClose>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </nav>
 
@@ -230,21 +248,35 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                   </Button>
                 </SheetClose>
               </div>
-
-              {/* Creators get a link, not a button. They're the supply side —
-                  the bar belongs to the people with a budget. */}
-              <SheetClose asChild>
-                <Link
-                  href="#creators"
-                  className="mt-6 block text-center text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-                >
-                  Want to get paid to clip? →
-                </Link>
-              </SheetClose>
             </SheetContent>
           </Sheet>
         </div>
       </div>
     </header>
+  );
+}
+
+/** A top-level nav item with no menu under it. */
+function TopLink({
+  href,
+  label,
+  pathname,
+}: {
+  href: string;
+  label: string;
+  pathname: string;
+}) {
+  const active = pathname === href || pathname.startsWith(`${href}/`);
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "rounded-md py-2 text-[15px] transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        active ? "text-foreground" : "text-muted-foreground",
+      )}
+    >
+      {label}
+    </Link>
   );
 }

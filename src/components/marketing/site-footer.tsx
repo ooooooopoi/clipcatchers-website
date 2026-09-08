@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/brand";
 import { RATE_PER_THOUSAND } from "@/lib/pricing";
+import { USE_CASES } from "@/lib/use-cases";
 
 /**
  * The footer, doing the job a one-line copyright wasn't.
@@ -15,35 +16,51 @@ import { RATE_PER_THOUSAND } from "@/lib/pricing";
  */
 const DISCORD_INVITE = process.env.NEXT_PUBLIC_DISCORD_INVITE || "";
 
+/**
+ * ── These used to be anchors, and they are pages now ────────────────────
+ * Every link in the Product and Proof columns pointed at a fragment on the
+ * homepage — /#pricing, /#verification. Those sections still exist, but each
+ * subject also has a page of its own, and a footer sending people to a
+ * summary when a page exists is a footer working against its own site.
+ *
+ * The category list is derived from USE_CASES rather than retyped, so adding
+ * a ninth category puts it in the footer without anyone remembering to.
+ */
 const COLUMNS = [
   {
     heading: "Product",
     links: [
-      { label: "How it works", href: "/#how-it-works" },
-      { label: "Why brands switch", href: "/#comparison" },
-      { label: "Verification", href: "/#verification" },
-      { label: "Pricing", href: "/#pricing" },
+      { label: "How it works", href: "/how-it-works" },
+      { label: "Pricing", href: "/pricing" },
+      { label: "Verification", href: "/verification" },
+      { label: "Results", href: "/results" },
     ],
   },
   {
-    heading: "Proof",
+    heading: "Use cases",
+    // Four of eight, then the index. A footer column listing all eight is
+    // taller than the rest of the footer and reads as a sitemap dump.
     links: [
-      { label: "Results", href: "/#results" },
-      { label: "Campaign examples", href: "/#industries" },
-      { label: "FAQ", href: "/#faq" },
+      ...USE_CASES.slice(0, 4).map((c) => ({
+        label: c.name,
+        href: `/use-cases/${c.slug}`,
+      })),
+      { label: "All categories →", href: "/use-cases" },
     ],
   },
   {
     heading: "Account",
     links: [
       { label: "Start a campaign", href: "/launch" },
+      { label: "Book a call", href: "/launch?mode=call" },
+      { label: "For creators", href: "/for-creators" },
       { label: "Client sign in", href: "/login" },
       // No "create an account". Accounts are set up when a campaign is
       // assigned to a client, so anyone following a public signup link arrives
       // in an empty dashboard — the enquiry form above is the real front door.
     ],
   },
-] as const;
+];
 
 export function SiteFooter() {
   return (
