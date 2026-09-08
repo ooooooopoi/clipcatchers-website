@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Menu } from "lucide-react";
+import { ArrowRight, Menu, Phone } from "lucide-react";
 import { BrandMark } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import {
@@ -87,14 +87,23 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
           {/* The secondary action, desktop only. On a phone the split pill
-              below is already two targets in the space this would need. */}
+              below is already two targets in the space this would need.
+
+              It was "See how it works", which is an anchor to a section the
+              sheet already lists and the page scrolls to anyway. Booking is
+              the thing that had no route from the bar at all, and it's the
+              softer of the two asks — which makes it the right neighbour for
+              a pill that says "Start a campaign". */}
           {!signedIn && (
             <Button
               asChild
               variant="outline"
               className="hidden h-14 rounded-full px-6 text-[15px] lg:inline-flex"
             >
-              <Link href="#how-it-works">See how it works</Link>
+              <Link href="/launch?mode=call">
+                <Phone />
+                Book a call
+              </Link>
             </Button>
           )}
 
@@ -203,6 +212,16 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                     </Link>
                   </Button>
                 </SheetClose>
+                {!signedIn && (
+                  <SheetClose asChild>
+                    <Button asChild size="lg" variant="outline" className="w-full">
+                      <Link href="/launch?mode=call">
+                        <Phone />
+                        Book a call
+                      </Link>
+                    </Button>
+                  </SheetClose>
+                )}
                 <SheetClose asChild>
                   <Button asChild size="lg" variant="outline" className="w-full">
                     <Link href={signedIn ? "/dashboard" : "/login"}>

@@ -23,6 +23,16 @@ const Lead = z.object({
   budget: z.string().trim().max(60).optional().default(""),
   link: z.string().trim().max(400).optional().default(""),
   notes: z.string().trim().max(2000).optional().default(""),
+  // Which door they came through — the written brief, or a request for a
+  // call. The two need different first replies, so the embed has to say.
+  // Anything unrecognised becomes "brief": this decides how a human responds,
+  // and defaulting a mangled value to the written reply is the harmless way
+  // to be wrong.
+  mode: z.enum(["brief", "call"]).catch("brief"),
+  // Call requests only. Both are free text from a chip group and a single
+  // input, so they're capped like everything else here and rendered nowhere.
+  callWindow: z.string().trim().max(60).optional().default(""),
+  contact: z.string().trim().max(200).optional().default(""),
   // Never filled in by a person; bots fill every field they find. Accepted by
   // the schema rather than rejected by it, so a filled honeypot reaches the
   // silent-success below instead of a 400 that tells the bot it was spotted.

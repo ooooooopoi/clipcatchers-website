@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Ban, Gauge, ReceiptText, ShieldCheck } from "lucide-react";
+import { ArrowRight, Ban, Gauge, Phone, ReceiptText, ShieldCheck } from "lucide-react";
 import { AfterLaunch } from "@/components/marketing/after-launch";
 import { Clients } from "@/components/marketing/clients";
 import { Comparison } from "@/components/marketing/comparison";
@@ -13,6 +13,7 @@ import { Results } from "@/components/marketing/results";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SiteHeader } from "@/components/marketing/site-header";
 import { StarField } from "@/components/marketing/star-field";
+import { Ticker } from "@/components/marketing/ticker";
 import { Verification } from "@/components/marketing/verification";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -168,28 +169,51 @@ export default async function HomePage() {
             Performance-based creator distribution for brands
           </span>
 
-          <h1 className="mx-auto mt-7 max-w-4xl text-4xl font-semibold leading-[1.08] tracking-tight sm:text-6xl">
-            {/* No coloured span. On a monochrome page emphasis comes from
-                weight and size, not hue — tinting three words a slightly
-                different shade of near-black reads as a rendering fault
-                rather than as emphasis. */}
+          {/* No coloured span. On a monochrome page emphasis comes from
+              weight and size, not hue — tinting three words a slightly
+              different shade of near-black reads as a rendering fault rather
+              than as emphasis.
+
+              Set in the brand's own voice rather than in the semibold
+              sentence case everything else used — see .display in globals.css
+              for why. Uppercase at this weight makes a solid block of type,
+              which is the whole effect; it only holds together because the
+              leading is under 1, and that only works because uppercase has no
+              descenders to collide.
+
+              The mobile size is set from the fold, not from the desktop step.
+              Uppercase costs lines: this headline sets in three at 72px and in
+              five at 40px on a 375px screen, and measured on an iPhone SE
+              (375x667) that pushed "Book a call" half under the fold at 645px.
+              36px wraps to four, and the tighter mobile margins below take the
+              rest — both buttons now land above 667. Desktop spacing is
+              unchanged, hence the sm: steps. */}
+          <h1 className="display mx-auto mt-6 max-w-4xl text-4xl sm:mt-7 sm:text-6xl lg:text-7xl">
             Scale your brand through hundreds of creators
           </h1>
 
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-5 max-w-2xl leading-relaxed text-muted-foreground sm:mt-7 sm:text-lg">
             Launch a TikTok and Instagram campaign, brief a network of verified creators,
             and pay only for views that actually landed — not an influencer retainer.
           </p>
 
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-            <Button asChild size="lg">
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3 sm:mt-9">
+            <Button asChild size="lg" className="h-12 px-7">
               <Link href="/launch">
                 Start a campaign
                 <ArrowRight />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href="#how-it-works">See how it works</Link>
+            {/* Straight to the booking tab. The hero's second action used to
+                be "See how it works", which is a request to keep reading —
+                fine, but the page already scrolls and the anchor is in the
+                header. This is the one someone who is already interested
+                wants, and it was previously three pages away. */}
+            <Button asChild size="lg" variant="outline" className="h-12 px-7">
+              <Link href="/launch?mode=call">
+                <Phone />
+                Book a call
+              </Link>
             </Button>
           </div>
 
@@ -205,8 +229,12 @@ export default async function HomePage() {
             does that in the first screen. */}
         <Proof stats={stats} />
 
+        {/* The terms, running edge to edge. The only full-bleed element on the
+            page and the only one that moves by itself — see ticker.tsx. */}
+        <Ticker />
+
         {/* The four risk answers, before anything else has to be read. */}
-        <section className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-4">
+        <section className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-4 pt-14">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {GUARANTEES.map((item) => (
               <div
@@ -216,8 +244,8 @@ export default async function HomePage() {
                 <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background">
                   <item.icon className="h-4 w-4 text-primary-ink" />
                 </span>
-                <h2 className="mt-4 text-sm font-semibold">{item.title}</h2>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                <h2 className="display-sm mt-4 text-sm">{item.title}</h2>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   {item.body}
                 </p>
               </div>
@@ -262,16 +290,30 @@ export default async function HomePage() {
           <Card className="surface reveal overflow-hidden border-border p-7 sm:p-9">
             <div className="flex flex-wrap items-center justify-between gap-6">
               <div className="max-w-xl">
-                <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground/70">
+                <p className="eyebrow text-muted-foreground/70">
                   For creators
                 </p>
-                <h2 className="mt-2.5 text-2xl font-semibold tracking-tight">
+                <h2 className="display mt-3 text-2xl sm:text-3xl">
                   Get paid for the views you already generate
                 </h2>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-3.5 text-sm leading-relaxed text-muted-foreground">
                   Clip content you&apos;d happily post anyway and earn per 1,000 views.
                   Verify your account, pick a live campaign, submit the link — paid out by
                   PayPal or USDT. No follower minimum, no exclusivity.
+                </p>
+                {/* The one thing the public site can say to a clipper who is
+                    already signed up. Their page is behind a signed link that
+                    only the bot can mint — it's derived from their Discord id,
+                    so there is nothing to link to from here that would work
+                    for more than one person. Naming the command is the whole
+                    of what this side can usefully do. */}
+                <p className="mt-3 text-sm text-muted-foreground">
+                  Already clipping?{" "}
+                  <code className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
+                    /my-clips
+                  </code>{" "}
+                  in Discord opens your page — everything you&apos;ve submitted and what
+                  you&apos;re owed.
                 </p>
               </div>
               <Button asChild variant="outline" size="lg">
@@ -294,8 +336,8 @@ export default async function HomePage() {
           className="relative z-10 mx-auto w-full max-w-3xl scroll-mt-24 px-5 pb-20"
         >
           <div className="text-center">
-            <p className="text-xs font-medium uppercase tracking-[0.16em] text-primary-ink">FAQ</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+            <p className="eyebrow text-primary-ink">FAQ</p>
+            <h2 className="display mt-3 text-3xl sm:text-5xl">
               Questions worth asking
             </h2>
           </div>
@@ -336,27 +378,33 @@ export default async function HomePage() {
         <section className="relative z-10 mx-auto w-full max-w-4xl px-5 pb-24">
           <div className="surface reveal overflow-hidden rounded-3xl border border-border bg-card">
             <div className="px-6 py-14 text-center sm:px-12">
-              <h2 className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
+              <h2 className="display mx-auto max-w-2xl text-3xl sm:text-5xl">
                 Start with one campaign
               </h2>
-              <p className="mx-auto mt-4 max-w-xl leading-relaxed text-muted-foreground">
+              <p className="mx-auto mt-5 max-w-xl leading-relaxed text-muted-foreground">
                 Tell us what you&apos;re promoting and roughly what you&apos;d spend, and
                 we&apos;ll come back with what it should realistically deliver — drawn
                 from campaigns we&apos;ve run, not a projection. If it isn&apos;t a fit,
                 we&apos;ll tell you that instead.
               </p>
+              {/* Two buttons, then a link. Three buttons abreast is a reader
+                  being asked to rank three things at the exact moment they had
+                  decided one — so the case study drops to a text link. It's
+                  the exit for someone who still isn't sure, and an exit does
+                  not need to compete with the entrance. */}
               <div className="mt-8 flex flex-wrap justify-center gap-3">
-                <Button asChild size="lg">
+                <Button asChild size="lg" className="h-12 px-7">
                   <Link href="/launch">
                     Start a campaign
                     <ArrowRight />
                   </Link>
                 </Button>
-                {caseStudyHref && (
-                  <Button asChild size="lg" variant="outline">
-                    <Link href={caseStudyHref}>See a real campaign&apos;s numbers</Link>
-                  </Button>
-                )}
+                <Button asChild size="lg" variant="outline" className="h-12 px-7">
+                  <Link href="/launch?mode=call">
+                    <Phone />
+                    Book a call
+                  </Link>
+                </Button>
               </div>
               {/* Countable, checkable claims rather than "no obligation" —
                   the form really does require two fields, and a reader who
@@ -364,6 +412,16 @@ export default async function HomePage() {
               <p className="mt-5 text-xs text-muted-foreground">
                 Two required fields · No card at any point · Reply within one working day
               </p>
+              {caseStudyHref && (
+                <p className="mt-4 text-sm">
+                  <Link
+                    href={caseStudyHref}
+                    className="text-primary-ink underline-offset-4 hover:underline"
+                  >
+                    Or see a real campaign&apos;s numbers first →
+                  </Link>
+                </p>
+              )}
             </div>
 
             {/* The three numbers that decide it, at the point of deciding.

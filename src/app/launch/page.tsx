@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { BrandMark } from "@/components/brand";
+import { LaunchPanel } from "@/components/launch-panel";
 import { StarField } from "@/components/marketing/star-field";
-import { QuoteForm } from "@/components/quote-form";
 import { RATE_PER_THOUSAND } from "@/lib/pricing";
 import { SITE_STATS } from "@/lib/site-stats";
 
@@ -39,7 +39,26 @@ const REASSURANCE = [
   [SITE_STATS.viewsDelivered, "views delivered so far"],
 ];
 
-export default function QuotePage() {
+/**
+ * `?mode=call` opens straight on the booking tab.
+ *
+ * It exists so "Book a call" can be its own link — in the header, in the
+ * footer, in a DM — rather than a thing you can only reach by landing here and
+ * then noticing a switch. Anything other than "call" falls through to the
+ * brief, so a mangled or truncated URL shows the form rather than an error.
+ *
+ * searchParams is a promise in Next 15, and reading it opts this page into
+ * dynamic rendering. That's the cost of the deep link and it's a fair one:
+ * this page has a form on it and nothing worth caching.
+ */
+export default async function QuotePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ mode?: string }>;
+}) {
+  const { mode } = await searchParams;
+  const initialMode = mode === "call" ? "call" : "brief";
+
   return (
     <div className="relative min-h-screen overflow-x-clip">
       {/* Same starfield as the homepage — this is the page that button leads to,
@@ -69,16 +88,19 @@ export default function QuotePage() {
 
       <main className="relative z-10 mx-auto w-full max-w-3xl px-5 pb-24 pt-6">
         <div className="text-center">
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            Tell us what you&apos;re promoting
-          </h1>
-          <p className="mx-auto mt-4 max-w-xl leading-relaxed text-muted-foreground">
-            We&apos;ll come back with what it would cost and what it should realistically
-            deliver — based on campaigns we&apos;ve actually run, not a projection.
+          {/* Neutral between the two tabs on purpose. The heading used to be
+              "Tell us what you're promoting", which is only one of the two
+              things this page now offers and would read as a wrong label the
+              moment someone opened the call tab. */}
+          <h1 className="display text-4xl sm:text-6xl">Start a campaign</h1>
+          <p className="mx-auto mt-5 max-w-xl leading-relaxed text-muted-foreground">
+            Send a brief or book fifteen minutes — either way you get what it would cost
+            and what it should realistically deliver, drawn from campaigns we&apos;ve
+            actually run rather than a projection.
           </p>
         </div>
 
-        <div className="mx-auto mt-8 grid max-w-lg grid-cols-3 gap-3 text-center">
+        <div className="mx-auto mt-9 grid max-w-lg grid-cols-3 gap-3 text-center">
           {REASSURANCE.map(([value, label]) => (
             <div key={label}>
               <p className="font-mono text-lg font-semibold text-primary-ink">{value}</p>
@@ -88,7 +110,7 @@ export default function QuotePage() {
         </div>
 
         <div className="mt-10">
-          <QuoteForm />
+          <LaunchPanel initialMode={initialMode} />
         </div>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
