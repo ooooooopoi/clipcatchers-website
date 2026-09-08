@@ -114,7 +114,7 @@ export default async function ClipperPage({
             </p>
 
             <section className="mt-12">
-              <h2 className="text-lg font-semibold tracking-tight">Submit a clip</h2>
+              <h2 className="display text-xl sm:text-2xl">Submit a clip</h2>
               <SubmitClipForm
                 userId={userId}
                 sig={sig}
@@ -124,7 +124,7 @@ export default async function ClipperPage({
             </section>
 
             <section className="mt-12">
-              <h2 className="text-lg font-semibold tracking-tight">Your clips</h2>
+              <h2 className="display text-xl sm:text-2xl">Your clips</h2>
               {rows.length === 0 ? (
                 <p className="mt-4 rounded-xl border border-dashed border-border py-12 text-center text-sm text-muted-foreground">
                   Nothing submitted yet.
