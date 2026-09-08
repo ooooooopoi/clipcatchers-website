@@ -234,6 +234,106 @@
     letter-spacing: 0.01em;
   }
 
+  /* The same voice as the wordmark, borrowed for headings.
+
+     The page had one typographic register — semibold sentence case, from the
+     hero down to the FAQ — and a page where every heading is set the same way
+     has no hierarchy, only sizes. The wordmark was already the one confident
+     piece of type on the site and it was being used in exactly one place.
+
+     So headings speak in the brand's own voice: heavy, uppercase, packed
+     tight. Leading below 1 is what makes a multi-line heading read as a block
+     of type rather than as a stack of sentences, and it only works because
+     uppercase has no descenders to collide.
+
+     Tracking goes negative as the size goes up. Uppercase at 800 needs air at
+     small sizes and closes up at large ones; one value for both leaves the
+     eyebrows cramped or the hero loose. The steps below are per size, not per
+     breakpoint, so a heading keeps its setting wherever it's used. */
+  .display {
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .display-sm {
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.005em;
+  }
+
+  /* Leading, separated out and with the selector doubled to lift its
+     specificity to two classes.
+
+     Tailwind's `text-*` utilities set line-height as well as font-size, so
+     `text-7xl` ships `line-height: 1` alongside its 4.5rem — and against a
+     single class in the same layer it wins on source order. The effect was
+     that .display's font and tracking applied while its leading silently did
+     not, which is the half that carries the whole treatment: the hero
+     measured 216px tall on three lines instead of 194, and read as a stack of
+     sentences rather than a block of type.
+
+     Doubling the class is the fix that doesn't cost an !important and doesn't
+     make every call site write `text-7xl/[0.9]`. */
+  .display.display {
+    line-height: 0.9;
+  }
+
+  .display-sm.display-sm {
+    line-height: 1;
+  }
+
+  /* Section eyebrows. Small, wide, and quiet — the counterweight that lets
+     .display be as loud as it is. */
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+  }
+
+  /* ── The ticker ─────────────────────────────────────────────────────────
+     The terms of the offer, running edge to edge.
+
+     The track holds the list twice and slides exactly half its own width, so
+     the moment it lands the second copy is sitting where the first started
+     and the loop is invisible. This is why the duplicate in Ticker is marked
+     aria-hidden but must never be removed: half of nothing is nothing, and
+     the band would jump.
+
+     Duration is set per instance rather than here — the right speed depends
+     on how much text is in the track, and a fixed duration makes a long band
+     race and a short one crawl. */
+  @keyframes ticker-slide {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  .ticker-track {
+    animation: ticker-slide var(--ticker-duration, 44s) linear infinite;
+    will-change: transform;
+  }
+
+  /* Stops under the cursor. The band is the one thing on the page that moves
+     on its own, so the first instinct on reaching it is to try to read it —
+     and a line that slides out from under the eye mid-sentence is the reason
+     marquees have a bad name. */
+  .ticker:hover .ticker-track,
+  .ticker:focus-within .ticker-track {
+    animation-play-state: paused;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ticker-track {
+      animation: none;
+    }
+  }
+
   .glow {
     box-shadow: 0 0 0 1px hsl(var(--primary) / 0.16), 0 12px 40px -12px hsl(var(--primary) / 0.35);
   }

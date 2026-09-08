@@ -80,10 +80,10 @@ export default async function CaseStudyPage(
       </header>
 
       <main className="mx-auto w-full max-w-4xl px-5 py-14">
-        <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground/70">
+        <p className="eyebrow text-muted-foreground/70">
           Case study
         </p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+        <h1 className="display mt-3 text-3xl sm:text-5xl">
           {study.brand}
         </h1>
         <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">

@@ -80,10 +80,10 @@ export function AfterLaunch() {
     >
       <div className="mx-auto w-full max-w-6xl px-5">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-primary-ink">
+          <p className="eyebrow text-primary-ink">
             After you launch
           </p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+          <h2 className="display mt-3 text-3xl sm:text-5xl">
             What happens after I launch?
           </h2>
           <p className="mt-4 text-muted-foreground">

@@ -43,8 +43,8 @@ export async function Results() {
       className="relative z-10 mx-auto w-full max-w-6xl scroll-mt-24 px-5 py-20 sm:py-24"
     >
       <div className="mx-auto max-w-2xl text-center">
-        <p className="text-xs font-medium uppercase tracking-[0.16em] text-primary-ink">Results</p>
-        <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+        <p className="eyebrow text-primary-ink">Results</p>
+        <h2 className="display mt-3 text-3xl sm:text-5xl">
           Views we&apos;ve actually delivered
         </h2>
         <p className="mt-4 text-muted-foreground">

@@ -48,10 +48,10 @@ export function Control() {
     >
       <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
         <div className="lg:sticky lg:top-28 lg:self-start">
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-primary-ink">
+          <p className="eyebrow text-primary-ink">
             Budget control
           </p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+          <h2 className="display mt-3 text-3xl sm:text-5xl">
             You set the ceiling, not us
           </h2>
           <p className="mt-4 leading-relaxed text-muted-foreground">

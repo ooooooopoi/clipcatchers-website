@@ -112,7 +112,7 @@ export default async function SharedCampaignPage({
             </span>
           )}
           <div className="min-w-0">
-            <p className="text-xs font-medium uppercase tracking-[0.16em] text-primary">
+            <p className="eyebrow text-primary">
               Campaign report
             </p>
             <h1 className="mt-1 text-3xl font-semibold tracking-tight">{campaign.name}</h1>

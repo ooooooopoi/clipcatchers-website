@@ -81,7 +81,7 @@ export function Clients() {
 
   return (
     <section className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-16 pt-4">
-      <p className="text-center text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground/70">
+      <p className="text-center eyebrow text-muted-foreground/70">
         Brands we&apos;ve run campaigns for
       </p>
 

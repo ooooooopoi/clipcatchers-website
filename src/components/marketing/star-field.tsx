@@ -69,7 +69,38 @@ const MAX_LINKS = 2;
 
 const SPEED = 0.16;
 
-type P = { x: number; y: number; vx: number; vy: number; r: number };
+/**
+ * The cursor's reach.
+ *
+ * Deliberately longer than the reach between points, and its lines are drawn
+ * stronger. A field that only drifts is wallpaper — you look once and stop
+ * seeing it. A field that answers the cursor is the difference between a
+ * background and something worth moving the mouse over, and it costs one
+ * more pass over the points.
+ */
+const CURSOR_REACH = 210;
+const CURSOR_ALPHA = 0.42;
+
+/**
+ * How hard points shy away from the cursor, and how quickly that decays.
+ *
+ * Small on purpose. Enough that the field visibly opens up around the
+ * pointer, not so much that it scatters — this sits behind a headline, and
+ * anything that lurches pulls the eye off the words.
+ */
+const NUDGE = 0.55;
+const NUDGE_DECAY = 0.92;
+
+type P = {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  r: number;
+  /** Displacement from the cursor, decayed each frame back toward nothing. */
+  ox: number;
+  oy: number;
+};
 
 /** Same mulberry32 as before: a fixed sky rather than a new one per load. */
 function seeded(seed: number) {
@@ -105,20 +136,31 @@ export function StarField({ className }: { className?: string }) {
     let degree = new Uint8Array(0);
     const candidates: { i: number; j: number; d: number }[] = [];
 
+    // Pointer position in the field's own coordinates, and where the field
+    // sits on the page so that can be worked out without asking the layout
+    // engine on every move event.
+    const cursor = { x: 0, y: 0, on: false };
+    let hostLeft = 0;
+    let hostTop = 0;
+
     // The ink colour is a token, so it has to be read rather than hardcoded —
     // that's what lets the field invert on the dark theme instead of drawing
     // near-black points on a near-black page.
     let ink = "12, 14, 11";
     const readInk = () => {
-      const raw = getComputedStyle(document.documentElement)
-        .getPropertyValue("--foreground")
-        .trim();
+      // Read off the host, not the document. The token is scoped, so a
+      // section that sets `dark` on itself flips the field's ink with it —
+      // which is what lets this sit on a dark band inside an otherwise white
+      // page without knowing anything about that band.
+      const raw = getComputedStyle(host).getPropertyValue("--foreground").trim();
       if (!raw) return;
       // The token is "H S% L%", which canvas won't take directly. Bounce it
       // through an element and let the browser convert to rgb for us.
       const probe = document.createElement("div");
       probe.style.color = `hsl(${raw})`;
-      document.body.appendChild(probe);
+      // Mounted inside the host, not on body — appending to body would
+      // resolve against the document's tokens and undo the scoping above.
+      host.appendChild(probe);
       const rgb = getComputedStyle(probe).color.match(/[\d.]+/g);
       probe.remove();
       if (rgb) ink = `${rgb[0]}, ${rgb[1]}, ${rgb[2]}`;
@@ -164,6 +206,8 @@ export function StarField({ className }: { className?: string }) {
           vx: Math.cos(angle) * SPEED,
           vy: Math.sin(angle) * SPEED,
           r: roll > 0.9 ? 1.9 : roll > 0.65 ? 1.4 : 1,
+          ox: 0,
+          oy: 0,
         });
       }
 
@@ -175,6 +219,11 @@ export function StarField({ className }: { className?: string }) {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       width = rect.width;
       height = rect.height;
+      // Page coordinates, cached here so pointermove can convert with
+      // arithmetic instead of a getBoundingClientRect per event. The field is
+      // anchored to the top of the document, so these only move on resize.
+      hostLeft = rect.left + window.scrollX;
+      hostTop = rect.top + window.scrollY;
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       canvas.style.width = `${width}px`;
@@ -193,6 +242,12 @@ export function StarField({ className }: { className?: string }) {
       if (points.length !== wanted) seed();
     };
 
+    // Drawn position, which is the drift plus whatever the cursor has pushed
+    // it to. Kept separate from x/y so the nudge can decay back to nothing
+    // without having to remember where the point was supposed to be.
+    const px = (p: P) => p.x + p.ox;
+    const py = (p: P) => p.y + p.oy;
+
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
 
@@ -202,8 +257,8 @@ export function StarField({ className }: { className?: string }) {
       candidates.length = 0;
       for (let i = 0; i < points.length; i++) {
         for (let j = i + 1; j < points.length; j++) {
-          const dx = points[i].x - points[j].x;
-          const dy = points[i].y - points[j].y;
+          const dx = px(points[i]) - px(points[j]);
+          const dy = py(points[i]) - py(points[j]);
           // Compared squared to skip a sqrt on every pair; the real distance
           // is only needed for the few that survive.
           const d2 = dx * dx + dy * dy;
@@ -226,15 +281,34 @@ export function StarField({ className }: { className?: string }) {
         degree[c.j]++;
         ctx.strokeStyle = `rgba(${ink}, ${LINK_ALPHA * (1 - c.d / LINK_DISTANCE)})`;
         ctx.beginPath();
-        ctx.moveTo(points[c.i].x, points[c.i].y);
-        ctx.lineTo(points[c.j].x, points[c.j].y);
+        ctx.moveTo(px(points[c.i]), py(points[c.i]));
+        ctx.lineTo(px(points[c.j]), py(points[c.j]));
         ctx.stroke();
+      }
+
+      // The cursor's own lines, drawn stronger and reaching further than the
+      // ones between points, and exempt from the degree cap — the whole point
+      // is that the pointer gathers a fan rather than picking up two strays.
+      if (cursor.on) {
+        ctx.lineWidth = 0.8;
+        for (const p of points) {
+          const dx = px(p) - cursor.x;
+          const dy = py(p) - cursor.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 > CURSOR_REACH * CURSOR_REACH) continue;
+          const d = Math.sqrt(d2);
+          ctx.strokeStyle = `rgba(${ink}, ${CURSOR_ALPHA * (1 - d / CURSOR_REACH)})`;
+          ctx.beginPath();
+          ctx.moveTo(cursor.x, cursor.y);
+          ctx.lineTo(px(p), py(p));
+          ctx.stroke();
+        }
       }
 
       for (const p of points) {
         ctx.fillStyle = `rgba(${ink}, ${p.r > 1.5 ? 0.75 : p.r > 1.2 ? 0.6 : 0.45})`;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.arc(px(p), py(p), p.r, 0, Math.PI * 2);
         ctx.fill();
       }
     };
@@ -249,6 +323,26 @@ export function StarField({ className }: { className?: string }) {
         if (p.x > width + 2) p.x = -2;
         if (p.y < -2) p.y = height + 2;
         if (p.y > height + 2) p.y = -2;
+
+        // Shy away from the pointer, strongest right under it and fading to
+        // nothing at the edge of its reach. Accumulated into an offset rather
+        // than into velocity: velocity would keep whatever the cursor gave it
+        // forever, and the field would slowly blow apart over a long visit.
+        if (cursor.on) {
+          const dx = px(p) - cursor.x;
+          const dy = py(p) - cursor.y;
+          const d = Math.hypot(dx, dy);
+          if (d > 0.01 && d < CURSOR_REACH) {
+            const push = (1 - d / CURSOR_REACH) * NUDGE;
+            p.ox += (dx / d) * push;
+            p.oy += (dy / d) * push;
+          }
+        }
+
+        // Always decaying home, so the field closes back up behind the
+        // pointer instead of keeping a permanent hole where it has been.
+        p.ox *= NUDGE_DECAY;
+        p.oy *= NUDGE_DECAY;
       }
       draw();
       frame = requestAnimationFrame(step);
@@ -299,11 +393,52 @@ export function StarField({ className }: { className?: string }) {
         attributeFilter: ["class"],
       });
 
+      // Listened for on the window, not the host: the host is
+      // pointer-events-none so that the field never intercepts a click meant
+      // for the buttons sitting on top of it, which also means it never
+      // receives a pointer event of its own.
+      const onMove = (e: PointerEvent) => {
+        // Mouse only, and checked here rather than by turning the fan off on
+        // pointerdown. That was the original attempt and it doesn't work: on
+        // touch, pointerdown fires *before* pointermove, so the move that
+        // follows immediately switched the fan back on and a tap left it
+        // stranded with nothing to move it away — exactly what the check was
+        // written to prevent. Filtering by pointerType is the version that
+        // actually holds, and it also spares the device least able to afford
+        // the extra pass.
+        if (e.pointerType !== "mouse") return;
+        const x = e.clientX + window.scrollX - hostLeft;
+        const y = e.clientY + window.scrollY - hostTop;
+        cursor.x = x;
+        cursor.y = y;
+        // A margin of one reach outside the box, so the fan fades as the
+        // pointer leaves rather than snapping off at the edge.
+        cursor.on =
+          x > -CURSOR_REACH &&
+          y > -CURSOR_REACH &&
+          x < width + CURSOR_REACH &&
+          y < height + CURSOR_REACH;
+      };
+      const onGone = () => {
+        cursor.on = false;
+      };
+
+      window.addEventListener("pointermove", onMove, { passive: true });
+      // There was a `pointerdown -> onGone` here to keep touch out. It has
+      // gone with the pointerType check above, which does the job properly —
+      // and on a mouse it was a bug of its own, snuffing the whole fan on
+      // every click until the pointer happened to move again.
+      document.addEventListener("pointerleave", onGone);
+      window.addEventListener("blur", onGone);
+
       return () => {
         stop();
         io.disconnect();
         ro.disconnect();
         mo.disconnect();
+        window.removeEventListener("pointermove", onMove);
+        document.removeEventListener("pointerleave", onGone);
+        window.removeEventListener("blur", onGone);
       };
     }
 
