@@ -113,12 +113,10 @@ export default async function QuotePage({
           <LaunchPanel initialMode={initialMode} />
         </div>
 
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          Already a client?{" "}
-          <Link href="/login" className="text-primary-ink underline-offset-4 hover:underline">
-            Sign in to your dashboard
-          </Link>
-        </p>
+        {/* "Already a client? Sign in to your dashboard" was here and has gone
+            with the rest of the sign-in links. This is the page someone lands
+            on to become a client; offering an existing one a way out of it was
+            the single worst placement of that link on the site. */}
       </main>
     </div>
   );

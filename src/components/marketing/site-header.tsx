@@ -240,13 +240,22 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                     </Button>
                   </SheetClose>
                 )}
-                <SheetClose asChild>
-                  <Button asChild size="lg" variant="outline" className="w-full">
-                    <Link href={signedIn ? "/dashboard" : "/login"}>
-                      {signedIn ? "Dashboard" : "Client sign in"}
-                    </Link>
-                  </Button>
-                </SheetClose>
+                {/* Only for people already signed in. The signed-out half of
+                    this was "Client sign in", and it has gone from every
+                    public surface: it is the wrong ask for someone who has
+                    just read a page about what we do and hasn't bought yet,
+                    and it was competing with the two buttons above it that
+                    are the actual point of the panel.
+                    /login still exists and still works — it just isn't
+                    advertised to strangers. Someone with an account has it
+                    bookmarked or in an email. */}
+                {signedIn && (
+                  <SheetClose asChild>
+                    <Button asChild size="lg" variant="outline" className="w-full">
+                      <Link href="/dashboard">Dashboard</Link>
+                    </Button>
+                  </SheetClose>
+                )}
               </div>
             </SheetContent>
           </Sheet>

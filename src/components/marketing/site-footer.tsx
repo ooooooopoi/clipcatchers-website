@@ -54,8 +54,15 @@ const COLUMNS = [
       { label: "Start a campaign", href: "/launch" },
       { label: "Book a call", href: "/launch?mode=call" },
       { label: "For creators", href: "/for-creators" },
-      { label: "Client sign in", href: "/login" },
-      // No "create an account". Accounts are set up when a campaign is
+      // No "Client sign in", and no "create an account".
+      //
+      // Sign-in is gone from every public surface deliberately. A footer link
+      // to /login serves people who already have an account and already know
+      // where it is, while taking space in a column whose job is to catch the
+      // ones who don't have one yet. The route still works; it just isn't
+      // advertised.
+      //
+      // Signup was never here either: accounts are created when a campaign is
       // assigned to a client, so anyone following a public signup link arrives
       // in an empty dashboard — the enquiry form above is the real front door.
     ],
