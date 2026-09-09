@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/brand";
+import { DISCORD_INVITE, DISCORD_LINK_PROPS } from "@/lib/discord";
 import { RATE_PER_THOUSAND } from "@/lib/pricing";
 import { USE_CASES } from "@/lib/use-cases";
 
@@ -14,7 +15,6 @@ import { USE_CASES } from "@/lib/use-cases";
  * No email address by choice — the quote form is the front door, and it
  * arrives with the context a cold email doesn't have.
  */
-const DISCORD_INVITE = process.env.NEXT_PUBLIC_DISCORD_INVITE || "";
 
 /**
  * ── These used to be anchors, and they are pages now ────────────────────
@@ -115,16 +115,17 @@ export function SiteFooter() {
         <div className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6 text-xs text-muted-foreground">
           <span>© {new Date().getFullYear()} Clip Catchers. All rights reserved.</span>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            {DISCORD_INVITE && (
-              <a
-                href={DISCORD_INVITE}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="transition-colors hover:text-foreground"
-              >
-                Creators — join on Discord
-              </a>
-            )}
+            {/* No longer conditional. It was guarded on an environment
+                variable that was never set, so this link has never once
+                rendered — the one route a creator had from the footer was
+                invisible the whole time. */}
+            <a
+              href={DISCORD_INVITE}
+              {...DISCORD_LINK_PROPS}
+              className="transition-colors hover:text-foreground"
+            >
+              Creators — join on Discord
+            </a>
             <Link href="/legal/privacy" className="transition-colors hover:text-foreground">
               Privacy
             </Link>

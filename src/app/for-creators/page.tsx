@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, BadgeCheck, Send, Wallet } from "lucide-react";
 import { PageShell } from "@/components/marketing/page-shell";
 import { Button } from "@/components/ui/button";
+import { CREATOR_HREF, DISCORD_LINK_PROPS } from "@/lib/discord";
 import { RATE_PER_THOUSAND } from "@/lib/pricing";
 
 const TITLE = "For creators";
@@ -25,13 +26,7 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: SOCIAL_TITLE, description: DESCRIPTION },
 };
 
-// Creators join through Discord — that's where campaigns are briefed, clips
-// submitted and payouts run. Pointing them at /signup put them in the client
-// dashboard instead, which is a dead end for a clipper. Falls back to signup
-// if the invite isn't configured, so a missing variable can't leave a dead
-// button on the page.
-const DISCORD_INVITE = process.env.NEXT_PUBLIC_DISCORD_INVITE || "";
-const CREATOR_HREF = DISCORD_INVITE || "/signup";
+// Creators join through Discord — see lib/discord.ts.
 
 const STEPS = [
   {
@@ -99,10 +94,7 @@ export default function ForCreatorsPage() {
 
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Button asChild size="lg" className="h-12 px-7">
-            <a
-              href={CREATOR_HREF}
-              {...(DISCORD_INVITE ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-            >
+            <a href={CREATOR_HREF} {...DISCORD_LINK_PROPS}>
               Join the network
               <ArrowRight />
             </a>

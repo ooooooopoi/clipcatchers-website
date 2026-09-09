@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Ban, Gauge, Phone, ReceiptText, ShieldCheck } from "lucide-react";
 import { AfterLaunch } from "@/components/marketing/after-launch";
+import { AudienceModes } from "@/components/marketing/audience-modes";
 import { Clients } from "@/components/marketing/clients";
 import { Comparison } from "@/components/marketing/comparison";
 import { Control } from "@/components/marketing/control";
@@ -18,6 +19,7 @@ import { Verification } from "@/components/marketing/verification";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getSessionUser } from "@/lib/auth-helpers";
+import { CREATOR_HREF, DISCORD_INVITE, DISCORD_LINK_PROPS } from "@/lib/discord";
 import { formatCompact } from "@/lib/format";
 import { RATE_PER_THOUSAND } from "@/lib/pricing";
 import { NAMED_CLIENTS, getPublicStats, slugify } from "@/lib/public-stats";
@@ -61,13 +63,10 @@ export const metadata: Metadata = {
   },
 };
 
-// Creators join through Discord — that's where campaigns are briefed, clips
-// submitted and payouts run. Pointing them at /signup put them in the client
-// dashboard instead, which is a dead end for a clipper. Falls back to signup
-// if the invite isn't configured, so a missing variable can't leave a dead
-// button on the page.
-const DISCORD_INVITE = process.env.NEXT_PUBLIC_DISCORD_INVITE || "";
-const CREATOR_HREF = DISCORD_INVITE || "/signup";
+// Creators join through Discord — see lib/discord.ts. The /signup fallback
+// that used to live here is gone: it sent clippers to the client dashboard,
+// which is a dead end for them, and it was the live behaviour because the
+// invite was never configured.
 
 /** The four objections that otherwise decide it before anyone asks. */
 const GUARANTEES = [
@@ -140,6 +139,12 @@ export default async function HomePage() {
   // delivered" during a blip is worse than one an hour out of date.
   const live = stats.live && stats.totalViews > 0;
   const totalViews = live ? formatCompact(stats.totalViews) : SITE_STATS.viewsDelivered;
+  const audienceStats = {
+    views: totalViews,
+    clips: live && stats.totalClips > 0 ? formatCompact(stats.totalClips) : SITE_STATS.clipsPublished,
+    creators: live && stats.creators > 0 ? formatCompact(stats.creators) : SITE_STATS.creatorsPaid,
+    campaigns: live && stats.campaigns > 0 ? formatCompact(stats.campaigns) : "17",
+  };
 
   // The closing CTA's secondary action. Derived from the allowlist rather than
   // hardcoded, so emptying NAMED_CLIENTS drops the button instead of leaving
@@ -228,6 +233,13 @@ export default async function HomePage() {
             campaigns behind it, and a brand deciding whether to keep reading
             does that in the first screen. */}
         <Proof stats={stats} />
+
+        <AudienceModes
+          stats={audienceStats}
+          creatorHref={CREATOR_HREF}
+          hasDiscordInvite={Boolean(DISCORD_INVITE)}
+          rate={`$${RATE_PER_THOUSAND.toFixed(2)}`}
+        />
 
         {/* The terms, running edge to edge. The only full-bleed element on the
             page and the only one that moves by itself — see ticker.tsx. */}
@@ -319,7 +331,7 @@ export default async function HomePage() {
               <Button asChild variant="outline" size="lg">
                 <a
                   href={CREATOR_HREF}
-                  {...(DISCORD_INVITE ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                  {...DISCORD_LINK_PROPS}
                 >
                   Join the network
                   <ArrowRight />
