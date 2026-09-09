@@ -3,70 +3,38 @@
 @tailwind utilities;
 
 @layer base {
-  /* The logo is an orange-to-amber bolt on charcoal. The palette follows it:
-     orange leads, amber is the second voice, and the greys keep their faint
-     warm cast — a blue-grey against this mark is what made the whole thing
-     read as a default template.
-
-     It was green until the mark was redrawn. If you find green anywhere in
-     here, it's left over from that. */
+  /* Blue and white are the public brand palette. Primary handles blue ink and
+     UI accents; cta handles filled action buttons so they stay prominent
+     without forcing every accent on the page to become a button. */
   :root {
     --background: 0 0% 100%;
-    --foreground: 96 12% 5%;
+    --foreground: 218 50% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 96 12% 5%;
+    --card-foreground: 218 50% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 96 12% 5%;
-    /* ─────────────────────────────────────────────────────────────────────
-       TWO ACCENTS, DELIBERATELY SEPARATE.
-
-       This used to be one set of tokens doing two unrelated jobs: "this is
-       the thing to click" and "this is our accent ink". They were tied
-       together, so turning the buttons orange also turned every section
-       eyebrow, timeline dot, chart bar and nav underline orange — and calming
-       those back down turned the buttons white again. The palette flipped
-       between all-orange and all-white four times before anyone noticed the
-       two jobs were fighting over one variable.
-
-       --primary  is INK. Eyebrows, dots, bars, underlines, stat figures.
-                  Near-black, so a page of it reads as typography.
-       --cta      is the BUTTON, and only ever the button. The logo's own
-                  #FC7800, used sparingly enough that it always means
-                  "press this".
-
-       Change one without touching the other. That's the whole point.
-       ───────────────────────────────────────────────────────────────────── */
-    --primary: 96 12% 9%;
+    --popover-foreground: 218 50% 10%;
+    /* Primary is the blue brand accent used for ink, charts and highlights.
+       CTA is the same family, reserved for filled action buttons. */
+    --primary: 219 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --primary-ink: 96 12% 14%;
+    --primary-ink: 219 91% 36%;
 
-    /* The bolt in the logo.
-
-       --cta-foreground is near-black, not white, and that is not a style
-       choice. White on #FC7800 measures 2.69:1 — it fails AA's 4.5:1 for
-       body text and fails even the 3:1 large-text allowance. Orange is the
-       hue this catches people on: it reads as dark enough for white text and
-       isn't. Near-black on the same fill clears 8:1.
-
-       --cta-ink is the same hue at 33% lightness, for the outlined secondary
-       where the orange has to work as text on white. The 49% DEFAULT is a
-       fill only and would fail as text. */
-    --cta: 29 100% 49%;
-    --cta-foreground: 29 90% 10%;
-    --cta-ink: 29 100% 33%;
-    --secondary: 96 8% 96%;
-    --secondary-foreground: 96 10% 10%;
-    --muted: 96 8% 96%;
-    --muted-foreground: 96 6% 42%;
-    --accent: 96 8% 95%;
-    --accent-foreground: 96 10% 10%;
-    /* The second accent, used on the pricing block. Grey in monochrome; the
-       amber end of the logo's gradient (#FCA800) in the orange scheme. Swap
-       these together with --primary above — half of one and half of the other
-       is what makes a palette look accidental. */
-    --gold: 96 6% 55%;
+    /* White text clears contrast on this blue CTA fill, and --cta-ink is the
+       darker text-safe blue used when the color appears on white. */
+    --cta: 219 100% 50%;
+    --cta-foreground: 0 0% 100%;
+    --cta-ink: 219 91% 36%;
+    --secondary: 210 100% 97%;
+    --secondary-foreground: 218 50% 10%;
+    --muted: 210 100% 97%;
+    --muted-foreground: 215 24% 42%;
+    --accent: 210 100% 96%;
+    --accent-foreground: 218 50% 10%;
+    /* The second accent, used on pricing and small data moments. Keep it in
+       the blue family so the public site stays blue and white. */
+    --gold: 205 90% 45%;
     --gold-foreground: 0 0% 100%;
-    --gold-ink: 96 8% 30%;
+    --gold-ink: 215 88% 35%;
 
     /* --gold: 40 100% 49%;
     --gold-foreground: 38 80% 8%;
@@ -90,51 +58,45 @@
        left as it was; against the dark background it already scores 8.57:1. */
     --warning: 38 92% 30%;
     --warning-foreground: 48 96% 9%;
-    --border: 96 8% 88%;
-    /* A border dark enough to be a component boundary rather than a hairline
-       divider. --border is 1.3:1 against white, which is fine for separating
-       two areas but fails WCAG 1.4.11 — that asks for 3:1 on anything the eye
-       has to find, and on a white-on-white button the border is the only thing
-       saying where the button is. 57% measured 2.98:1 — close enough to look
-       fine and still a fail, which is exactly the kind of miss that ships. */
-    --border-strong: 96 6% 54%;
-    --input: 96 8% 88%;
-    --ring: 96 12% 25%;
+    --border: 214 55% 88%;
+    /* A stronger component border for controls and floating surfaces that
+       need more than a hairline on the white page. */
+    --border-strong: 216 40% 58%;
+    --input: 214 55% 88%;
+    --ring: 219 100% 50%;
     --radius: 0.65rem;
   }
 
   .dark {
-    /* Charcoal with a trace of green, matching the surface the logo sits on.
-       Cards lift a little further than before so panels separate from the page
-       without needing a heavier border. */
-    --background: 96 10% 4%;
-    --foreground: 90 8% 97%;
-    --card: 96 9% 8%;
-    --card-foreground: 90 8% 97%;
-    --popover: 96 9% 9%;
-    --popover-foreground: 90 8% 97%;
-    --primary: 29 100% 56%;
-    --primary-foreground: 29 90% 10%;
+    /* Dark theme stays in the same blue family as the public palette. */
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+    --card: 222 43% 10%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 43% 10%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 214 100% 62%;
+    --primary-foreground: 222 47% 6%;
     /* On a dark page the readable version is the brighter one, not the darker. */
-    --primary-ink: 29 100% 64%;
-    --secondary: 96 7% 14%;
-    --secondary-foreground: 90 8% 97%;
-    --muted: 96 7% 14%;
-    --muted-foreground: 96 6% 62%;
-    --accent: 96 7% 17%;
-    --accent-foreground: 90 8% 97%;
-    --gold: 40 100% 56%;
-    --gold-foreground: 38 80% 8%;
-    --gold-ink: 40 100% 66%;
+    --primary-ink: 207 100% 72%;
+    --secondary: 217 32% 16%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 32% 16%;
+    --muted-foreground: 214 22% 68%;
+    --accent: 217 32% 18%;
+    --accent-foreground: 210 40% 98%;
+    --gold: 199 95% 68%;
+    --gold-foreground: 222 47% 6%;
+    --gold-ink: 199 95% 72%;
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 98%;
     --success: 142 69% 50%;
     --success-foreground: 144 61% 6%;
     --warning: 38 92% 55%;
     --warning-foreground: 48 96% 9%;
-    --border: 96 7% 17%;
-    --input: 96 7% 19%;
-    --ring: 29 100% 52%;
+    --border: 217 32% 20%;
+    --input: 217 32% 22%;
+    --ring: 214 100% 62%;
   }
 }
 

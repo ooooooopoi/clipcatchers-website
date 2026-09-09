@@ -37,14 +37,11 @@ import { cn } from "@/lib/utils";
  * top-level items, two of which open a menu, and the sheet still owns
  * everything secondary — sign-in, legal, the creator route.
  *
- * ── The CTA is white, and that is deliberate ────────────────────────────
- * The reference design this nav copies uses a filled black pill. Ours stays
- * white with a border and elevation, matching the `default` button variant,
- * because that was an explicit decision made after the filled version had
- * already been tried and rejected once. Don't flip it back without saying so.
+ * ── The CTA is filled blue, matching the public palette ─────────────────
+ * The header pill is hand-built rather than a Button, so it needs to mirror
+ * the `default` button variant directly.
  *
- * This pill is hand-built rather than a Button, so it does not inherit that
- * variant — if the primary treatment changes again, change it here too.
+ * If the primary treatment changes again, change it here too.
  */
 export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
@@ -140,7 +137,7 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                 <>
                   <Link
                     href="/launch"
-                    className="flex h-full items-center gap-2 whitespace-nowrap px-3 text-[15px] font-medium transition-colors hover:bg-accent min-[360px]:px-4 sm:px-7"
+                    className="flex h-full items-center gap-2 whitespace-nowrap bg-cta px-3 text-[15px] font-medium text-cta-foreground transition-colors hover:bg-cta/90 min-[360px]:px-4 sm:px-7"
                   >
                     {/* Two labels, one per width. "Start a campaign" doesn't
                         fit a 375px bar once the wordmark is beside it, and

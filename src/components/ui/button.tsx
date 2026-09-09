@@ -9,24 +9,12 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // White, with a border and real elevation. The whole site is white and
-        // nothing is filled; the primary action is built from a shadow rather
-        // than a fill, and the lift is what says "pressable" where colour
-        // normally would.
-        //
-        // The shadow is deliberately heavier than `outline`'s. That gap is the
-        // only thing separating primary from secondary, so don't flatten it
-        // without replacing the distinction with something else.
-        //
-        // This is a return to the pre-626339e treatment. The orange fill that
-        // replaced it was introduced because white "asks the eye to hunt for
-        // it"; that trade is being taken deliberately, so if the button starts
-        // getting missed again, that is the known cost and not a new bug.
+        // Blue fill with enough contrast to make the primary action clear on
+        // the otherwise white marketing pages.
         default:
-          "border border-[hsl(var(--border-strong))] bg-background text-foreground shadow-[0_1px_2px_hsl(var(--foreground)/0.06),0_4px_12px_-6px_hsl(var(--foreground)/0.18)] hover:bg-accent hover:shadow-[0_1px_2px_hsl(var(--foreground)/0.08),0_8px_20px_-8px_hsl(var(--foreground)/0.25)]",
-        // Kept, but unused while the primary is white — an orange-tinted
-        // secondary beside a colourless primary would be the loudest thing in
-        // the pair, which inverts the hierarchy it exists to express.
+          "border border-cta bg-cta text-cta-foreground shadow-[0_1px_2px_hsl(var(--cta)/0.25),0_10px_24px_-12px_hsl(var(--cta)/0.55)] hover:bg-cta/90 hover:shadow-[0_1px_2px_hsl(var(--cta)/0.3),0_14px_32px_-14px_hsl(var(--cta)/0.65)]",
+        // Secondary call to action: still blue, but quieter than the filled
+        // primary button.
         ctaOutline:
           "border border-cta/40 bg-background text-cta-ink shadow-[0_1px_2px_hsl(var(--foreground)/0.04)] hover:border-cta/70 hover:bg-[hsl(var(--cta)/0.06)]",
         destructive:
