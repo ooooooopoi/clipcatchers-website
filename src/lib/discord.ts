@@ -1,30 +1,34 @@
 /**
  * Where creators join.
  *
- * ── Why there is a real default and not an empty string ─────────────────
- * This was read straight from the environment in three separate files, each
- * falling back to "" and then to /signup. NEXT_PUBLIC_DISCORD_INVITE was never
- * set, so every "Join the network" button on the site pointed at the client
- * signup form — which the comment beside each of them already described as a
- * dead end for a clipper. Three copies of a fallback, all landing somewhere
- * nobody wanted to go.
+ * ── Read this before adding the environment variable back ───────────────
+ * There is deliberately no NEXT_PUBLIC_DISCORD_INVITE lookup here, and that
+ * is not an oversight. It used to read `process.env.X || <this value>`, and
+ * the variable turned out to be set in Vercel to an invite that had expired:
  *
- * The invite is not a secret. It is handed out in Discord, pasted into TikTok
- * bios and printed on the bot's own landing page, so keeping it in an
- * environment variable bought no privacy and cost a working link. Same shape
- * as DEFAULT_BOT_URL in lib/bot.ts: a real value in code, overridable by the
- * environment when a deployment needs a different one.
+ *     env    https://discord.gg/nxwg4QmGW   -> 404 "Invite is expired."
+ *     code   https://discord.gg/7NYnJK7eqq  -> 200
+ *
+ * Because the environment won, production served the dead link and every
+ * creator following it was told the invite was invalid — while the working
+ * one sat right here in the repo, deployed and unreachable. Locally the
+ * variable was unset, so it looked correct everywhere it was tested.
+ *
+ * An override is only worth having if someone remembers it exists. This one
+ * outlived the memory of whoever set it and silently shadowed the fix. One
+ * value, in the file, where changing it is a diff someone reviews.
  *
  * ── If the invite ever changes ──────────────────────────────────────────
- * Change it here. Setting NEXT_PUBLIC_DISCORD_INVITE in Vercel also works and
- * takes precedence, which is the faster route if the old link is being abused
- * and needs revoking before a deploy can finish.
+ * Change the line below. Discord invite codes are permanent unless revoked,
+ * so a stale value fails loudly — Discord says "Invite is expired" rather
+ * than quietly going nowhere, which is how this one was caught.
  *
- * Discord invite codes are permanent unless revoked, so a stale value here
- * fails loudly — the link 404s in Discord rather than silently going nowhere.
+ * Worth verifying without opening Discord:
+ *     curl -s -o /dev/null -w "%{http_code}" \
+ *       https://discord.com/api/v10/invites/<code>
+ * 200 is live, 404 is expired or revoked.
  */
-export const DISCORD_INVITE =
-  process.env.NEXT_PUBLIC_DISCORD_INVITE || "https://discord.gg/7NYnJK7eqq";
+export const DISCORD_INVITE = "https://discord.gg/7NYnJK7eqq";
 
 /**
  * The same link, named for the thing it is used as.
