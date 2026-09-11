@@ -117,7 +117,14 @@ export default async function TeamCampaignsPage({
                 const over = budgetCents > 0 && c.spentCents > budgetCents;
                 return (
                   <TableRow key={c.id}>
-                    <TableCell className="whitespace-nowrap font-medium">{c.name}</TableCell>
+                    <TableCell className="whitespace-nowrap font-medium">
+                      <Link
+                        href={`/team/${sig}/campaigns/${c.id}`}
+                        className="underline-offset-4 hover:text-primary hover:underline"
+                      >
+                        {c.name}
+                      </Link>
+                    </TableCell>
                     <TableCell>
                       <span
                         className={`rounded-full border px-2 py-0.5 text-xs font-medium ${

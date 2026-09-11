@@ -99,6 +99,54 @@ export function markPaid(userId: string, campaignId?: number, paid = true) {
   });
 }
 
+export type CampaignClipRow = {
+  id: number;
+  url: string;
+  platform: string | null;
+  /**
+   * Payable views — what the clipper was actually paid on.
+   *
+   * Frozen once the campaign closes or is trimmed to budget, because money is
+   * calculated from it. Not the same as what the clip went on to deliver.
+   */
+  views: number;
+  /**
+   * Delivered views: MAX(views, reach_views) in the bot.
+   *
+   * A clip keeps being watched long after its campaign closes, and those later
+   * views are recorded but never re-priced. Identical to `views` on a live
+   * campaign; on a closed one the gap is reach nobody was paid for.
+   */
+  delivered: number;
+  status: string;
+  paid: number;
+  /** Dollars this clip is worth, capped and min-view gated the same way /payouts does it. */
+  earned: number | null;
+  handle: string | null;
+  user_id: string;
+  engagement_pct: number | null;
+  reject_reason: string | null;
+};
+
+export type CampaignClipsResponse = {
+  campaign: { id: number; name: string; active: number; budget: number | null };
+  count: number;
+  total_views: number;
+  total_earned: number;
+  clips: CampaignClipRow[];
+};
+
+/**
+ * Every clip on one campaign, unpaginated and keyed by campaign id.
+ *
+ * Preferred over filtering the mirrored snapshot, whose clips sheet carries a
+ * campaign *name* and no id — two campaigns sharing a name would silently
+ * merge into one set of figures.
+ */
+export function fetchCampaignClips(campaignId: number) {
+  return call<CampaignClipsResponse>(`/api/campaigns/${campaignId}/clips`);
+}
+
 export type ClipperClip = {
   id: number;
   url: string;
