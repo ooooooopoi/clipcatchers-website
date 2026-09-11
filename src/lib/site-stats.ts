@@ -14,7 +14,9 @@
 export const AS_OF = "September 2026";
 
 export const SITE_STATS = {
-  // Updated 2026-09-07, counted across all 17 campaigns that hold clips.
+  // Updated 2026-09-11, counted across all 22 non-PENDING campaigns, by running
+  // public-stats.ts's own grouping against production — so this cannot drift
+  // from the live page's definition the way a hand-count would.
   //
   // On the basis: this is reach — every view the approved clips delivered,
   // including growth after a campaign closed — because that is what the live
@@ -24,16 +26,30 @@ export const SITE_STATS = {
   // campaign closes and its clips keep running. A fallback quoting the
   // payable number would quietly contradict the live page by 40%.
   //
-  // Previous values (130M, 3,734) were a week stale; the ones before those
-  // were a third of reality, and staleness only shows when the database is
-  // unreachable — so the one moment this exists for is the one moment it
-  // misrepresents the business. Recheck whenever the database is known good.
-  viewsDelivered: "198M",
-  clipsPublished: "4,857",
-  // Measured at last: 129 distinct creators hold at least one paid clip. The
-  // previous 85 was never verified and was known to be low — more people were
-  // owed money than this claimed had ever been paid.
+  // Previous values (198M, 4,857) went four days stale while the database was
+  // unreachable — DATABASE_URL pointed at a retired Neon endpoint, so every
+  // page served this fallback and nothing showed that it had. The ones before
+  // those (130M, 3,734) were a week stale, and the ones before that a third of
+  // reality. Staleness only shows when the database is down, so the one moment
+  // this exists for is the one moment it misrepresents the business. Recheck
+  // whenever the database is known good.
+  viewsDelivered: "224.1M",
+  clipsPublished: "5,484",
+  // ── Left at 129 deliberately; do not "refresh" this to match the others ──
+  // This is the only field the dashboard database cannot recompute.
+  // CampaignClip has no paid/status column — it stores campaignId, externalId,
+  // url, platform, handle, views and nothing else — so "has at least one paid
+  // clip" is answerable only from the bot's SQLite ledger. 129 is the last
+  // figure measured there.
+  //
+  // The live homepage doesn't use this number (it shows public-stats' distinct
+  // handle count, 235 as of today, under the label "creators activated"), but
+  // opengraph-image.tsx does, under the label "creators paid" — and that card
+  // is static, so it never gets corrected by a live read. Setting this to 235
+  // would put "235 creators paid" on every social share off a count that
+  // includes creators who have never been paid. Update it from the bot, or not
+  // at all.
   creatorsPaid: "129",
   /** Numeric form, for the comparison maths on the homepage. */
-  viewsDeliveredRaw: 198_000_000,
+  viewsDeliveredRaw: 224_100_000,
 } as const;

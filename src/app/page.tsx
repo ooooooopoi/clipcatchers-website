@@ -143,7 +143,10 @@ export default async function HomePage() {
     views: totalViews,
     clips: live && stats.totalClips > 0 ? formatCompact(stats.totalClips) : SITE_STATS.clipsPublished,
     creators: live && stats.creators > 0 ? formatCompact(stats.creators) : SITE_STATS.creatorsPaid,
-    campaigns: live && stats.campaigns > 0 ? formatCompact(stats.campaigns) : "17",
+    // 22 as of 2026-09-11. A bare literal here is the one fallback that lives
+    // outside SITE_STATS, so it goes stale without anything pointing at it —
+    // recount it alongside the others.
+    campaigns: live && stats.campaigns > 0 ? formatCompact(stats.campaigns) : "22",
   };
 
   // The closing CTA's secondary action. Derived from the allowlist rather than
