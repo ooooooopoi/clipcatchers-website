@@ -1,12 +1,46 @@
-import { randomBytes, timingSafeEqual } from "crypto";
+import { randomBytes, randomUUID, timingSafeEqual } from "crypto";
 import { z } from "zod";
-import type { CampaignStatus } from "@prisma/client";
+import { Prisma, type CampaignStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { badRequest, handleError, ok, unauthorized } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
 
 const SYSTEM_EMAIL = "shared-reports@clipcatchers.local";
+
+/**
+ * Rows per INSERT for the child tables.
+ *
+ * Postgres caps a statement at 65,535 bound parameters; 500 rows of at most 8
+ * columns is 4,000, so this stays far under it while keeping the number of
+ * round trips in single digits. The schemas above cap a campaign at 1,000
+ * clips and 400 metrics, so this is at most two statements per table per
+ * campaign.
+ */
+const WRITE_CHUNK = 500;
+
+function chunk<T>(items: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
+  return out;
+}
+
+/**
+ * Last occurrence wins, keyed by whatever the table's unique constraint is.
+ *
+ * This matters more than it looks. A multi-row INSERT ... ON CONFLICT fails
+ * outright — "ON CONFLICT DO UPDATE command cannot affect row a second time" —
+ * if two rows in the same statement collide on the conflict target. The
+ * per-row upserts this replaces simply applied the second write over the
+ * first, so a payload carrying a duplicate clip id or two metrics on one date
+ * used to sync fine. Deduplicating here keeps that behaviour instead of
+ * turning a tolerable payload into a 500.
+ */
+function lastPerKey<T>(items: T[], key: (item: T) => string): T[] {
+  const byKey = new Map<string, T>();
+  for (const item of items) byKey.set(key(item), item);
+  return [...byKey.values()];
+}
 
 /**
  * Receives campaign state from the Discord bot. Authenticated with a shared
@@ -179,36 +213,64 @@ export async function POST(request: Request) {
         update: data,
       });
 
-      for (const metric of item.metrics) {
-        const date = new Date(metric.date);
-        if (Number.isNaN(date.getTime())) continue;
-        await prisma.campaignMetric.upsert({
-          where: { campaignId_date: { campaignId: campaign.id, date } },
-          create: {
-            campaignId: campaign.id,
-            date,
-            views: metric.views,
-            reach: metric.reach,
-            spendCents: metric.spendCents,
-          },
-          update: { views: metric.views, reach: metric.reach, spendCents: metric.spendCents },
-        });
+      // ── Why these are raw bulk INSERTs rather than prisma.upsert ──────────
+      // They used to be a nested loop doing one upsert, and so one round trip
+      // to Neon, per row. On the live dataset that is 5,484 clips + 473
+      // metrics = 5,957 round trips in a single request. At the ~5ms a pooled
+      // Neon round trip costs from a Vercel function that lands exactly on the
+      // bot's 30s client timeout, and as the clip count grew it crossed it:
+      // the bot logged "Couldn't reach the dashboard" with an empty error —
+      // asyncio.TimeoutError stringifies to "" — while this route was still
+      // happily working. Chunked, it is ~6 statements instead of ~6,000.
+      //
+      // "id" and "updatedAt" are written explicitly because Prisma generates
+      // cuid() and @updatedAt in the client, not the database: those columns
+      // are plain NOT NULL with no default, so a raw INSERT omitting them
+      // fails. "createdAt" is deliberately absent from both the column list
+      // and the DO UPDATE — it has a database default for new rows, and
+      // touching it on conflict would reset the original creation time on
+      // every sync.
+      const now = new Date();
+
+      const metricRows = lastPerKey(
+        item.metrics
+          .map((metric) => ({ ...metric, at: new Date(metric.date) }))
+          .filter((metric) => !Number.isNaN(metric.at.getTime())),
+        (metric) => String(metric.at.getTime()),
+      );
+
+      for (const part of chunk(metricRows, WRITE_CHUNK)) {
+        const values = part.map(
+          (m) => Prisma.sql`(${randomUUID()}, ${campaign.id}, ${m.at}, ${m.views}, ${m.reach}, ${m.spendCents})`,
+        );
+        await prisma.$executeRaw`
+          INSERT INTO "CampaignMetric" ("id", "campaignId", "date", "views", "reach", "spendCents")
+          VALUES ${Prisma.join(values)}
+          ON CONFLICT ("campaignId", "date") DO UPDATE SET
+            "views" = EXCLUDED."views",
+            "reach" = EXCLUDED."reach",
+            "spendCents" = EXCLUDED."spendCents"
+        `;
       }
 
-      for (const clip of item.clips) {
-        const clipData = {
-          url: clip.url,
-          platform: clip.platform ?? "",
-          handle: clip.handle ?? "",
-          views: clip.views,
-        };
-        await prisma.campaignClip.upsert({
-          where: {
-            campaignId_externalId: { campaignId: campaign.id, externalId: clip.externalId },
-          },
-          create: { campaignId: campaign.id, externalId: clip.externalId, ...clipData },
-          update: clipData,
-        });
+      const clipRows = lastPerKey(item.clips, (clip) => clip.externalId);
+
+      for (const part of chunk(clipRows, WRITE_CHUNK)) {
+        const values = part.map(
+          (c) => Prisma.sql`(${randomUUID()}, ${campaign.id}, ${c.externalId}, ${c.url}, ${
+            c.platform ?? ""
+          }, ${c.handle ?? ""}, ${c.views}, ${now})`,
+        );
+        await prisma.$executeRaw`
+          INSERT INTO "CampaignClip" ("id", "campaignId", "externalId", "url", "platform", "handle", "views", "updatedAt")
+          VALUES ${Prisma.join(values)}
+          ON CONFLICT ("campaignId", "externalId") DO UPDATE SET
+            "url" = EXCLUDED."url",
+            "platform" = EXCLUDED."platform",
+            "handle" = EXCLUDED."handle",
+            "views" = EXCLUDED."views",
+            "updatedAt" = EXCLUDED."updatedAt"
+        `;
       }
 
       // A clip the bot no longer sends was removed or un-approved, so it has to
