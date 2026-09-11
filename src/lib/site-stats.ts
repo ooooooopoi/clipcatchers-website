@@ -33,7 +33,13 @@ export const SITE_STATS = {
   // reality. Staleness only shows when the database is down, so the one moment
   // this exists for is the one moment it misrepresents the business. Recheck
   // whenever the database is known good.
-  viewsDelivered: "224.1M",
+  // 224.1M earlier today, and the 15.4M jump was not a day's delivery: a reach
+  // refresh on one closed campaign (GREEN HOUR) moved it from 11.1M to 26.6M
+  // in one go. Closed campaigns keep accruing views that nothing re-reads
+  // unless asked, so this figure understates reality by however long it has
+  // been since the last /api/refresh-reach — which is worth knowing before
+  // treating a jump like this as growth.
+  viewsDelivered: "240.1M",
   clipsPublished: "5,484",
   // ── Left at 129 deliberately; do not "refresh" this to match the others ──
   // This is the only field the dashboard database cannot recompute.
@@ -51,5 +57,5 @@ export const SITE_STATS = {
   // at all.
   creatorsPaid: "129",
   /** Numeric form, for the comparison maths on the homepage. */
-  viewsDeliveredRaw: 224_100_000,
+  viewsDeliveredRaw: 240_100_000,
 } as const;
