@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Ban, Gauge, Phone, ReceiptText, ShieldCheck } from "lucide-react";
 import { AfterLaunch } from "@/components/marketing/after-launch";
-import { AudienceModes } from "@/components/marketing/audience-modes";
 import { Clients } from "@/components/marketing/clients";
 import { Comparison } from "@/components/marketing/comparison";
 import { Control } from "@/components/marketing/control";
@@ -19,7 +18,7 @@ import { Verification } from "@/components/marketing/verification";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getSessionUser } from "@/lib/auth-helpers";
-import { CREATOR_HREF, DISCORD_INVITE, DISCORD_LINK_PROPS } from "@/lib/discord";
+import { CREATOR_HREF, DISCORD_LINK_PROPS } from "@/lib/discord";
 import { formatCompact } from "@/lib/format";
 import { RATE_PER_THOUSAND } from "@/lib/pricing";
 import { NAMED_CLIENTS, getPublicStats, slugify } from "@/lib/public-stats";
@@ -139,11 +138,6 @@ export default async function HomePage() {
   // delivered" during a blip is worse than one an hour out of date.
   const live = stats.live && stats.totalViews > 0;
   const totalViews = live ? formatCompact(stats.totalViews) : SITE_STATS.viewsDelivered;
-  // Just delivery now. The clips/creators/campaigns counters that sat under
-  // the audience panel are gone, and with them the only homepage consumer of
-  // SITE_STATS.clipsPublished and .creatorsPaid — both are still read by
-  // opengraph-image.tsx, so they stay in site-stats.ts.
-  const audienceStats = { views: totalViews };
 
   // The closing CTA's secondary action. Derived from the allowlist rather than
   // hardcoded, so emptying NAMED_CLIENTS drops the button instead of leaving
@@ -233,12 +227,11 @@ export default async function HomePage() {
             does that in the first screen. */}
         <Proof stats={stats} />
 
-        <AudienceModes
-          stats={audienceStats}
-          creatorHref={CREATOR_HREF}
-          hasDiscordInvite={Boolean(DISCORD_INVITE)}
-          rate={`$${RATE_PER_THOUSAND.toFixed(2)}`}
-        />
+        {/* The brand/clipper mode switcher stood here. Its brand half repeated
+            the HowItWorks section a few blocks below — same four beats, same
+            page — and its clipper half is served by the "For creators" panel
+            further down, so removing it cost the page nothing it still says
+            elsewhere. */}
 
         {/* The terms, running edge to edge. The only full-bleed element on the
             page and the only one that moves by itself — see ticker.tsx. */}
