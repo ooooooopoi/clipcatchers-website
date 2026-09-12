@@ -34,6 +34,7 @@ const COLUMNS = [
       { label: "Pricing", href: "/pricing" },
       { label: "Verification", href: "/verification" },
       { label: "Results", href: "/results" },
+      { label: "Blog", href: "/blog" },
     ],
   },
   {

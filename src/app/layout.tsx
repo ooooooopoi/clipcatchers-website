@@ -16,6 +16,11 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  // Without this, every relative image in a page's metadata — the OG cards,
+  // the icon — resolves against localhost at build time and Next warns on
+  // every build. It has to be absolute for a crawler or an unfurler, both of
+  // which fetch the page from somewhere that isn't this machine.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://clipcatchers.net"),
   title: {
     default: "Clip Catchers — Client Dashboard",
     template: "%s · Clip Catchers",

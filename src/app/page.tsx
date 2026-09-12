@@ -5,6 +5,7 @@ import { AfterLaunch } from "@/components/marketing/after-launch";
 import { Clients } from "@/components/marketing/clients";
 import { ClipsWall } from "@/components/marketing/clips-wall";
 import { Comparison } from "@/components/marketing/comparison";
+import { OrganizationSchema } from "@/components/marketing/organization-schema";
 import { Control } from "@/components/marketing/control";
 import { HowItWorks } from "@/components/marketing/how-it-works";
 import { Industries } from "@/components/marketing/industries";
@@ -157,6 +158,7 @@ export default async function HomePage() {
           instead of stopping at an edge; see star-field.tsx. */}
       <StarField className="h-[760px]" />
 
+      <OrganizationSchema />
       <SiteHeader signedIn={Boolean(user)} />
 
       <main>

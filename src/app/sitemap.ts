@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { NAMED_CLIENTS, slugify } from "@/lib/public-stats";
 import { USE_CASES } from "@/lib/use-cases";
+import { sortedPosts } from "@/lib/blog";
 
 /**
  * There wasn't one, and the root layout defaults every route to noindex — so
@@ -51,6 +52,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.7,
+    })),
+
+    // The blog index and every post, mapped from the same array the pages
+    // render from — so a post that exists is listed, and a slug listed here
+    // can't be one the route would 404 on.
+    { url: `${BASE}/blog`, lastModified: now, changeFrequency: "weekly", priority: 0.6 },
+    ...sortedPosts().map((post) => ({
+      url: `${BASE}/blog/${post.slug}`,
+      lastModified: new Date(post.published),
+      changeFrequency: "yearly" as const,
+      priority: 0.5,
     })),
 
     { url: `${BASE}/legal/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },

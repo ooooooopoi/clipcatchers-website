@@ -71,6 +71,9 @@ export const authConfig = {
         "/verification",
         "/results",
         "/for-creators",
+        // The blog exists to be found by someone searching the category, so a
+        // sign-in wall in front of it defeats the entire point of writing it.
+        "/blog",
       ];
 
       if (pathname === "/" || PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))) {
