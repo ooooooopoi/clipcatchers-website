@@ -1,7 +1,12 @@
 /**
  * Resolve clip links to canonical URLs and cache their thumbnails.
  *
- *   npx tsx scripts/resolve-clips.ts [--limit 40] [--refresh] [--dry]
+ *   npx tsx scripts/resolve-clips.ts [--limit 40] [--refresh] [--captions] [--dry]
+ *
+ * --captions backfills rows that were resolved before captions were stored.
+ * Those already hold a canonical URL, so they skip the redirect and only hit
+ * oEmbed — fast, and it never writes resolveError, because a row that already
+ * renders should not leave the wall over a missing caption.
  *
  * ── Why this is a job and not a request ──────────────────────────────────
  * ~91% of submitted links are vt.tiktok.com short links. TikTok's oEmbed
@@ -35,6 +40,7 @@ const value = (name: string, fallback: number) => {
 
 const LIMIT = value("limit", 40);
 const REFRESH = flag("refresh");
+const CAPTIONS = flag("captions");
 const DRY = flag("dry");
 /** Polite spacing between hits on tiktok.com. Two jobs at once will get you rate limited. */
 const DELAY_MS = 700;
@@ -46,15 +52,19 @@ const UA =
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-type Resolved = { canonicalUrl: string; thumbnailUrl: string } | { error: string };
+type Resolved =
+  | { canonicalUrl: string; thumbnailUrl: string; caption: string }
+  | { error: string };
 
-async function resolveOne(url: string): Promise<Resolved> {
-  let canonical = url;
+async function resolveOne(url: string, known?: string | null): Promise<Resolved> {
+  // A row being re-read for its caption already has its canonical form stored,
+  // and the redirect is the expensive half — skip it.
+  let canonical = known || url;
 
   // Short links have to be followed before oEmbed will look at them. fetch
   // follows redirects by default, so the landing URL is what we want; the
   // body is discarded.
-  if (/^https?:\/\/(vt|vm)\.tiktok\.com\//i.test(url) || /\/t\//.test(url)) {
+  if (!known && (/^https?:\/\/(vt|vm)\.tiktok\.com\//i.test(url) || /\/t\//.test(url))) {
     try {
       const res = await fetch(url, { headers: { "User-Agent": UA }, redirect: "follow" });
       canonical = res.url || url;
@@ -83,39 +93,54 @@ async function resolveOne(url: string): Promise<Resolved> {
       { headers: { "User-Agent": UA } },
     );
     if (!res.ok) return { error: `oembed ${res.status}` };
-    const data = (await res.json()) as { thumbnail_url?: string };
+    const data = (await res.json()) as { thumbnail_url?: string; title?: string };
     if (!data.thumbnail_url) return { error: "oembed returned no thumbnail" };
-    return { canonicalUrl: canonical, thumbnailUrl: data.thumbnail_url };
+    // The caption comes back as `title`. Stored verbatim so the wall can judge
+    // its language — see lib/caption-language.ts.
+    return {
+      canonicalUrl: canonical,
+      thumbnailUrl: data.thumbnail_url,
+      caption: (data.title ?? "").trim(),
+    };
   } catch (e) {
     return { error: `oembed failed: ${(e as Error).message.slice(0, 80)}` };
   }
 }
 
 async function main() {
-  const where = REFRESH
+  // CAPTIONS backfills rows resolved before captions were stored. They already
+  // hold a canonical URL, so those skip the redirect — the expensive half —
+  // and only hit oEmbed.
+  const where = CAPTIONS
     ? {
-        thumbnailAt: { lt: new Date(Date.now() - STALE_DAYS * 864e5) },
+        thumbnailUrl: { not: null },
+        caption: null,
         campaign: { status: { not: "PENDING" as const } },
       }
-    : {
-        thumbnailUrl: null,
-        resolveError: null,
-        views: { gt: 0 },
-        platform: "TikTok",
-        campaign: { status: { not: "PENDING" as const } },
-      };
+    : REFRESH
+      ? {
+          thumbnailAt: { lt: new Date(Date.now() - STALE_DAYS * 864e5) },
+          campaign: { status: { not: "PENDING" as const } },
+        }
+      : {
+          thumbnailUrl: null,
+          resolveError: null,
+          views: { gt: 0 },
+          platform: "TikTok",
+          campaign: { status: { not: "PENDING" as const } },
+        };
 
   const clips = await prisma.campaignClip.findMany({
     where,
     orderBy: REFRESH ? { thumbnailAt: "asc" } : { views: "desc" },
     take: LIMIT,
-    select: { id: true, url: true, views: true },
+    select: { id: true, url: true, views: true, canonicalUrl: true },
   });
 
   const done = await prisma.campaignClip.count({ where: { thumbnailUrl: { not: null } } });
   const failed = await prisma.campaignClip.count({ where: { resolveError: { not: null } } });
   console.log(
-    `  ${REFRESH ? "refreshing" : "resolving"} ${clips.length} clip(s)` +
+    `  ${CAPTIONS ? "backfilling captions for" : REFRESH ? "refreshing" : "resolving"} ${clips.length} clip(s)` +
       `  ·  already have thumbnails: ${done}  ·  previously failed: ${failed}` +
       (DRY ? "  ·  DRY RUN, nothing written" : ""),
   );
@@ -123,13 +148,15 @@ async function main() {
   let ok = 0;
   let bad = 0;
   for (const [i, clip] of clips.entries()) {
-    const out = await resolveOne(clip.url);
+    const out = await resolveOne(clip.url, CAPTIONS ? clip.canonicalUrl : null);
     const label = `${String(i + 1).padStart(3)}/${clips.length}  ${clip.views.toLocaleString().padStart(10)} views`;
 
     if ("error" in out) {
       bad += 1;
       console.log(`  ${label}  ✗ ${out.error}`);
-      if (!DRY) {
+      // In captions mode the row already has a working thumbnail; recording
+      // a failure here would take it off the wall over a missing caption.
+      if (!DRY && !CAPTIONS) {
         await prisma.campaignClip.update({
           where: { id: clip.id },
           data: { resolveError: out.error },
@@ -144,6 +171,7 @@ async function main() {
           data: {
             canonicalUrl: out.canonicalUrl,
             thumbnailUrl: out.thumbnailUrl,
+            caption: out.caption,
             thumbnailAt: new Date(),
             resolveError: null,
           },

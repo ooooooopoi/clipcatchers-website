@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { unstable_cache } from "next/cache";
+import { looksEnglish } from "@/lib/caption-language";
 import { prisma } from "@/lib/prisma";
 import { formatCompact } from "@/lib/format";
 
@@ -24,6 +25,14 @@ import { formatCompact } from "@/lib/format";
  * the run must hold an EVEN number of phones or the second copy starts on the
  * opposite phase and the seam jumps every cycle. `usable` enforces that;
  * don't make it odd.
+ *
+ * ── English only ─────────────────────────────────────────────────────────
+ * The belt keeps itself to English captions. Two French POV posts were live
+ * on the homepage before this, which reads as though nobody looked. The test
+ * is in lib/caption-language.ts and is deliberately one-sided: it drops a clip
+ * only on positive evidence of another language, because losing a borderline
+ * English clip costs one tile out of thousands and keeping a French one costs
+ * the page its credibility.
  *
  * ── Views, no handles ────────────────────────────────────────────────────
  * The post is public and linked, but the creator is not named. Clients are
@@ -51,6 +60,12 @@ export type WallClip = {
 /** Below this the belt has visible gaps between repeats. */
 const MINIMUM = 6;
 const WANTED = 12;
+/**
+ * Read this many before filtering. The English test runs in JS on the stored
+ * caption — it isn't expressible as a Prisma where — so the query has to
+ * over-fetch or a run of French clips would starve the belt.
+ */
+const CANDIDATES = 60;
 
 const load = unstable_cache(
   async (): Promise<WallClip[]> => {
@@ -61,14 +76,23 @@ const load = unstable_cache(
         campaign: { status: { not: "PENDING" } },
       },
       orderBy: { views: "desc" },
-      take: WANTED,
-      select: { url: true, canonicalUrl: true, thumbnailUrl: true, views: true },
+      take: CANDIDATES,
+      select: {
+        url: true,
+        canonicalUrl: true,
+        thumbnailUrl: true,
+        views: true,
+        caption: true,
+      },
     });
-    return rows.map((r) => ({
-      href: r.canonicalUrl ?? r.url,
-      thumbnailUrl: r.thumbnailUrl as string,
-      views: r.views,
-    }));
+    return rows
+      .filter((r) => looksEnglish(r.caption))
+      .slice(0, WANTED)
+      .map((r) => ({
+        href: r.canonicalUrl ?? r.url,
+        thumbnailUrl: r.thumbnailUrl as string,
+        views: r.views,
+      }));
   },
   ["clips-wall"],
   { revalidate: 3600, tags: ["clips-wall"] },

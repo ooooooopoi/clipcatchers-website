@@ -213,6 +213,13 @@ model CampaignClip {
   /// stale ones.
   thumbnailUrl String?
   thumbnailAt  DateTime?
+  /// The post's own caption, as oEmbed reports it.
+  ///
+  /// Stored so the clips wall can keep itself to English posts. Kept as text
+  /// rather than a decided language flag: detection on a short, hashtag-heavy
+  /// caption is a judgement call, and storing the judgement instead of the
+  /// evidence would mean re-resolving every clip to change your mind.
+  caption      String?
   /// Why resolution last failed, so a job doesn't retry the hopeless forever.
   /// Photo posts are the common case: oEmbed serves /video/, not /photo/.
   resolveError String?
