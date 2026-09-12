@@ -67,8 +67,44 @@ const WANTED = 12;
  */
 const CANDIDATES = 60;
 
+const select = {
+  url: true,
+  canonicalUrl: true,
+  thumbnailUrl: true,
+  views: true,
+  caption: true,
+} as const;
+
 const load = unstable_cache(
   async (): Promise<WallClip[]> => {
+    const shape = (r: {
+      url: string;
+      canonicalUrl: string | null;
+      thumbnailUrl: string | null;
+      views: number;
+    }) => ({
+      href: r.canonicalUrl ?? r.url,
+      thumbnailUrl: r.thumbnailUrl as string,
+      views: r.views,
+    });
+
+    // Hand-picked wins outright. A curated list has already been looked at, so
+    // it skips the language guess entirely — that test reads captions, and the
+    // reason curation exists is that the language is in the pixels.
+    const featured = await prisma.campaignClip.findMany({
+      where: {
+        featuredRank: { not: null },
+        thumbnailUrl: { not: null },
+        campaign: { status: { not: "PENDING" } },
+      },
+      orderBy: { featuredRank: "asc" },
+      select,
+    });
+    if (featured.length >= MINIMUM) return featured.map(shape);
+
+    // Nothing picked (or too few survived a re-sync): fall back to the best
+    // by views that the caption test doesn't rule out. Weaker — it cannot see
+    // burned-in text — but better than an empty band.
     const rows = await prisma.campaignClip.findMany({
       where: {
         thumbnailUrl: { not: null },
@@ -77,22 +113,9 @@ const load = unstable_cache(
       },
       orderBy: { views: "desc" },
       take: CANDIDATES,
-      select: {
-        url: true,
-        canonicalUrl: true,
-        thumbnailUrl: true,
-        views: true,
-        caption: true,
-      },
+      select,
     });
-    return rows
-      .filter((r) => looksEnglish(r.caption))
-      .slice(0, WANTED)
-      .map((r) => ({
-        href: r.canonicalUrl ?? r.url,
-        thumbnailUrl: r.thumbnailUrl as string,
-        views: r.views,
-      }));
+    return rows.filter((r) => looksEnglish(r.caption)).slice(0, WANTED).map(shape);
   },
   ["clips-wall"],
   { revalidate: 3600, tags: ["clips-wall"] },

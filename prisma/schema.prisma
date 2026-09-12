@@ -223,6 +223,18 @@ model CampaignClip {
   /// Why resolution last failed, so a job doesn't retry the hopeless forever.
   /// Photo posts are the common case: oEmbed serves /video/, not /photo/.
   resolveError String?
+  /// Hand-picked position on the homepage clips belt; null means not picked.
+  ///
+  /// The belt was "top by views", which on this library means mostly French,
+  /// Portuguese and Indonesian posts — the language is burned into the video
+  /// frame where no caption test can see it. A shop window is curated, not
+  /// ranked, so when any clip carries a rank the belt shows exactly those in
+  /// that order and ignores views entirely.
+  ///
+  /// Survives a re-sync: the ingest upsert names its columns and this is not
+  /// among them. It does not survive the clip being unapproved, which prunes
+  /// the row — the belt's MINIMUM guard covers that.
+  featuredRank Int?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
