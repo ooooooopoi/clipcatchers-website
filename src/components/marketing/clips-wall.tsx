@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { unstable_cache } from "next/cache";
 import { looksEnglish } from "@/lib/caption-language";
 import { prisma } from "@/lib/prisma";
@@ -26,18 +25,29 @@ import { formatCompact } from "@/lib/format";
  * opposite phase and the seam jumps every cycle. `usable` enforces that;
  * don't make it odd.
  *
- * ── English only ─────────────────────────────────────────────────────────
- * The belt keeps itself to English captions. Two French POV posts were live
- * on the homepage before this, which reads as though nobody looked. The test
- * is in lib/caption-language.ts and is deliberately one-sided: it drops a clip
- * only on positive evidence of another language, because losing a borderline
- * English clip costs one tile out of thousands and keeping a French one costs
- * the page its credibility.
+ ── Curated, not ranked ─────────────────────────────────────────────────
+ * featuredRank decides what shows; scripts/feature-clips.ts sets it. Ranking
+ * by views put French, Portuguese and Indonesian posts on an English homepage,
+ * because the language is burned into the video frame where no caption test
+ * reaches it — of the first twenty-five resolved clips, four were English.
  *
- * ── Views, no handles ────────────────────────────────────────────────────
- * The post is public and linked, but the creator is not named. Clients are
+ * lib/caption-language.ts is now only the fallback, for when nothing is
+ * picked. It reads captions, so it catches what a post declares and never what
+ * it shows; that is exactly why curation exists above it.
+ *
+ * ── Views, no handles, no link ──────────────────────────────────────────
+ * The tiles are inert. They used to open the post, which is what made this
+ * section checkable; the line beneath now says so plainly instead of inviting
+ * a click that doesn't happen. The creator is not named either — clients are
  * only named on this site by agreement (NAMED_CLIENTS in lib/public-stats.ts)
- * and creators have not been asked at all, so the same restraint applies.
+ * and creators have not been asked.
+ *
+ * ── The video files ─────────────────────────────────────────────────────
+ * /videos/<externalId>.mp4, fetched and shrunk by scripts/fetch-clip-videos.py
+ * and served off the CDN with the rest of the site. Re-hosted on the owner's
+ * statement that the clipper terms grant reuse of submitted clips; if that
+ * stops being true, delete public/videos and the poster fallback takes over
+ * with no code change.
  *
  * Views is also all there is: the bot's sync payload carries externalId, url,
  * platform, handle and views per clip, so the likes and shares it does track
@@ -53,6 +63,8 @@ import { formatCompact } from "@/lib/format";
  */
 export type WallClip = {
   href: string;
+  /** Names the file under /videos — see fetch-clip-videos.py. */
+  externalId: string;
   thumbnailUrl: string;
   views: number;
 };
@@ -68,6 +80,7 @@ const WANTED = 12;
 const CANDIDATES = 60;
 
 const select = {
+  externalId: true,
   url: true,
   canonicalUrl: true,
   thumbnailUrl: true,
@@ -78,12 +91,14 @@ const select = {
 const load = unstable_cache(
   async (): Promise<WallClip[]> => {
     const shape = (r: {
+      externalId: string;
       url: string;
       canonicalUrl: string | null;
       thumbnailUrl: string | null;
       views: number;
     }) => ({
       href: r.canonicalUrl ?? r.url,
+      externalId: r.externalId,
       thumbnailUrl: r.thumbnailUrl as string,
       views: r.views,
     });
@@ -138,12 +153,26 @@ function Phone({ clip, index }: { clip: WallClip; index: number }) {
         <div className="relative rounded-[1.6rem] bg-neutral-900 p-[5px] shadow-[0_18px_40px_-12px_rgba(15,23,42,0.45)] ring-1 ring-black/5">
           <div className="absolute left-1/2 top-[9px] z-10 h-[5px] w-10 -translate-x-1/2 rounded-full bg-neutral-700/90" />
           <div className="relative aspect-[9/17] overflow-hidden rounded-[1.3rem] bg-neutral-800">
-            <Image
-              src={clip.thumbnailUrl}
-              alt=""
-              fill
-              sizes="150px"
-              className="object-cover"
+            {/* The thumbnail is the poster, which makes the fallback free: if
+                the file under /videos is missing — never fetched, or the
+                rights position changed and it was deleted — the browser shows
+                the poster and the belt looks exactly as it did before there
+                was any video at all. No existence check, no build step.
+
+                muted + playsInline are what make autoplay legal on iOS and
+                Chrome; without both, twelve tiles sit frozen on mobile.
+                preload="none" keeps first paint off the hook — the poster is
+                already on screen, so nothing is waiting on a video file. */}
+            <video
+              src={`/videos/${clip.externalId}.mp4`}
+              poster={clip.thumbnailUrl}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="none"
+              aria-hidden
+              className="h-full w-full object-cover"
             />
           </div>
         </div>
