@@ -4,36 +4,43 @@ import { prisma } from "@/lib/prisma";
 import { formatCompact } from "@/lib/format";
 
 /**
- * Real clips, on the front page, shown in the shape they were made for.
+ * Real clips, on the front page, running edge to edge.
  *
- * ── Phones, and on the light background ──────────────────────────────────
+ * ── Phones, and why they move ────────────────────────────────────────────
  * A 9:16 post in a square tile is a post out of context; in a handset it
- * reads as the thing it is. The frames sit on the page's existing white
- * rather than in a dark band of their own, because the ticker is the one
- * full-bleed element this site gets and a second one would cost it its spine.
+ * reads as the thing it is. They travel because a still row of seven is a
+ * composition a reader takes in once — a belt that keeps arriving says the
+ * inventory is deeper than the screen, which is the actual claim.
+ *
+ * The motion is the Ticker's, not a second mechanism: `.ticker-track` already
+ * carries the animation, pauses under the cursor and stops entirely under
+ * prefers-reduced-motion. Reusing it means the page has one moving-content
+ * behaviour rather than two that drift apart.
+ *
+ * ── The bit that is easy to get wrong ────────────────────────────────────
+ * Same trap the Ticker documents: the run is rendered twice and the track
+ * slides exactly -50%, so the second copy lands where the first began. On top
+ * of that, the lift and lean here alternate by index — a period of two — so
+ * the run must hold an EVEN number of phones or the second copy starts on the
+ * opposite phase and the seam jumps every cycle. `usable` enforces that;
+ * don't make it odd.
  *
  * ── Views, no handles ────────────────────────────────────────────────────
- * The post is public and linked, but the creator is not named here. Clients
- * are only named on this site by agreement (NAMED_CLIENTS in
- * lib/public-stats.ts) and creators have not been asked at all, so the same
- * restraint applies. Anyone curious can follow the link to TikTok, where they
- * chose to publish.
+ * The post is public and linked, but the creator is not named. Clients are
+ * only named on this site by agreement (NAMED_CLIENTS in lib/public-stats.ts)
+ * and creators have not been asked at all, so the same restraint applies.
  *
  * Views is also all there is: the bot's sync payload carries externalId, url,
- * platform, handle and views per clip, so likes and shares — which it does
- * track — never reach this database. An engagement line would need that
- * payload widened first.
+ * platform, handle and views per clip, so the likes and shares it does track
+ * never reach this database.
  *
  * ── Only clips with a cached thumbnail ───────────────────────────────────
  * ~91% of submitted links are vt.tiktok.com short links, which TikTok's
  * oEmbed refuses; each needs a redirect round trip of several seconds first.
- * That happens in scripts/resolve-clips.ts, and this component only reads the
- * result, so a page render never waits on tiktok.com.
- *
- * The consequence worth knowing: oEmbed serves /video/ and not /photo/, and a
- * lot of the best clips are photo posts — they cannot be given a thumbnail
- * without a headless browser, so they are absent. This is the best *video*
- * clips, not the best clips.
+ * scripts/resolve-clips.ts does that out of band and this only reads the
+ * result, so a page render never waits on tiktok.com. oEmbed serves /video/
+ * and not /photo/, and many of the best clips are photo posts — they have no
+ * thumbnail and are absent, so this is the best *video* clips.
  */
 export type WallClip = {
   href: string;
@@ -41,9 +48,9 @@ export type WallClip = {
   views: number;
 };
 
-/** Below this it reads as a broken row rather than a showcase. */
-const MINIMUM = 5;
-const WANTED = 7;
+/** Below this the belt has visible gaps between repeats. */
+const MINIMUM = 6;
+const WANTED = 12;
 
 const load = unstable_cache(
   async (): Promise<WallClip[]> => {
@@ -67,6 +74,57 @@ const load = unstable_cache(
   { revalidate: 3600, tags: ["clips-wall"] },
 );
 
+function Phone({ clip, index }: { clip: WallClip; index: number }) {
+  const raised = index % 2 === 0;
+  return (
+    <li className="w-[132px] shrink-0 lg:w-[150px]">
+      <a
+        href={clip.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group block"
+        style={{
+          transform: `translateY(${raised ? 0 : 20}px) rotate(${raised ? -2.5 : 2.5}deg)`,
+        }}
+      >
+        {/* Bezel, notch, screen — nothing else. Chrome competing with the clip
+            inside it defeats the point of showing the clip. */}
+        <div className="relative rounded-[1.6rem] bg-neutral-900 p-[5px] shadow-[0_18px_40px_-12px_rgba(15,23,42,0.45)] ring-1 ring-black/5">
+          <div className="absolute left-1/2 top-[9px] z-10 h-[5px] w-10 -translate-x-1/2 rounded-full bg-neutral-700/90" />
+          <div className="relative aspect-[9/17] overflow-hidden rounded-[1.3rem] bg-neutral-800">
+            <Image
+              src={clip.thumbnailUrl}
+              alt=""
+              fill
+              sizes="150px"
+              className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+            />
+          </div>
+        </div>
+        <p className="mt-3 text-center font-mono text-sm font-semibold text-primary-ink">
+          {formatCompact(clip.views)}
+        </p>
+        <p className="text-center text-[11px] uppercase tracking-wider text-muted-foreground">
+          views
+        </p>
+      </a>
+    </li>
+  );
+}
+
+function Run({ clips, ariaHidden }: { clips: WallClip[]; ariaHidden?: boolean }) {
+  return (
+    <ul
+      className="flex shrink-0 items-start gap-4 px-2 sm:gap-5 lg:gap-6"
+      {...(ariaHidden ? { "aria-hidden": true } : {})}
+    >
+      {clips.map((clip, i) => (
+        <Phone key={clip.href} clip={clip} index={i} />
+      ))}
+    </ul>
+  );
+}
+
 export async function ClipsWall() {
   let clips: WallClip[] = [];
   try {
@@ -79,10 +137,13 @@ export async function ClipsWall() {
   }
   if (clips.length < MINIMUM) return null;
 
-  const middle = (clips.length - 1) / 2;
+  // Even, or the alternating lift lands on the wrong phase in the second copy
+  // and the loop visibly jumps. Dropping the lowest-view clip is the cheapest
+  // way to guarantee it.
+  const usable = clips.length % 2 === 0 ? clips : clips.slice(0, -1);
 
   return (
-    <section className="overflow-hidden py-16 sm:py-24">
+    <section className="py-16 sm:py-24">
       <div className="mx-auto w-full max-w-[1200px] px-4 text-center sm:px-6">
         {/* Not "what delivery actually looks like", which is what this said
             first: Industries sits immediately below with "What a campaign
@@ -100,56 +161,25 @@ export async function ClipsWall() {
         </p>
       </div>
 
-      {/* Scrolls on a phone, fans out from the middle on a desktop. The
-          transforms are inline because each one is derived from the item's
-          distance from centre, which Tailwind can't express as a class. */}
-      <ul className="mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:justify-center sm:gap-5 sm:overflow-visible sm:px-6 lg:gap-6 scrollbar-thin">
-        {clips.map((clip, i) => {
-          const distance = Math.abs(i - middle);
-          return (
-            <li
-              key={clip.href}
-              className="w-[140px] shrink-0 snap-center sm:w-[124px] lg:w-[150px]"
-              style={{
-                // Outer phones sit lower and lean away, so the row reads as an
-                // arc rather than a shelf.
-                // Rounded because the raw product is a binary fraction, and
-                // -7.199999999999999deg has no business being in the markup.
-                ["--lift" as string]: `${Math.round(distance * 16)}px`,
-                ["--lean" as string]: `${((i - middle) * 2.4).toFixed(1)}deg`,
-              }}
-            >
-              <a
-                href={clip.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group block transition-transform duration-300 will-change-transform sm:[transform:translateY(var(--lift))_rotate(var(--lean))] sm:hover:[transform:translateY(calc(var(--lift)-10px))_rotate(var(--lean))]"
-              >
-                {/* The handset. Bezel, notch, screen — nothing else; a chrome
-                    frame competing with the clip inside it defeats the point. */}
-                <div className="relative rounded-[1.6rem] bg-neutral-900 p-[5px] shadow-[0_18px_40px_-12px_rgba(15,23,42,0.45)] ring-1 ring-black/5">
-                  <div className="absolute left-1/2 top-[9px] z-10 h-[5px] w-10 -translate-x-1/2 rounded-full bg-neutral-700/90" />
-                  <div className="relative aspect-[9/17] overflow-hidden rounded-[1.3rem] bg-neutral-800">
-                    <Image
-                      src={clip.thumbnailUrl}
-                      alt=""
-                      fill
-                      sizes="150px"
-                      className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                    />
-                  </div>
-                </div>
-                <p className="mt-3 text-center font-mono text-sm font-semibold text-primary-ink">
-                  {formatCompact(clip.views)}
-                </p>
-                <p className="text-center text-[11px] uppercase tracking-wider text-muted-foreground">
-                  views
-                </p>
-              </a>
-            </li>
-          );
-        })}
-      </ul>
+      <div className="ticker relative mt-12 overflow-hidden">
+        {/* Faded at both ends so phones arrive and leave rather than being
+            guillotined by the edge of the screen. Above the track and
+            pointer-transparent, or it would eat the hover that pauses it. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-10 bg-[linear-gradient(to_right,hsl(var(--background))_0%,transparent_10%,transparent_90%,hsl(var(--background))_100%)]"
+        />
+        {/* w-max so the track is as wide as its contents; without it there is
+            nothing to translate. */}
+        <div
+          className="ticker-track flex w-max items-start pb-6"
+          style={{ "--ticker-duration": "70s" } as React.CSSProperties}
+        >
+          <Run clips={usable} />
+          {/* Scenery, not content: it exists so the loop can close. */}
+          <Run clips={usable} ariaHidden />
+        </div>
+      </div>
     </section>
   );
 }
