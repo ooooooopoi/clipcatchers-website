@@ -90,6 +90,13 @@ export const authConfig = {
         pathname === "/sitemap.xml" ||
         pathname === "/manifest.webmanifest" ||
         pathname === "/favicon.ico" ||
+        // Search Console verification files. Google fetches these signed out
+        // and expects the token echoed back verbatim; a 307 to /login reads to
+        // it as "the file isn't there", and verification fails without saying
+        // why. Matched by shape rather than one filename, because the token
+        // changes if a property is re-verified — and the file contains nothing
+        // but its own name, so there is nothing here to protect.
+        /^\/google[0-9a-f]{16}\.html$/.test(pathname) ||
         // Route-generated OG and Twitter images, at the root or nested under a
         // public page. Next appends a cache-busting suffix in production, so
         // this matches the segment rather than the exact path.
