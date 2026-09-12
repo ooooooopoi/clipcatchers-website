@@ -48,13 +48,14 @@ export const SITE_STATS = {
   // clip" is answerable only from the bot's SQLite ledger. 129 is the last
   // figure measured there.
   //
-  // The live homepage doesn't use this number (it shows public-stats' distinct
-  // handle count, 235 as of today, under the label "creators activated"), but
-  // opengraph-image.tsx does, under the label "creators paid" — and that card
-  // is static, so it never gets corrected by a live read. Setting this to 235
-  // would put "235 creators paid" on every social share off a count that
-  // includes creators who have never been paid. Update it from the bot, or not
-  // at all.
+  // opengraph-image.tsx is now its only reader, under the label "creators
+  // paid" — the homepage counter that used to show a live distinct-handle
+  // count beside it has been removed. That makes this more dangerous, not
+  // less: the OG card is static, so nothing will ever correct it with a live
+  // read, and there is no longer a second figure on the site to notice it
+  // against. Setting it to the handle count (236 today) would claim 236
+  // creators had been paid off a number that includes creators who never have
+  // been. Update it from the bot's ledger, or not at all.
   creatorsPaid: "129",
   /** Numeric form, for the comparison maths on the homepage. */
   viewsDeliveredRaw: 240_100_000,

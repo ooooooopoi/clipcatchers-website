@@ -21,11 +21,12 @@ import { cn } from "@/lib/utils";
 type Mode = "brand" | "clipper";
 
 type AudienceModesProps = {
+  // Only the delivery figure. This carried clips, creators and campaigns too,
+  // for a strip of three counters under the panel that has been removed —
+  // narrowed rather than left in place so the next person doesn't wire up a
+  // value nothing renders.
   stats: {
     views: string;
-    clips: string;
-    creators: string;
-    campaigns: string;
   };
   creatorHref: string;
   hasDiscordInvite: boolean;
@@ -225,20 +226,6 @@ export function AudienceModes({
         </div>
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-xl border border-border bg-muted/60 px-4 py-3 text-center">
-          <p className="font-mono text-sm font-semibold text-primary-ink">{stats.clips}</p>
-          <p className="mt-1 text-xs text-muted-foreground">approved clips</p>
-        </div>
-        <div className="rounded-xl border border-border bg-muted/60 px-4 py-3 text-center">
-          <p className="font-mono text-sm font-semibold text-primary-ink">{stats.creators}</p>
-          <p className="mt-1 text-xs text-muted-foreground">creators activated</p>
-        </div>
-        <div className="rounded-xl border border-border bg-muted/60 px-4 py-3 text-center">
-          <p className="font-mono text-sm font-semibold text-primary-ink">{stats.campaigns}</p>
-          <p className="mt-1 text-xs text-muted-foreground">campaigns tracked</p>
-        </div>
-      </div>
     </section>
   );
 }

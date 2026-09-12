@@ -139,15 +139,11 @@ export default async function HomePage() {
   // delivered" during a blip is worse than one an hour out of date.
   const live = stats.live && stats.totalViews > 0;
   const totalViews = live ? formatCompact(stats.totalViews) : SITE_STATS.viewsDelivered;
-  const audienceStats = {
-    views: totalViews,
-    clips: live && stats.totalClips > 0 ? formatCompact(stats.totalClips) : SITE_STATS.clipsPublished,
-    creators: live && stats.creators > 0 ? formatCompact(stats.creators) : SITE_STATS.creatorsPaid,
-    // 22 as of 2026-09-11. A bare literal here is the one fallback that lives
-    // outside SITE_STATS, so it goes stale without anything pointing at it —
-    // recount it alongside the others.
-    campaigns: live && stats.campaigns > 0 ? formatCompact(stats.campaigns) : "22",
-  };
+  // Just delivery now. The clips/creators/campaigns counters that sat under
+  // the audience panel are gone, and with them the only homepage consumer of
+  // SITE_STATS.clipsPublished and .creatorsPaid — both are still read by
+  // opengraph-image.tsx, so they stay in site-stats.ts.
+  const audienceStats = { views: totalViews };
 
   // The closing CTA's secondary action. Derived from the allowlist rather than
   // hardcoded, so emptying NAMED_CLIENTS drops the button instead of leaving
