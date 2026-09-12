@@ -221,6 +221,13 @@ export default async function HomePage() {
           </p>
         </section>
 
+        {/* Straight under the hero, before a word of argument. The pitch above
+            is a claim; these are the posts, and a reader can open any one and
+            count the views themselves. Carries no display heading of its own —
+            a second headline this close to the hero's would cost both. Renders
+            nothing until enough clips have a cached thumbnail. */}
+        <ClipsWall />
+
         {/* The single "40.7M views delivered so far" line used to close the
             hero. One number on its own answers "are you real" and nothing
             else; the same query already knows the clips, the creators and the
@@ -234,8 +241,10 @@ export default async function HomePage() {
             further down, so removing it cost the page nothing it still says
             elsewhere. */}
 
-        {/* The terms, running edge to edge. The only full-bleed element on the
-            page and the only one that moves by itself — see ticker.tsx. */}
+        {/* The terms, running edge to edge. Still the only full-bleed *band*
+            here — the clips belt above travels too, and borrows this one's
+            animation, but it rides on the page's own white instead of laying
+            down a second surface. See ticker.tsx. */}
         <Ticker />
 
         {/* The four risk answers, before anything else has to be read. */}
@@ -276,13 +285,6 @@ export default async function HomePage() {
             later. */}
         <Control />
         <Results />
-
-        {/* Straight after Results for the same reason Control follows
-            Verification: Results is the numbers, this is the posts behind
-            them. A reader who has just been told 244M views can click one and
-            count it themselves. Renders nothing until enough clips have a
-            cached thumbnail — see clips-wall.tsx. */}
-        <ClipsWall />
 
         <Industries />
         <Pricing />

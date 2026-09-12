@@ -167,25 +167,12 @@ export async function ClipsWall() {
   const usable = clips.length % 2 === 0 ? clips : clips.slice(0, -1);
 
   return (
-    <section className="py-16 sm:py-24">
-      <div className="mx-auto w-full max-w-[1200px] px-4 text-center sm:px-6">
-        {/* Not "what delivery actually looks like", which is what this said
-            first: Industries sits immediately below with "What a campaign
-            looks like in your category", and two ...looks like headings in a
-            row read as one section that lost its way. This one points back at
-            Results directly above it instead. */}
-        <p className="eyebrow text-primary-ink">Real clips</p>
-        <h2 className="display mx-auto mt-3 max-w-3xl text-3xl sm:text-5xl">
-          THE POSTS BEHIND THE NUMBERS
-        </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
-          Every one of these is a live post that earned against a campaign budget. Open
-          any of them and check the view count yourself — nothing here is a mockup, and
-          nothing is self-reported.
-        </p>
-      </div>
-
-      <div className="ticker relative mt-12 overflow-hidden">
+    // No heading. This sits directly beneath the hero, and a display h2 four
+    // lines under the hero's own would read as two pages stapled together. The
+    // belt is the argument; one line underneath is all the wording it needs.
+    // aria-label because without a heading there is nothing to name it by.
+    <section className="pb-10 pt-8 sm:pb-14 sm:pt-10" aria-label="Recent clips from live campaigns">
+      <div className="ticker relative overflow-hidden">
         {/* Faded at both ends so phones arrive and leave rather than being
             guillotined by the edge of the screen. Above the track and
             pointer-transparent, or it would eat the hover that pauses it. */}
@@ -204,6 +191,12 @@ export async function ClipsWall() {
           <Run clips={usable} ariaHidden />
         </div>
       </div>
+
+      {/* The claim, in one line. Without it the belt is decoration; with it,
+          it's evidence a reader can go and check. */}
+      <p className="mx-auto mt-2 max-w-2xl px-5 text-center text-sm text-muted-foreground">
+        Real posts from live campaigns — open any one and check the view count yourself.
+      </p>
     </section>
   );
 }
