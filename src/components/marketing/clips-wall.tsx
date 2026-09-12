@@ -125,11 +125,10 @@ function Phone({ clip, index }: { clip: WallClip; index: number }) {
   const raised = index % 2 === 0;
   return (
     <li className="w-[132px] shrink-0 lg:w-[150px]">
-      <a
-        href={clip.href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="group block"
+      {/* Not a link. These used to open the post on TikTok, which is what made
+          the section evidence rather than decoration — see the note on the
+          caption line below. */}
+      <div
         style={{
           transform: `translateY(${raised ? 0 : 20}px) rotate(${raised ? -2.5 : 2.5}deg)`,
         }}
@@ -144,7 +143,7 @@ function Phone({ clip, index }: { clip: WallClip; index: number }) {
               alt=""
               fill
               sizes="150px"
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+              className="object-cover"
             />
           </div>
         </div>
@@ -154,7 +153,7 @@ function Phone({ clip, index }: { clip: WallClip; index: number }) {
         <p className="text-center text-[11px] uppercase tracking-wider text-muted-foreground">
           views
         </p>
-      </a>
+      </div>
     </li>
   );
 }
@@ -215,10 +214,13 @@ export async function ClipsWall() {
         </div>
       </div>
 
-      {/* The claim, in one line. Without it the belt is decoration; with it,
-          it's evidence a reader can go and check. */}
+      {/* The claim, in one line. It used to say "open any one and check the
+          view count yourself", which was the section's whole argument — the
+          tiles are no longer links, so that invitation would be a lie. What is
+          left is a statement a reader has to take on trust. */}
       <p className="mx-auto mt-2 max-w-2xl px-5 text-center text-sm text-muted-foreground">
-        Real posts from live campaigns — open any one and check the view count yourself.
+        Real posts from live campaigns. Every view count here was read off the live
+        post, not reported by the creator.
       </p>
     </section>
   );
