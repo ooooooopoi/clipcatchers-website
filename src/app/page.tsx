@@ -10,7 +10,6 @@ import { HowItWorks } from "@/components/marketing/how-it-works";
 import { Industries } from "@/components/marketing/industries";
 import { Pricing } from "@/components/marketing/pricing";
 import { Proof } from "@/components/marketing/proof";
-import { Results } from "@/components/marketing/results";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SiteHeader } from "@/components/marketing/site-header";
 import { StarField } from "@/components/marketing/star-field";
@@ -274,8 +273,8 @@ export default async function HomePage() {
             campaign's figures, but nobody could say whose — and a panel of
             invented-looking numbers under a line promising every figure is
             real was doing the opposite of its job. The claim it carried
-            ("a private link, no login") is made in Results and the FAQ, both
-            of which can point at something true. */}
+            ("a private link, no login") is made in the FAQ below and on
+            /results, both of which can point at something true. */}
 
         <Comparison />
         <Verification />
@@ -284,7 +283,11 @@ export default async function HomePage() {
             costing me more than I meant" — the same reader, one question
             later. */}
         <Control />
-        <Results />
+
+        {/* The per-client results table stood here — seven rows of
+            "Undisclosed client" against a bar and a view count. It still
+            exists in full at /results, which both the nav and the footer link
+            to; it is off the homepage rather than gone. */}
 
         <Industries />
         <Pricing />
