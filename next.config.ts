@@ -5,6 +5,17 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   serverExternalPackages: ["bcryptjs", "nodemailer"],
   eslint: { ignoreDuringBuilds: true },
+  images: {
+    // TikTok thumbnails for the clips wall. Routing them through next/image
+    // isn't cosmetic: the source URLs are signed and expire, and the optimizer
+    // keeps its own copy, so a tile goes on rendering after the signature
+    // behind it has lapsed. Served from several regional CDN hosts, hence the
+    // wildcards.
+    remotePatterns: [
+      { protocol: "https", hostname: "*.tiktokcdn.com" },
+      { protocol: "https", hostname: "*.tiktokcdn-us.com" },
+    ],
+  },
   async redirects() {
     return [
       // The enquiry page moved from /quote to /launch when the button stopped

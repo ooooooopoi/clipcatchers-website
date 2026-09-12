@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Ban, Gauge, Phone, ReceiptText, ShieldCheck } from "lucide-react";
 import { AfterLaunch } from "@/components/marketing/after-launch";
 import { Clients } from "@/components/marketing/clients";
+import { ClipsWall } from "@/components/marketing/clips-wall";
 import { Comparison } from "@/components/marketing/comparison";
 import { Control } from "@/components/marketing/control";
 import { HowItWorks } from "@/components/marketing/how-it-works";
@@ -275,6 +276,14 @@ export default async function HomePage() {
             later. */}
         <Control />
         <Results />
+
+        {/* Straight after Results for the same reason Control follows
+            Verification: Results is the numbers, this is the posts behind
+            them. A reader who has just been told 244M views can click one and
+            count it themselves. Renders nothing until enough clips have a
+            cached thumbnail — see clips-wall.tsx. */}
+        <ClipsWall />
+
         <Industries />
         <Pricing />
 

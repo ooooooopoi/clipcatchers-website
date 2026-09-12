@@ -199,6 +199,23 @@ model CampaignClip {
   platform   String   @default("")
   handle     String   @default("")
   views      Int      @default(0)
+  /// The canonical tiktok.com/@user/video/<id> form of `url`.
+  ///
+  /// ~91% of submitted links are vt.tiktok.com short links, which TikTok's
+  /// oEmbed rejects outright. Resolving one costs a redirect round trip of
+  /// several seconds, so it happens once in a background job and is kept.
+  canonicalUrl String?
+  /// oEmbed thumbnail, for the public clips wall.
+  ///
+  /// TikTok serves these from a *-sign CDN host: the URL carries a signature
+  /// and stops resolving once it lapses. This is a cache to be refreshed, not
+  /// a permanent address — `thumbnailAt` is what lets a refresh find the
+  /// stale ones.
+  thumbnailUrl String?
+  thumbnailAt  DateTime?
+  /// Why resolution last failed, so a job doesn't retry the hopeless forever.
+  /// Photo posts are the common case: oEmbed serves /video/, not /photo/.
+  resolveError String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -206,6 +223,8 @@ model CampaignClip {
 
   @@unique([campaignId, externalId])
   @@index([campaignId, views])
+  /// The wall reads "highest views that already have a thumbnail".
+  @@index([thumbnailUrl, views])
 }
 
 model Invoice {
