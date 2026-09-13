@@ -1,12 +1,10 @@
 import { randomUUID } from "crypto";
-import NextAuth, { CredentialsSignin } from "next-auth";
-import Credentials from "next-auth/providers/credentials";
+import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import Discord from "next-auth/providers/discord";
 import bcrypt from "bcryptjs";
 import { authConfig } from "@/auth.config";
 import { prisma } from "@/lib/prisma";
-import { loginSchema } from "@/lib/validations";
 
 // Only offered when it's actually configured. Listing the provider without
 // credentials gives a button that fails after the user has committed to it.
@@ -29,42 +27,22 @@ const discordEnabled = Boolean(
   process.env.AUTH_DISCORD_ID && process.env.AUTH_DISCORD_SECRET,
 );
 
-class UnverifiedEmail extends CredentialsSignin {
-  code = "unverified";
-}
-
-class InvalidCredentials extends CredentialsSignin {
-  code = "credentials";
-}
-
+/**
+ * Sign-in is OAuth only.
+ *
+ * The email-and-password provider that used to lead this list is gone, along
+ * with signup, forgot-password and reset-password. Nothing issues a password
+ * any more: both branches below mint a random hash purely to keep the column
+ * non-null, and no code path ever compares against it.
+ *
+ * `passwordHash` is deliberately still on the User row. Dropping it is a
+ * destructive migration that would throw away every existing hash, and this
+ * change is meant to be undoable by redeploying rather than by asking everyone
+ * to reset something they no longer have.
+ */
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [
-    Credentials({
-      credentials: { email: {}, password: {} },
-      async authorize(raw) {
-        const parsed = loginSchema.safeParse(raw);
-        if (!parsed.success) throw new InvalidCredentials();
-
-        const user = await prisma.user.findUnique({
-          where: { email: parsed.data.email.toLowerCase() },
-        });
-        if (!user) throw new InvalidCredentials();
-
-        const valid = await bcrypt.compare(parsed.data.password, user.passwordHash);
-        if (!valid) throw new InvalidCredentials();
-        if (!user.emailVerified) throw new UnverifiedEmail();
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          image: user.image,
-          role: user.role,
-          company: user.company,
-        };
-      },
-    }),
     ...(googleEnabled
       ? [
           Google({

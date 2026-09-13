@@ -1,32 +1,12 @@
 import { z } from "zod";
 
-export const signUpSchema = z.object({
-  name: z.string().min(2, "Enter your full name").max(80),
-  company: z.string().max(120).optional().or(z.literal("")),
-  email: z.string().email("Enter a valid email"),
-  password: z
-    .string()
-    .min(8, "At least 8 characters")
-    .regex(/[a-zA-Z]/, "Include at least one letter")
-    .regex(/[0-9]/, "Include at least one number"),
-});
-
-export const loginSchema = z.object({
-  email: z.string().email("Enter a valid email"),
-  password: z.string().min(1, "Enter your password"),
-});
-
+// Sign-up, sign-in and reset schemas lived here until sign-in became OAuth
+// only. Nothing issues or checks a password now, so a shape describing one
+// would only invite it back.
+//
+// This one stays: /api/auth/resend-verification still takes an email.
 export const forgotPasswordSchema = z.object({
   email: z.string().email("Enter a valid email"),
-});
-
-export const resetPasswordSchema = z.object({
-  token: z.string().min(10),
-  password: z
-    .string()
-    .min(8, "At least 8 characters")
-    .regex(/[a-zA-Z]/, "Include at least one letter")
-    .regex(/[0-9]/, "Include at least one number"),
 });
 
 export const PLATFORMS = ["TikTok", "Instagram", "YouTube", "X", "Twitch"] as const;
@@ -83,18 +63,10 @@ export const profileSchema = z.object({
   image: z.string().max(500).optional().or(z.literal("")),
 });
 
+// No longer confirmed by a password: sign-in is OAuth only, so nobody has one
+// to type. A valid session is what proves who this is.
 export const emailChangeSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(1, "Confirm with your current password"),
-});
-
-export const passwordChangeSchema = z.object({
-  currentPassword: z.string().min(1, "Enter your current password"),
-  newPassword: z
-    .string()
-    .min(8, "At least 8 characters")
-    .regex(/[a-zA-Z]/, "Include at least one letter")
-    .regex(/[0-9]/, "Include at least one number"),
 });
 
 export const notificationPrefsSchema = z.object({

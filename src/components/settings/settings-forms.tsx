@@ -61,11 +61,8 @@ export function SettingsForms({ name, email, company, image, prefs }: Props) {
   });
   const [savingProfile, setSavingProfile] = useState(false);
 
-  const [emailForm, setEmailForm] = useState({ email, password: "" });
+  const [emailForm, setEmailForm] = useState({ email });
   const [savingEmail, setSavingEmail] = useState(false);
-
-  const [passwords, setPasswords] = useState({ currentPassword: "", newPassword: "" });
-  const [savingPassword, setSavingPassword] = useState(false);
 
   const [notifications, setNotifications] = useState(prefs);
   const [savingPrefs, setSavingPrefs] = useState(false);
@@ -97,22 +94,8 @@ export function SettingsForms({ name, email, company, image, prefs }: Props) {
     setSavingEmail(false);
     if (!ok) return toast.error(data.error ?? "Couldn't change your email.");
 
-    setEmailForm((prev) => ({ ...prev, password: "" }));
     toast.success("Email updated");
     router.refresh();
-  }
-
-  async function savePassword() {
-    if (passwords.newPassword.length < 8) {
-      return toast.error("New password must be at least 8 characters.");
-    }
-    setSavingPassword(true);
-    const { ok, data } = await patch({ action: "password", ...passwords });
-    setSavingPassword(false);
-    if (!ok) return toast.error(data.error ?? "Couldn't change your password.");
-
-    setPasswords({ currentPassword: "", newPassword: "" });
-    toast.success("Password changed");
   }
 
   async function savePrefs(next: typeof notifications) {
@@ -192,92 +175,46 @@ export function SettingsForms({ name, email, company, image, prefs }: Props) {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Mail className="h-4 w-4" />
-              Email address
-            </CardTitle>
-            <CardDescription>Confirm with your password to change it.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={emailForm.email}
-                onChange={(e) => setEmailForm((prev) => ({ ...prev, email: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirm-password">Current password</Label>
-              <Input
-                id="confirm-password"
-                type="password"
-                autoComplete="current-password"
-                value={emailForm.password}
-                onChange={(e) => setEmailForm((prev) => ({ ...prev, password: e.target.value }))}
-              />
-            </div>
-            <div className="flex justify-end">
-              <Button
-                variant="outline"
-                onClick={saveEmail}
-                loading={savingEmail}
-                disabled={!emailForm.password}
-              >
-                Update email
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      {/* The "Password" card that sat beside this one is gone with password
+          sign-in. Nobody is issued a password now — the hash on an OAuth row is
+          a random UUID generated at creation — so "enter your current password"
+          was a field that could never be satisfied, and changing a password
+          nothing checks would have done nothing.
 
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <KeyRound className="h-4 w-4" />
-              Password
-            </CardTitle>
-            <CardDescription>Use at least 8 characters with a number.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="current">Current password</Label>
-              <Input
-                id="current"
-                type="password"
-                autoComplete="current-password"
-                value={passwords.currentPassword}
-                onChange={(e) =>
-                  setPasswords((prev) => ({ ...prev, currentPassword: e.target.value }))
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="new">New password</Label>
-              <Input
-                id="new"
-                type="password"
-                autoComplete="new-password"
-                value={passwords.newPassword}
-                onChange={(e) => setPasswords((prev) => ({ ...prev, newPassword: e.target.value }))}
-              />
-            </div>
-            <div className="flex justify-end">
-              <Button
-                variant="outline"
-                onClick={savePassword}
-                loading={savingPassword}
-                disabled={!passwords.currentPassword || !passwords.newPassword}
-              >
-                Change password
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          For the same reason the email change no longer asks for one. It is
+          confirmed by holding a valid session instead, which is what actually
+          identifies you here: sign-in is keyed on the Discord snowflake, so the
+          email address is contact detail rather than a credential. */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Mail className="h-4 w-4" />
+            Email address
+          </CardTitle>
+          <CardDescription>Where invoices and campaign updates are sent.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={emailForm.email}
+              onChange={(e) => setEmailForm((prev) => ({ ...prev, email: e.target.value }))}
+            />
+          </div>
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              onClick={saveEmail}
+              loading={savingEmail}
+              disabled={!emailForm.email.trim() || emailForm.email === email}
+            >
+              Update email
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader className="pb-4">

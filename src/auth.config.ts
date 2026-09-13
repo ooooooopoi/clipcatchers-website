@@ -109,9 +109,9 @@ export const authConfig = {
       // session so it can be opened from Discord without an account.
       if (pathname.startsWith("/team/")) return true;
 
-      const isAuthPage = ["/login", "/signup", "/forgot-password", "/reset-password"].some(
-        (p) => pathname.startsWith(p),
-      );
+      // Just /login now. Signup, forgot-password and reset-password went with
+      // the password provider — sign-in is OAuth only.
+      const isAuthPage = pathname.startsWith("/login");
 
       if (isAuthPage) {
         if (signedIn) {
