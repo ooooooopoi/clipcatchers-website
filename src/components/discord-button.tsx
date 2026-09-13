@@ -21,16 +21,24 @@ import { Button } from "@/components/ui/button";
  */
 export function DiscordButton({
   label = "Continue with Discord",
+  variant = "outline",
+  size,
+  className = "mt-3 w-full",
 }: {
   label?: string;
+  /** Filled and full-size on the creator page, where it is the main action. */
+  variant?: "default" | "outline";
+  size?: "sm" | "lg";
+  className?: string;
 }) {
   const [loading, setLoading] = useState(false);
 
   return (
     <Button
       type="button"
-      variant="outline"
-      className="mt-3 w-full"
+      variant={variant}
+      size={size}
+      className={className}
       loading={loading}
       onClick={() => {
         setLoading(true);

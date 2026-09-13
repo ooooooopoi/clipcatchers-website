@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, Send, Wallet } from "lucide-react";
+import { DiscordButton } from "@/components/discord-button";
 import { PageShell } from "@/components/marketing/page-shell";
 import { Button } from "@/components/ui/button";
 import { CREATOR_HREF, DISCORD_LINK_PROPS } from "@/lib/discord";
@@ -60,6 +61,13 @@ const STEPS = [
  * recruits people who will be angry later.
  */
 export default function ForCreatorsPage() {
+  // Read on the server: the browser can't see whether the provider is set up,
+  // and a sign-in button that bounces off a missing provider is worse than
+  // none — the /my-clips route still works, so that is what shows instead.
+  const discordEnabled = Boolean(
+    process.env.AUTH_DISCORD_ID && process.env.AUTH_DISCORD_SECRET,
+  );
+
   return (
     <PageShell
       eyebrow="For creators"
@@ -134,17 +142,47 @@ export default function ForCreatorsPage() {
       </section>
 
       <section className="relative z-10 mx-auto w-full max-w-3xl px-5 pb-8">
-        <div className="surface reveal rounded-2xl border border-border bg-card p-6 text-center">
-          <h2 className="display-sm text-sm">Already clipping with us?</h2>
-          <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
-            Run{" "}
-            <code className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
-              /my-clips
-            </code>{" "}
-            in Discord and we&apos;ll DM you a private link to your own page — everything
-            you&apos;ve submitted, what each clip is worth and what you&apos;re owed. There
-            is nothing to link to from here: the page is signed to your Discord account, so
-            the bot is the only thing that can make it.
+        {/* ── The way in ──────────────────────────────────────────────
+            This used to say there was nothing to link to, because the only
+            way to reach a clipper's page was a signed link the bot DM'd. That
+            stopped being true when Discord sign-in arrived: /me works out who
+            they are from the snowflake and mints the same signature
+            server-side, so the page is one button away.
+
+            Signing in also unlocks the things the signed link deliberately
+            cannot do — setting a payout address, registering an account,
+            withdrawing — so it is the better door for a returning clipper
+            regardless. */}
+        <div className="surface reveal rounded-2xl border border-border bg-card p-6 text-center sm:p-8">
+          <h2 className="display text-lg">Already clipping with us?</h2>
+          <p className="mx-auto mt-2.5 max-w-md text-sm leading-relaxed text-muted-foreground">
+            Sign in and go straight to your page — every clip you&apos;ve submitted, what each
+            one is worth, what you&apos;re owed, and a button to withdraw it.
+          </p>
+
+          {discordEnabled ? (
+            <div className="mt-5 flex justify-center">
+              <DiscordButton
+                label="Sign in with Discord"
+                variant="default"
+                size="lg"
+                className="h-12 px-7"
+              />
+            </div>
+          ) : (
+            <p className="mt-5 text-sm text-muted-foreground">
+              Run{" "}
+              <code className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
+                /my-clips
+              </code>{" "}
+              in Discord and we&apos;ll DM you a private link to your page.
+            </p>
+          )}
+
+          <p className="mt-4 text-xs text-muted-foreground/70">
+            Same Discord account you clip with. Or run{" "}
+            <code className="font-mono">/my-clips</code> in the server for a private link
+            instead.
           </p>
         </div>
 
