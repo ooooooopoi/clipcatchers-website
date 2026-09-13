@@ -200,6 +200,11 @@ export type ClipperEarnings = {
   payout_method: string;
   /** Masked by the bot — enough to recognise, not enough to reuse. */
   payout_address: string;
+  /**
+   * The withdrawal floor, in dollars, from the bot's MIN_PAYOUT_USD. Read
+   * rather than hardcoded so the page and the rule can't disagree.
+   */
+  payout_minimum: number;
   flagged: number;
   /**
    * The per-clip rows. Named for the key the bot actually sends: this was

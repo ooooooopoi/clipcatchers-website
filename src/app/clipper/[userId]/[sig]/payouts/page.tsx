@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { auth } from "@/auth";
 import { BotOffline, PageHeading, Stat } from "@/components/clipper/chrome";
+import { WithdrawButton } from "@/components/clipper/withdraw-button";
 import { formatNumber } from "@/lib/format";
 import { dollars, loadClipper } from "@/lib/clipper-data";
 
@@ -12,7 +14,12 @@ export default async function PayoutsPage({
   params: Promise<{ userId: string; sig: string }>;
 }) {
   const { userId, sig } = await params;
-  const { earnings, offline } = await loadClipper(userId, sig);
+  // Read here rather than in the button so the server decides whose money this
+  // is. The client is told only whether it matches, never trusted to say so.
+  const [{ earnings, offline }, session] = await Promise.all([
+    loadClipper(userId, sig),
+    auth(),
+  ]);
 
   const withdrawable = earnings?.withdrawable ?? 0;
   const awaiting = earnings?.awaiting_release ?? 0;
@@ -42,14 +49,14 @@ export default async function PayoutsPage({
               </p>
 
               {withdrawable > 0 ? (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  Run{" "}
-                  <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-foreground">
-                    /withdraw
-                  </code>{" "}
-                  in Discord to be paid out
-                  {hasPayout ? "" : " — you'll need a payout method set first"}.
-                </p>
+                <WithdrawButton
+                  userId={userId}
+                  sig={sig}
+                  withdrawable={withdrawable}
+                  minimum={earnings?.payout_minimum ?? 12}
+                  method={earnings?.payout_method ?? ""}
+                  signedInAs={session?.user?.discordId ?? null}
+                />
               ) : awaiting > 0 ? (
                 <p className="mt-3 text-sm text-muted-foreground">
                   Nothing to withdraw yet. Your earnings are still with campaigns that
@@ -88,11 +95,17 @@ export default async function PayoutsPage({
 
           <div className="mt-6 max-w-2xl space-y-2 text-xs text-muted-foreground/80">
             <p>
-              Withdrawals run through the bot rather than this page. Money only leaves after
-              you ask for it, and the address it goes to is the one shown above — check it
-              before you withdraw.
+              Money only leaves when you ask for it, and only to the address above — which can
+              be changed with <code className="font-mono">/set-payout</code> in Discord and
+              nowhere else. Check it before you withdraw: a USDT transfer can&apos;t be
+              reversed.
             </p>
-            <p>Network fees on a withdrawal come out of the amount sent.</p>
+            <p>
+              Minimum withdrawal is {dollars(earnings?.payout_minimum ?? 12)}. Network fees come
+              out of the amount sent. You can also run{" "}
+              <code className="font-mono">/withdraw</code> in Discord — it does exactly the
+              same thing.
+            </p>
           </div>
         </>
       )}
