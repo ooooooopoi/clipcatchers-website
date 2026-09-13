@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { teamSignatureValid } from "@/lib/share";
-import { fetchCampaigns, fetchPayouts } from "@/lib/bot";
+import { fetchCampaigns, fetchPayoutHistory, fetchPayouts, type PayoutHistory } from "@/lib/bot";
 import { formatCurrency, formatNumber } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Payouts", robots: { index: false, follow: false } };
@@ -35,6 +35,7 @@ export default async function PayoutsPage({
 
   let payouts;
   let campaigns: { id: number; name: string; active: number }[] = [];
+  let history: PayoutHistory | null = null;
   let error: string | null = null;
   try {
     [payouts, { campaigns }] = await Promise.all([
@@ -43,6 +44,15 @@ export default async function PayoutsPage({
     ]);
   } catch (e) {
     error = e instanceof Error ? e.message : "Couldn't reach the bot.";
+  }
+
+  // Separately, and allowed to fail on its own: what has already been paid is
+  // worth seeing even when the owed figures can't be reached, and a history
+  // that 500s shouldn't take the page with it.
+  try {
+    history = await fetchPayoutHistory(200);
+  } catch {
+    history = null;
   }
 
   // Same destination across accounts is worth seeing before money moves.
@@ -184,6 +194,116 @@ export default async function PayoutsPage({
               </p>
             )}
           </>
+        )}
+
+        {/* ── What has already gone ────────────────────────────────────
+            The tables above answer what is owed. This answers what was
+            paid, which is the question a disputed payment actually asks —
+            and until the withdrawals ledger existed there was no record of
+            a self-service payout as an event at all, only clips quietly
+            flipping to paid. */}
+        {history && history.payouts.length > 0 && (
+          <section className="mt-12">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-semibold tracking-tight">Paid out</h2>
+                <p className="text-sm text-muted-foreground">
+                  Every payment that has left, newest first.
+                </p>
+              </div>
+              <div className="text-right text-sm">
+                <p className="font-mono text-base font-semibold">
+                  {formatCurrency(history.total_paid * 100)}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  across {history.payouts.length} payment
+                  {history.payouts.length === 1 ? "" : "s"}
+                  {history.total_fees > 0
+                    ? ` · ${formatCurrency(history.total_fees * 100)} in fees`
+                    : ""}
+                </p>
+              </div>
+            </div>
+
+            <div className="surface mt-4 overflow-hidden rounded-2xl border border-border bg-card">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>when</TableHead>
+                      <TableHead>clipper</TableHead>
+                      <TableHead>how</TableHead>
+                      <TableHead className="text-right">amount</TableHead>
+                      <TableHead className="text-right">received</TableHead>
+                      <TableHead>transaction</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {history.payouts.map((p) => (
+                      <TableRow key={p.id}>
+                        <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                          {new Date(p.at * 1000).toLocaleString(undefined, {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          {p.handle ? `@${p.handle}` : `user ${p.user_id}`}
+                        </TableCell>
+                        <TableCell>
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                              p.kind === "withdrawal"
+                                ? "bg-primary/10 text-primary-ink"
+                                : "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            {p.kind === "withdrawal" ? "withdrew" : "admin run"}
+                          </span>
+                          {p.clips > 0 && (
+                            <span className="ml-2 text-xs text-muted-foreground">
+                              {p.clips} clip{p.clips === 1 ? "" : "s"}
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right font-mono">
+                          {formatCurrency(p.amount * 100)}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-xs text-muted-foreground">
+                          {/* Only differs when a fee or gas came out, which is
+                              only ever on a self-service withdrawal. */}
+                          {p.sent !== p.amount ? formatCurrency(p.sent * 100) : "—"}
+                        </TableCell>
+                        <TableCell className="max-w-[220px] truncate font-mono text-xs text-muted-foreground">
+                          {p.tx_hash ? (
+                            <a
+                              href={`https://etherscan.io/tx/${p.tx_hash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="underline-offset-4 hover:underline"
+                            >
+                              {p.tx_hash.slice(0, 10)}…{p.tx_hash.slice(-6)}
+                            </a>
+                          ) : (
+                            "—"
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+
+            <p className="mt-3 text-xs text-muted-foreground/70">
+              Admin runs are reconstructed from the clips they settled, so they carry no
+              transaction hash — only self-service withdrawals record one. Anything paid before
+              settlement timestamps existed won&apos;t appear.
+            </p>
+          </section>
         )}
 
         <footer className="mt-10 border-t border-border pt-6 text-xs text-muted-foreground">

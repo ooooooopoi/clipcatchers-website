@@ -74,6 +74,35 @@ export type StatsResponse = {
   campaigns: CampaignRow[];
 };
 
+export type PayoutRecord = {
+  /** "withdrawal" when the clipper took it themselves, "admin" when we sent it. */
+  kind: "withdrawal" | "admin";
+  id: string;
+  user_id: string;
+  handle: string;
+  /** Taken off their balance. */
+  amount: number;
+  /** What actually arrived, after fee and gas. Equals amount for admin runs. */
+  sent: number;
+  fee: number;
+  tx_hash: string;
+  /** Unix seconds. */
+  at: number;
+  clips: number;
+};
+
+export type PayoutHistory = {
+  payouts: PayoutRecord[];
+  total_paid: number;
+  total_sent: number;
+  total_fees: number;
+};
+
+/** Every payment out, both routes, newest first. */
+export function fetchPayoutHistory(limit = 300) {
+  return call<PayoutHistory>(`/api/payouts/history?limit=${limit}`);
+}
+
 export function fetchPayouts(campaignId?: number, withAddress = false) {
   const params = new URLSearchParams();
   if (campaignId) params.set("campaign", String(campaignId));
