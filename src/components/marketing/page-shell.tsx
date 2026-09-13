@@ -36,6 +36,11 @@ export async function PageShell({
   compact?: boolean;
 }) {
   const user = await getSessionUser();
+  // Read on the server: the browser cannot see whether the provider is
+  // configured, and a sign-in that bounces is worse than none.
+  const discordEnabled = Boolean(
+    process.env.AUTH_DISCORD_ID && process.env.AUTH_DISCORD_SECRET,
+  );
 
   return (
     // overflow-x-clip, not overflow-hidden: `hidden` makes this a scroll
@@ -46,7 +51,11 @@ export async function PageShell({
           still be drawing at the point the body copy starts. */}
       <StarField className="h-[520px]" />
 
-      <SiteHeader signedIn={Boolean(user)} />
+      <SiteHeader
+        signedIn={Boolean(user)}
+        isClipper={Boolean(user?.discordId)}
+        discordEnabled={discordEnabled}
+      />
 
       <main>
         <section

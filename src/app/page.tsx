@@ -129,6 +129,11 @@ const FAQ = [
 
 export default async function HomePage() {
   const user = await getSessionUser();
+  // Read on the server: the browser cannot see whether the provider is
+  // configured, and a sign-in that bounces is worse than none.
+  const discordEnabled = Boolean(
+    process.env.AUTH_DISCORD_ID && process.env.AUTH_DISCORD_SECRET,
+  );
   const stats = await getPublicStats();
 
   // The headline figure, for the closing CTA's stat strip. The proof band
@@ -159,7 +164,11 @@ export default async function HomePage() {
       <StarField className="h-[760px]" />
 
       <OrganizationSchema />
-      <SiteHeader signedIn={Boolean(user)} />
+      <SiteHeader
+        signedIn={Boolean(user)}
+        isClipper={Boolean(user?.discordId)}
+        discordEnabled={discordEnabled}
+      />
 
       <main>
         {/* Hero */}

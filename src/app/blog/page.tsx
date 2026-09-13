@@ -27,11 +27,20 @@ export const metadata: Metadata = {
 
 export default async function BlogIndex() {
   const user = await getSessionUser();
+  // Read on the server: the browser cannot see whether the provider is
+  // configured, and a sign-in that bounces is worse than none.
+  const discordEnabled = Boolean(
+    process.env.AUTH_DISCORD_ID && process.env.AUTH_DISCORD_SECRET,
+  );
   const posts = sortedPosts();
 
   return (
     <div className="relative min-h-screen">
-      <SiteHeader signedIn={Boolean(user)} />
+      <SiteHeader
+        signedIn={Boolean(user)}
+        isClipper={Boolean(user?.discordId)}
+        discordEnabled={discordEnabled}
+      />
 
       <main className="mx-auto w-full max-w-3xl px-5 pb-24 pt-14 sm:pt-20">
         <p className="eyebrow text-primary-ink">Blog</p>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Menu, Phone } from "lucide-react";
 import { BrandMark } from "@/components/brand";
+import { DiscordButton } from "@/components/discord-button";
 import { NavMenu } from "@/components/marketing/nav-menu";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,7 +44,24 @@ import { cn } from "@/lib/utils";
  *
  * If the primary treatment changes again, change it here too.
  */
-export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
+export function SiteHeader({
+  signedIn = false,
+  isClipper = false,
+  discordEnabled = false,
+}: {
+  signedIn?: boolean;
+  /**
+   * Signed in with Discord, so a clipper rather than a client.
+   *
+   * Changes where the signed-in button points. /dashboard scopes everything to
+   * campaigns the account owns and a clipper owns none, so it renders a
+   * perfectly working page of zeros — which reads as broken rather than as the
+   * wrong door. /me forwards them to their own clips and earnings instead.
+   */
+  isClipper?: boolean;
+  /** Offering a sign-in that bounces off a missing provider is worse than none. */
+  discordEnabled?: boolean;
+}) {
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
 
@@ -110,10 +128,22 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
             </Button>
           )}
 
+          {/* Creators, at lg and up. A clipper arriving here is the one visitor
+              who definitely wants to sign in — it is the route to their own
+              money — which is why this is offered where "Client sign in"
+              deliberately is not. Two labels so it survives the narrower bar at
+              lg, matching the CTA beside it. */}
+          {!signedIn && discordEnabled && (
+            <DiscordButton
+              label="Creator sign in"
+              className="hidden h-12 rounded-full px-5 text-[15px] lg:inline-flex"
+            />
+          )}
+
           {signedIn && (
             <Button asChild className="h-12 rounded-full px-6 text-[15px] sm:h-14 sm:px-7">
-              <Link href="/dashboard">
-                Dashboard
+              <Link href={isClipper ? "/me" : "/dashboard"}>
+                {isClipper ? "My clips" : "Dashboard"}
                 <ArrowRight />
               </Link>
             </Button>
@@ -249,9 +279,29 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                 {signedIn && (
                   <SheetClose asChild>
                     <Button asChild size="lg" variant="outline" className="w-full">
-                      <Link href="/dashboard">Dashboard</Link>
+                      <Link href={isClipper ? "/me" : "/dashboard"}>
+                        {isClipper ? "My clips" : "Dashboard"}
+                      </Link>
                     </Button>
                   </SheetClose>
+                )}
+
+                {/* The creator half of sign-in, which does belong on a public
+                    surface even though the client half doesn't. Somebody who
+                    already clips for us and wants their earnings is not being
+                    sold to — they are being kept from their own page. Below
+                    lg this panel is the only place it appears. */}
+                {!signedIn && discordEnabled && (
+                  <div className="border-t border-border pt-3">
+                    <DiscordButton
+                      label="Creator sign in"
+                      className="w-full"
+                      size="lg"
+                    />
+                    <p className="mt-2 text-center text-xs text-muted-foreground">
+                      Already clipping? Go straight to your clips and earnings.
+                    </p>
+                  </div>
                 )}
               </div>
             </SheetContent>

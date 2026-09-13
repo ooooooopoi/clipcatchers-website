@@ -9,6 +9,15 @@ export type SessionUser = {
   image: string | null;
   role: string;
   company: string | null;
+  /**
+   * Set only for someone who signed in with Discord — a clipper.
+   *
+   * Carried so anything offering a "Dashboard" can tell the two apart. The
+   * client dashboard scopes every query to campaigns the account owns, and a
+   * clipper owns none — so sending them there produces a working page full of
+   * zeros, which reads as broken rather than as the wrong door.
+   */
+  discordId: string | null;
 };
 
 /** Session user for API routes — null instead of redirecting. */
@@ -22,6 +31,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     image: session.user.image ?? null,
     role: session.user.role ?? "CLIENT",
     company: session.user.company ?? null,
+    discordId: session.user.discordId ?? null,
   };
 }
 

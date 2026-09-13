@@ -51,6 +51,16 @@ export default async function BlogPostPage({
 
   const user = await getSessionUser();
 
+  // Read on the server: the browser cannot see whether the provider is
+
+  // configured, and a sign-in that bounces is worse than none.
+
+  const discordEnabled = Boolean(
+
+    process.env.AUTH_DISCORD_ID && process.env.AUTH_DISCORD_SECRET,
+
+  );
+
   // Article markup, so a search result can carry a headline and a date rather
   // than guessing both from the page. Separate from the Organization block on
   // the homepage: that describes who publishes, this describes what was
@@ -77,7 +87,11 @@ export default async function BlogPostPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
-      <SiteHeader signedIn={Boolean(user)} />
+      <SiteHeader
+        signedIn={Boolean(user)}
+        isClipper={Boolean(user?.discordId)}
+        discordEnabled={discordEnabled}
+      />
 
       <main className="mx-auto w-full max-w-2xl px-5 pb-24 pt-14 sm:pt-20">
         <Link
