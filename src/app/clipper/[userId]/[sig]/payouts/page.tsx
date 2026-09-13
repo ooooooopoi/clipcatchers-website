@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { BotOffline, PageHeading, Stat } from "@/components/clipper/chrome";
+import { PayoutMethodForm } from "@/components/clipper/payout-method-form";
 import { WithdrawButton } from "@/components/clipper/withdraw-button";
 import { formatNumber } from "@/lib/format";
 import { dollars, loadClipper } from "@/lib/clipper-data";
@@ -75,17 +76,18 @@ export default async function PayoutsPage({
               )}
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-5 py-3.5 text-xs sm:px-7">
-              <span className="text-muted-foreground">Paid to</span>
-              {hasPayout ? (
-                <span className="font-mono">
-                  {earnings?.payout_method} · {earnings?.payout_address}
-                </span>
-              ) : (
-                <span className="text-warning">
-                  Not set — run <code className="font-mono">/set-payout</code> in Discord
-                </span>
-              )}
+            {/* Editable here rather than "run /set-payout in Discord": a
+                clipper who cannot set this cannot be paid at all, and sending
+                them to another app to fix the one thing blocking their money
+                is where most of them would stop. */}
+            <div className="border-t border-border px-5 py-4 sm:px-7">
+              <PayoutMethodForm
+                userId={userId}
+                sig={sig}
+                method={earnings?.payout_method ?? ""}
+                masked={earnings?.payout_address ?? ""}
+                signedInAs={session?.user?.discordId ?? null}
+              />
             </div>
           </div>
 

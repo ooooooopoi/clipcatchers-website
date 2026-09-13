@@ -57,6 +57,10 @@ export function WithdrawButton({
   gasFromClipper: boolean;
 }) {
   const [busy, setBusy] = useState(false);
+  // Blank is "all of it". Defaulting the field to the full balance would make
+  // the common case look like a decision, and a half-edited number is the kind
+  // of mistake that cannot be undone once sent.
+  const [amount, setAmount] = useState("");
   const [, startTransition] = useTransition();
   const router = useRouter();
 
@@ -104,10 +108,36 @@ export function WithdrawButton({
   }
 
   async function withdraw() {
+    // Blank means everything, which is the common case and the default. A
+    // typed figure is sent exactly — the bot refuses anything above the
+    // balance or below the minimum rather than rounding either way.
+    const wanted = amount.trim();
+    if (wanted) {
+      const asked = Number(wanted);
+      if (!Number.isFinite(asked) || asked <= 0) {
+        toast.error("Enter an amount, or leave it blank to withdraw everything.");
+        return;
+      }
+      if (asked > withdrawable) {
+        toast.error(
+          `You have $${withdrawable.toFixed(2)} available — that's more than you can take.`,
+        );
+        return;
+      }
+      if (asked < minimum) {
+        toast.error(`The minimum withdrawal is $${minimum.toFixed(0)}.`);
+        return;
+      }
+    }
+
     setBusy(true);
     let body: Result = {};
     try {
-      const res = await fetch(`/api/clipper/${userId}/${sig}/payout`, { method: "POST" });
+      const res = await fetch(`/api/clipper/${userId}/${sig}/payout`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(wanted ? { amount: Number(wanted) } : {}),
+      });
       body = await res.json().catch(() => ({}));
       if (!res.ok) {
         toast.error(body.reason ?? "Couldn't withdraw right now. Your balance is untouched.");
@@ -161,17 +191,38 @@ export function WithdrawButton({
 
   return (
     <div className="mt-4">
-      <Button type="button" onClick={() => void withdraw()} loading={busy} disabled={!enough}>
-        {busy ? "Sending…" : `Withdraw $${withdrawable.toFixed(2)}`}
-      </Button>
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative">
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+            $
+          </span>
+          <input
+            type="text"
+            inputMode="decimal"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ""))}
+            placeholder={withdrawable.toFixed(2)}
+            aria-label="Amount to withdraw"
+            disabled={!enough || busy}
+            className="h-10 w-32 rounded-lg border border-border bg-background pl-6 pr-3 font-mono text-sm outline-none transition-colors focus:border-primary disabled:opacity-50"
+          />
+        </div>
+        <Button type="button" onClick={() => void withdraw()} loading={busy} disabled={!enough}>
+          {busy ? "Sending…" : amount.trim() ? `Withdraw $${amount.trim()}` : "Withdraw it all"}
+        </Button>
+      </div>
       <p className="mt-2 max-w-md text-xs text-muted-foreground">
         {!enough
           ? `Minimum withdrawal is $${minimum.toFixed(0)}. Below that the transfer fee costs more than the payment is worth, so it stays here and keeps growing.`
-          : deductions.length
-            ? `Sent as USDT to the address on file. ${deductions.join(" and ")} ${
-                deductions.length > 1 ? "come" : "comes"
-              } out of this, so you'll receive a little less — the exact figure is in the confirmation.`
-            : "Sent as USDT to the address on file."}
+          : `Leave the amount blank to take all $${withdrawable.toFixed(
+              2,
+            )}, or type any figure from $${minimum.toFixed(0)} up. ${
+              deductions.length
+                ? `${deductions.join(" and ")} ${
+                    deductions.length > 1 ? "come" : "comes"
+                  } out of it, so you'll receive slightly less — the exact figure is in the confirmation.`
+                : "Sent as USDT to the address on file."
+            }`}
       </p>
     </div>
   );
