@@ -181,6 +181,8 @@ export type ClipperClip = {
   worth: number;
   campaign: string;
   campaign_id: number;
+  /** Campaign still running, so this clip's worth is provisional. */
+  campaign_active: boolean;
   /** Above zero views but under the campaign floor, so earning nothing yet. */
   below_min: boolean;
   flag_reason: string;
@@ -188,7 +190,18 @@ export type ClipperClip = {
 
 export type ClipperEarnings = {
   clips: number;
+  /**
+   * Earned on a campaign that has ENDED and isn't paid yet — an actual debt.
+   * Excludes live campaigns, whose balance is provisional until the close
+   * audit runs. See `running`.
+   */
   owed: number;
+  /**
+   * Earned so far on campaigns still running. Not owed: the figure moves with
+   * views, and the audit at close can reject clips that were sitting as
+   * approved the whole time.
+   */
+  running: number;
   already_paid: number;
   /**
    * Of `owed`, the part whose campaigns an admin has released. Only this is

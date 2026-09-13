@@ -96,10 +96,18 @@ export type ClipGroup = {
   clips: ClipperClip[];
   /** Lifetime worth of the campaign's clips, paid and unpaid. */
   earned: number;
-  /** Still to come: approved, above the floor, not yet paid. */
+  /**
+   * A debt: earned, unpaid, and the campaign has ended. Money on a live
+   * campaign is in `running` instead — it can still move with views, and the
+   * audit at close can reject clips, so it isn't owed until then.
+   */
   owed: number;
+  /** Earned so far on a campaign still running. Provisional. */
+  running: number;
   /** Already sent. */
   paid: number;
+  /** Whether the campaign is still live. */
+  active: boolean;
 };
 
 export function groupByCampaign(clips: ClipperClip[]): ClipGroup[] {
@@ -113,18 +121,25 @@ export function groupByCampaign(clips: ClipperClip[]): ClipGroup[] {
         clips: [],
         earned: 0,
         owed: 0,
+        running: 0,
         paid: 0,
+        active: clip.campaign_active,
       };
       groups.set(clip.campaign_id, group);
     }
     group.clips.push(clip);
     group.earned += clip.worth;
     if (clip.paid) group.paid += clip.worth;
+    else if (clip.campaign_active) group.running += clip.worth;
     else group.owed += clip.worth;
   }
-  // Outstanding money first, then by size. What is still coming is the reason
-  // to open this page; settled campaigns are history and sort below it.
+  // Live campaigns first — that is where today's work goes — then campaigns
+  // that owe money, then settled history.
   return [...groups.values()].sort(
-    (a, b) => Number(b.owed > 0) - Number(a.owed > 0) || b.owed - a.owed || b.earned - a.earned,
+    (a, b) =>
+      Number(b.active) - Number(a.active) ||
+      Number(b.owed > 0) - Number(a.owed > 0) ||
+      b.owed - a.owed ||
+      b.earned - a.earned,
   );
 }

@@ -59,7 +59,12 @@ export default async function ClipsPage({
                       <h3 className="font-medium">{group.name}</h3>
                       <p className="text-xs text-muted-foreground">
                         {group.clips.length} {group.clips.length === 1 ? "clip" : "clips"} ·{" "}
-                        {group.owed > 0 ? (
+                        {group.active ? (
+                          <>
+                            <span className="font-mono">{dollars(group.running)}</span> so far
+                            · still running
+                          </>
+                        ) : group.owed > 0 ? (
                           <>
                             <span className="font-mono">{dollars(group.owed)}</span> to come
                           </>

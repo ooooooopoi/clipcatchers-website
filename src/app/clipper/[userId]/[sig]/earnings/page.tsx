@@ -35,16 +35,31 @@ export default async function EarningsPage({
         <BotOffline />
       ) : (
         <>
+          {/* "Owed" means a campaign that has ended and hasn't been paid.
+              Earnings on a live campaign sit in their own tile: the figure
+              still moves with views, and the audit at close can reject clips —
+              so calling it owed would state a debt nobody has incurred, and
+              the correction afterwards reads as money being taken away. */}
           <div className="surface mt-8 grid grid-cols-2 divide-border rounded-2xl border border-border bg-card sm:grid-cols-4 sm:divide-x">
-            <Stat value={dollars(earnings?.owed ?? 0)} label="owed to you" />
+            <Stat
+              value={dollars(earnings?.running ?? 0)}
+              label="still running"
+              hint="Moves with views. Not owed until the campaign ends."
+            />
+            <Stat
+              value={dollars(earnings?.owed ?? 0)}
+              label="owed to you"
+              hint="From campaigns that have finished."
+            />
             <Stat value={dollars(earnings?.already_paid ?? 0)} label="paid so far" />
-            <Stat value={formatNumber(views)} label="paid views" />
             <Stat value={formatNumber(earnings?.clips ?? 0)} label="clips submitted" />
           </div>
 
           <p className="mt-3 text-xs text-muted-foreground/70">
             Views are read off each live post, so what a clip is worth moves as it does. Only
-            approved clips above the campaign&apos;s view floor earn.
+            approved clips above the campaign&apos;s view floor earn. Nothing counts as owed
+            until its campaign finishes and the figures have been checked — until then it can
+            still go up as well as down.
           </p>
 
           <section className="mt-10">
@@ -79,7 +94,15 @@ export default async function EarningsPage({
                       </span>
                     ) : null}
 
-                    {group.owed > 0 ? (
+                    {group.active ? (
+                      // Still running: real money so far, but not a debt yet.
+                      // Shown in the muted weight the other provisional figures
+                      // use, so it doesn't read as "waiting to be sent".
+                      <span className="font-mono text-sm text-muted-foreground">
+                        {dollars(group.running)}{" "}
+                        <span className="font-sans text-xs">running</span>
+                      </span>
+                    ) : group.owed > 0 ? (
                       <span className="font-mono text-sm font-semibold text-primary-ink">
                         {dollars(group.owed)}
                       </span>
@@ -94,8 +117,10 @@ export default async function EarningsPage({
                 </ul>
 
                 <p className="mt-3 text-xs text-muted-foreground/70">
-                  The figure on the right is what&apos;s still to come. Anything already sent
-                  shows as paid out and isn&apos;t counted again.
+                  On a finished campaign the figure on the right is what you&apos;re owed. On
+                  one still running it&apos;s what you&apos;ve earned so far, which can still
+                  change. Anything already sent shows as paid out and isn&apos;t counted
+                  again.
                 </p>
               </>
             )}

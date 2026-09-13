@@ -61,8 +61,20 @@ export default async function PayoutsPage({
                 />
               ) : awaiting > 0 ? (
                 <p className="mt-3 text-sm text-muted-foreground">
-                  Nothing to withdraw yet. Your earnings are still with campaigns that
-                  haven&apos;t been released for payout.
+                  Nothing to withdraw yet. Those campaigns have finished, and the money opens
+                  up once we&apos;ve checked the figures — usually a day or two after closing.
+                </p>
+              ) : (earnings?.running ?? 0) > 0 ? (
+                // The commonest case, and the one that used to read as though
+                // something had gone wrong. They have earned real money; the
+                // campaign simply hasn't finished.
+                <p className="mt-3 text-sm text-muted-foreground">
+                  Nothing to withdraw yet — you&apos;ve earned{" "}
+                  <span className="font-medium text-foreground">
+                    {dollars(earnings?.running ?? 0)}
+                  </span>{" "}
+                  so far, but its campaign is still running. Earnings become withdrawable once
+                  a campaign finishes, so keep clipping; this figure is still moving.
                 </p>
               ) : (
                 <p className="mt-3 text-sm text-muted-foreground">
@@ -71,11 +83,21 @@ export default async function PayoutsPage({
               )}
             </div>
 
-            <div className="grid grid-cols-2 divide-x divide-border sm:grid-cols-3">
+            {/* Three states, not two. "Awaiting release" used to hold both
+                finished-but-unreleased money and earnings on live campaigns,
+                which are different things: the first is a debt waiting on us,
+                the second isn't a debt at all until the campaign closes and
+                the audit runs. */}
+            <div className="grid grid-cols-2 divide-x divide-border sm:grid-cols-4">
+              <Stat
+                value={dollars(earnings?.running ?? 0)}
+                label="still running"
+                hint="Not owed yet — the campaign is live."
+              />
               <Stat
                 value={dollars(awaiting)}
-                label="earned, awaiting release"
-                hint="Released once a campaign is settled."
+                label="owed, awaiting release"
+                hint="Campaign finished. Released once checked."
               />
               <Stat value={dollars(earnings?.already_paid ?? 0)} label="paid to you so far" />
               <Stat value={formatNumber(earnings?.clips ?? 0)} label="clips submitted" />
