@@ -56,6 +56,8 @@ export default async function PayoutsPage({
                   minimum={earnings?.payout_minimum ?? 12}
                   method={earnings?.payout_method ?? ""}
                   signedInAs={session?.user?.discordId ?? null}
+                  feePercent={earnings?.payout_fee_percent ?? 0}
+                  gasFromClipper={earnings?.payout_gas_from_clipper ?? false}
                 />
               ) : awaiting > 0 ? (
                 <p className="mt-3 text-sm text-muted-foreground">
@@ -101,10 +103,20 @@ export default async function PayoutsPage({
               reversed.
             </p>
             <p>
-              Minimum withdrawal is {dollars(earnings?.payout_minimum ?? 12)}. Network fees come
-              out of the amount sent. You can also run{" "}
-              <code className="font-mono">/withdraw</code> in Discord — it does exactly the
-              same thing.
+              Minimum withdrawal is {dollars(earnings?.payout_minimum ?? 12)}.{" "}
+              {earnings?.payout_fee_percent
+                ? `A ${earnings.payout_fee_percent}% fee`
+                : "Nothing"}
+              {earnings?.payout_gas_from_clipper
+                ? " and the network fee for the transfer come"
+                : " comes"}{" "}
+              out of the amount. If the network is expensive enough that it would take a large
+              share of your payout, the transfer is refused rather than sent short — your
+              balance stays put and you can withdraw when it&apos;s cheaper.
+            </p>
+            <p>
+              You can also run <code className="font-mono">/withdraw</code> in Discord — it
+              does exactly the same thing.
             </p>
           </div>
         </>

@@ -43,6 +43,8 @@ export function WithdrawButton({
   minimum,
   method,
   signedInAs,
+  feePercent,
+  gasFromClipper,
 }: {
   userId: string;
   sig: string;
@@ -51,6 +53,8 @@ export function WithdrawButton({
   method: string;
   /** The signed-in Discord id, or null. Money needs more than the link. */
   signedInAs: string | null;
+  feePercent: number;
+  gasFromClipper: boolean;
 }) {
   const [busy, setBusy] = useState(false);
   const [, startTransition] = useTransition();
@@ -146,15 +150,28 @@ export function WithdrawButton({
     startTransition(() => router.refresh());
   }
 
+  // What comes off, spelled out before they press rather than discovered in
+  // the confirmation. The balance is the gross — a button that says $12 and
+  // delivers $8.51 is the "number the recipient will reasonably think is
+  // wrong" that the sending code refuses to produce.
+  const deductions = [
+    feePercent > 0 ? `a ${feePercent}% fee` : null,
+    gasFromClipper ? "the network fee for the transfer" : null,
+  ].filter(Boolean);
+
   return (
     <div className="mt-4">
       <Button type="button" onClick={() => void withdraw()} loading={busy} disabled={!enough}>
         {busy ? "Sending…" : `Withdraw $${withdrawable.toFixed(2)}`}
       </Button>
-      <p className="mt-2 text-xs text-muted-foreground">
-        {enough
-          ? "Sent as USDT to the address on file. Network fees come out of the amount."
-          : `Minimum withdrawal is $${minimum.toFixed(0)}. Below that the transfer fee costs more than the payment is worth.`}
+      <p className="mt-2 max-w-md text-xs text-muted-foreground">
+        {!enough
+          ? `Minimum withdrawal is $${minimum.toFixed(0)}. Below that the transfer fee costs more than the payment is worth, so it stays here and keeps growing.`
+          : deductions.length
+            ? `Sent as USDT to the address on file. ${deductions.join(" and ")} ${
+                deductions.length > 1 ? "come" : "comes"
+              } out of this, so you'll receive a little less — the exact figure is in the confirmation.`
+            : "Sent as USDT to the address on file."}
       </p>
     </div>
   );

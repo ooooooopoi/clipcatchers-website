@@ -205,6 +205,10 @@ export type ClipperEarnings = {
    * rather than hardcoded so the page and the rule can't disagree.
    */
   payout_minimum: number;
+  /** Percentage taken from a withdrawal, e.g. 6. */
+  payout_fee_percent: number;
+  /** Whether network gas is deducted from the clipper's amount too. */
+  payout_gas_from_clipper: boolean;
   flagged: number;
   /**
    * The per-clip rows. Named for the key the bot actually sends: this was
