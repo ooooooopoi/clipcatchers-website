@@ -86,10 +86,24 @@ export function fetchStats() {
   return call<StatsResponse>("/api/stats");
 }
 
+export type BotCampaign = {
+  id: number;
+  name: string;
+  budget: number;
+  active: number;
+  platform: string | null;
+  artist: string | null;
+  /** Pays rate_amount per rate_per_views views — e.g. $1 per 10,000. */
+  rate_amount: number;
+  rate_per_views: number;
+  /** Below this a clip earns nothing, however many views it has. */
+  min_views: number;
+  /** 0 means uncapped. */
+  max_views: number;
+};
+
 export function fetchCampaigns() {
-  return call<{ campaigns: { id: number; name: string; budget: number; active: number }[] }>(
-    "/api/campaigns",
-  );
+  return call<{ campaigns: BotCampaign[] }>("/api/campaigns");
 }
 
 export function markPaid(userId: string, campaignId?: number, paid = true) {
@@ -156,13 +170,34 @@ export type ClipperClip = {
   views: number;
   worth: number;
   campaign: string;
+  campaign_id: number;
+  /** Above zero views but under the campaign floor, so earning nothing yet. */
+  below_min: boolean;
+  flag_reason: string;
 };
 
 export type ClipperEarnings = {
   clips: number;
   owed: number;
   already_paid: number;
-  rows: ClipperClip[];
+  /**
+   * Of `owed`, the part whose campaigns an admin has released. Only this is
+   * reachable by /withdraw — the rest is earned but still locked.
+   */
+  withdrawable: number;
+  awaiting_release: number;
+  /** "USDT" | "PayPal" | "" when they've never run /set-payout. */
+  payout_method: string;
+  /** Masked by the bot — enough to recognise, not enough to reuse. */
+  payout_address: string;
+  flagged: number;
+  /**
+   * The per-clip rows. Named for the key the bot actually sends: this was
+   * typed as `rows` for months, so `earnings.rows` was silently undefined and
+   * every clipper's clip list rendered empty. `call<T>()` is an unchecked
+   * cast, so nothing caught it.
+   */
+  breakdown: ClipperClip[];
 };
 
 export type ClipperAccount = { id: number; platform: string; handle: string };
