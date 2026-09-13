@@ -11,6 +11,7 @@ import { AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import type { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { GoogleButton } from "@/components/google-button";
+import { DiscordButton } from "@/components/discord-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginSchema } from "@/lib/validations";
@@ -22,11 +23,13 @@ export function LoginForm({
   passwordReset,
   initialError,
   googleEnabled = false,
+  discordEnabled = false,
 }: {
   verified: boolean;
   passwordReset: boolean;
   initialError?: string;
   googleEnabled?: boolean;
+  discordEnabled?: boolean;
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(
@@ -137,6 +140,16 @@ export function LoginForm({
       </form>
 
       {googleEnabled && <GoogleButton />}
+      {/* Discord sits under Google without its own "or" divider — one
+          separator introduces the whole group of alternatives, and a second
+          would read as a third way to sign in rather than another button. */}
+      {discordEnabled && !googleEnabled && (
+        <div className="relative mb-4 mt-6 text-center">
+          <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-border" />
+          <span className="relative bg-card px-3 text-xs text-muted-foreground">or</span>
+        </div>
+      )}
+      {discordEnabled && <DiscordButton />}
 
       {/* No "create an account" link. Client accounts are set up by us when a
           campaign is assigned to them — a stranger self-registering here lands

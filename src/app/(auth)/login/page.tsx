@@ -14,12 +14,17 @@ export default async function LoginPage({
   const googleEnabled = Boolean(
     process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET,
   );
+  // Clippers sign in here too, and land on /me rather than the dashboard.
+  const discordEnabled = Boolean(
+    process.env.AUTH_DISCORD_ID && process.env.AUTH_DISCORD_SECRET,
+  );
   return (
     <LoginForm
       verified={params.verified === "1"}
       passwordReset={params.reset === "1"}
       initialError={params.error}
       googleEnabled={googleEnabled}
+      discordEnabled={discordEnabled}
     />
   );
 }

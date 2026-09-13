@@ -10,6 +10,9 @@ datasource db {
 enum Role {
   CLIENT
   ADMIN
+  /// Signs in with Discord and sees their own clips and earnings, never the
+  /// campaign dashboard — that is a client's view and a dead end for them.
+  CLIPPER
 }
 
 enum Plan {
@@ -79,6 +82,14 @@ model User {
   name          String
   company       String?
   passwordHash  String
+  /// Discord snowflake, for clippers who sign in with Discord.
+  ///
+  /// The same id the bot keys everything on: clips.user_id, wallets.user_id
+  /// and payouts are all this number, so a Discord login identifies a clipper
+  /// exactly with no mapping table in between. Kept as a string because a
+  /// snowflake exceeds JSON's safe integer range — see the note on
+  /// export_tables in the bot's database.py, which had to learn that twice.
+  discordId     String?   @unique
   image         String?
   role          Role      @default(CLIENT)
   plan          Plan      @default(STARTER)

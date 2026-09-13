@@ -127,6 +127,9 @@ export const authConfig = {
         token.role = (user as { role?: string }).role ?? "CLIENT";
         token.company = (user as { company?: string | null }).company ?? null;
         token.picture = user.image ?? null;
+        // Carried so /me can find a clipper's clips without another query.
+        // It is the bot's key for everything they own — see User.discordId.
+        token.discordId = (user as { discordId?: string }).discordId ?? null;
       }
       // Keeps the header avatar/name fresh after a Settings save.
       if (trigger === "update" && session) {
@@ -143,6 +146,7 @@ export const authConfig = {
         session.user.role = token.role as string;
         session.user.company = (token.company as string | null) ?? null;
         session.user.image = (token.picture as string | null) ?? null;
+        session.user.discordId = (token.discordId as string | null) ?? null;
       }
       return session;
     },

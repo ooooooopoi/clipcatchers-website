@@ -6,12 +6,20 @@ declare module "next-auth" {
       id: string;
       role: string;
       company: string | null;
+      /**
+       * Discord snowflake, set only for someone who signed in with Discord.
+       *
+       * The bot's key for everything a clipper owns — clips, wallet, payouts —
+       * so /me needs nothing else to find them. Null for clients.
+       */
+      discordId: string | null;
     } & DefaultSession["user"];
   }
 
   interface User {
     role?: string;
     company?: string | null;
+    discordId?: string | null;
   }
 }
 
@@ -20,6 +28,7 @@ declare module "next-auth/jwt" {
     id: string;
     role: string;
     company: string | null;
+    discordId: string | null;
   }
 }
 
