@@ -61,46 +61,18 @@ export default async function PayoutsPage({
                 />
               ) : awaiting > 0 ? (
                 <p className="mt-3 text-sm text-muted-foreground">
-                  Nothing to withdraw yet. Those campaigns have finished, and the money opens
-                  up once we&apos;ve checked the figures — usually a day or two after closing.
+                  Nothing to withdraw yet — see below for what&apos;s on the way.
                 </p>
               ) : (earnings?.running ?? 0) > 0 ? (
-                // The commonest case, and the one that used to read as though
-                // something had gone wrong. They have earned real money; the
-                // campaign simply hasn't finished.
                 <p className="mt-3 text-sm text-muted-foreground">
-                  Nothing to withdraw yet — you&apos;ve earned{" "}
-                  <span className="font-medium text-foreground">
-                    {dollars(earnings?.running ?? 0)}
-                  </span>{" "}
-                  so far, but its campaign is still running. Earnings become withdrawable once
-                  a campaign finishes, so keep clipping; this figure is still moving.
+                  Nothing to withdraw yet. Earnings become withdrawable once their campaign
+                  finishes — see below.
                 </p>
               ) : (
                 <p className="mt-3 text-sm text-muted-foreground">
                   Nothing to withdraw yet. Approved clips above the view floor build this up.
                 </p>
               )}
-            </div>
-
-            {/* Three states, not two. "Awaiting release" used to hold both
-                finished-but-unreleased money and earnings on live campaigns,
-                which are different things: the first is a debt waiting on us,
-                the second isn't a debt at all until the campaign closes and
-                the audit runs. */}
-            <div className="grid grid-cols-2 divide-x divide-border sm:grid-cols-4">
-              <Stat
-                value={dollars(earnings?.running ?? 0)}
-                label="still running"
-                hint="Not owed yet — the campaign is live."
-              />
-              <Stat
-                value={dollars(awaiting)}
-                label="owed, awaiting release"
-                hint="Campaign finished. Released once checked."
-              />
-              <Stat value={dollars(earnings?.already_paid ?? 0)} label="paid to you so far" />
-              <Stat value={formatNumber(earnings?.clips ?? 0)} label="clips submitted" />
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-5 py-3.5 text-xs sm:px-7">
@@ -117,7 +89,54 @@ export default async function PayoutsPage({
             </div>
           </div>
 
-          <div className="mt-6 max-w-2xl space-y-2 text-xs text-muted-foreground/80">
+          {/* ── Deliberately outside the card above ──────────────────────
+              These two used to sit in the same card as "Ready to withdraw",
+              under one border, which made the card read as a single balance —
+              so $330.61 on a live campaign and $177.01 waiting on release
+              looked like money in hand when neither can be withdrawn. They are
+              three separate states and the page now keeps them apart: what you
+              can take today, and what isn't yours to take yet. */}
+          <section className="mt-10 max-w-2xl">
+            <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+              Not available yet
+            </h2>
+            <ul className="mt-3 space-y-2">
+              <li className="surface flex flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-xl border border-border bg-card px-4 py-3.5">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">On campaigns still running</p>
+                  <p className="text-xs text-muted-foreground">
+                    Moves with views, and isn&apos;t final until the campaign ends.
+                  </p>
+                </div>
+                <span className="font-mono text-sm text-muted-foreground">
+                  {dollars(earnings?.running ?? 0)}
+                </span>
+              </li>
+              <li className="surface flex flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-xl border border-border bg-card px-4 py-3.5">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">Finished, awaiting release</p>
+                  <p className="text-xs text-muted-foreground">
+                    Owed to you. Opens up once we&apos;ve checked the figures.
+                  </p>
+                </div>
+                <span className="font-mono text-sm text-muted-foreground">
+                  {dollars(awaiting)}
+                </span>
+              </li>
+            </ul>
+          </section>
+
+          <section className="mt-10 max-w-2xl">
+            <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+              History
+            </h2>
+            <div className="surface mt-3 grid grid-cols-2 divide-x divide-border rounded-xl border border-border bg-card">
+              <Stat value={dollars(earnings?.already_paid ?? 0)} label="paid to you so far" />
+              <Stat value={formatNumber(earnings?.clips ?? 0)} label="clips submitted" />
+            </div>
+          </section>
+
+          <div className="mt-8 max-w-2xl space-y-2 text-xs text-muted-foreground/80">
             <p>
               Money only leaves when you ask for it, and only to the address above — which can
               be changed with <code className="font-mono">/set-payout</code> in Discord and
