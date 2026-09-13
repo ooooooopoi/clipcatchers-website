@@ -53,11 +53,23 @@ export default async function ClipsPage({
               <div className="mt-4 space-y-8">
                 {groups.map((group) => (
                   <div key={group.id}>
+                    {/* Outstanding, not lifetime. The total made a fully paid
+                        campaign look like one still owing the same amount. */}
                     <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border pb-2">
                       <h3 className="font-medium">{group.name}</h3>
                       <p className="text-xs text-muted-foreground">
                         {group.clips.length} {group.clips.length === 1 ? "clip" : "clips"} ·{" "}
-                        <span className="font-mono">{dollars(group.earned)}</span>
+                        {group.owed > 0 ? (
+                          <>
+                            <span className="font-mono">{dollars(group.owed)}</span> to come
+                          </>
+                        ) : group.paid > 0 ? (
+                          <>
+                            <span className="font-mono">{dollars(group.paid)}</span> paid out
+                          </>
+                        ) : (
+                          "nothing earned yet"
+                        )}
                       </p>
                     </div>
 
@@ -87,7 +99,18 @@ export default async function ClipsPage({
                           <span className="shrink-0 font-mono text-xs text-muted-foreground">
                             {formatNumber(clip.views)} views
                           </span>
-                          <span className="shrink-0 font-mono text-sm font-semibold">
+                          {/* A paid clip's worth is history, not a sum owed.
+                              Same number either way, so the weight has to say
+                              which it is — otherwise a settled clip sitting in
+                              the list reads as money still coming. */}
+                          <span
+                            className={`shrink-0 font-mono text-sm ${
+                              clip.paid
+                                ? "font-normal text-muted-foreground line-through decoration-muted-foreground/40"
+                                : "font-semibold"
+                            }`}
+                            title={clip.paid ? "Already paid out" : undefined}
+                          >
                             {dollars(clip.worth)}
                           </span>
 

@@ -80,21 +80,51 @@ export const STATUS_TONE: Record<string, string> = {
   withdrawn: "border-border text-muted-foreground",
 };
 
-/** A run of clips from one campaign, so a long history reads as a few groups. */
-export type ClipGroup = { id: number; name: string; clips: ClipperClip[]; earned: number };
+/**
+ * A run of clips from one campaign, so a long history reads as a few groups.
+ *
+ * ── Why `earned` is not enough on its own ────────────────────────────────
+ * It is lifetime worth, paid and unpaid together. Shown as the headline figure
+ * it made a settled campaign look identical to one still owing money — "FLOAT,
+ * 15 clips, $127.69" reads as money waiting, when every cent of it was sent
+ * weeks ago. So the split is carried here rather than recomputed per page, and
+ * the pages lead with `owed`.
+ */
+export type ClipGroup = {
+  id: number;
+  name: string;
+  clips: ClipperClip[];
+  /** Lifetime worth of the campaign's clips, paid and unpaid. */
+  earned: number;
+  /** Still to come: approved, above the floor, not yet paid. */
+  owed: number;
+  /** Already sent. */
+  paid: number;
+};
 
 export function groupByCampaign(clips: ClipperClip[]): ClipGroup[] {
   const groups = new Map<number, ClipGroup>();
   for (const clip of clips) {
     let group = groups.get(clip.campaign_id);
     if (!group) {
-      group = { id: clip.campaign_id, name: clip.campaign, clips: [], earned: 0 };
+      group = {
+        id: clip.campaign_id,
+        name: clip.campaign,
+        clips: [],
+        earned: 0,
+        owed: 0,
+        paid: 0,
+      };
       groups.set(clip.campaign_id, group);
     }
     group.clips.push(clip);
     group.earned += clip.worth;
+    if (clip.paid) group.paid += clip.worth;
+    else group.owed += clip.worth;
   }
-  // Biggest earner first: the campaign holding the most money is the one they
-  // opened this page to look at.
-  return [...groups.values()].sort((a, b) => b.earned - a.earned);
+  // Outstanding money first, then by size. What is still coming is the reason
+  // to open this page; settled campaigns are history and sort below it.
+  return [...groups.values()].sort(
+    (a, b) => Number(b.owed > 0) - Number(a.owed > 0) || b.owed - a.owed || b.earned - a.earned,
+  );
 }

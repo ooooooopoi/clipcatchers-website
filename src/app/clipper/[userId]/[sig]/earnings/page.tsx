@@ -57,30 +57,47 @@ export default async function EarningsPage({
                 Nothing yet. Submit a clip to a live campaign and it shows up here.
               </p>
             ) : (
-              <ul className="mt-4 space-y-2">
-                {groups.map((group) => {
-                  const paid = group.clips
-                    .filter((c) => c.paid)
-                    .reduce((sum, c) => sum + c.worth, 0);
-                  return (
-                    <li
-                      key={group.id}
-                      className="surface flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-border bg-card px-4 py-3.5"
-                    >
-                      <span className="min-w-0 flex-1 truncate font-medium">{group.name}</span>
+              // The right-hand figure is what is STILL OWED, never lifetime
+              // worth. Showing the total made a settled campaign look exactly
+              // like one that still owes money — same number, same weight — so
+              // money already sent read as money waiting.
+              <>
+                <ul className="mt-4 space-y-2">
+                {groups.map((group) => (
+                  <li
+                    key={group.id}
+                    className="surface flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-border bg-card px-4 py-3.5"
+                  >
+                    <span className="min-w-0 flex-1 truncate font-medium">{group.name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {group.clips.length} {group.clips.length === 1 ? "clip" : "clips"}
+                    </span>
+
+                    {group.paid > 0 ? (
                       <span className="text-xs text-muted-foreground">
-                        {group.clips.length} {group.clips.length === 1 ? "clip" : "clips"}
+                        {dollars(group.paid)} paid out
                       </span>
-                      <span className="text-xs text-muted-foreground">
-                        {dollars(paid)} paid
-                      </span>
+                    ) : null}
+
+                    {group.owed > 0 ? (
                       <span className="font-mono text-sm font-semibold text-primary-ink">
-                        {dollars(group.earned)}
+                        {dollars(group.owed)}
                       </span>
-                    </li>
-                  );
-                })}
-              </ul>
+                    ) : (
+                      // Nothing outstanding. A muted word rather than $0.00,
+                      // which in a column of money reads as "you earned nothing
+                      // here" instead of "this one is finished".
+                      <span className="text-xs font-medium text-success">settled</span>
+                    )}
+                  </li>
+                  ))}
+                </ul>
+
+                <p className="mt-3 text-xs text-muted-foreground/70">
+                  The figure on the right is what&apos;s still to come. Anything already sent
+                  shows as paid out and isn&apos;t counted again.
+                </p>
+              </>
             )}
           </section>
 
