@@ -11,9 +11,17 @@ const nextConfig: NextConfig = {
     // keeps its own copy, so a tile goes on rendering after the signature
     // behind it has lapsed. Served from several regional CDN hosts, hence the
     // wildcards.
+    //
+    // Campaign banners for the clipper dashboard's browse grid are Discord
+    // attachments, and those carry the same expiring `?ex=&is=&hm=` signature —
+    // dropping the query string 404s them, which has already caught someone on
+    // this codebase once. Same reasoning as above: the optimizer's own copy is
+    // what keeps the grid rendering after the signature lapses.
     remotePatterns: [
       { protocol: "https", hostname: "*.tiktokcdn.com" },
       { protocol: "https", hostname: "*.tiktokcdn-us.com" },
+      { protocol: "https", hostname: "cdn.discordapp.com" },
+      { protocol: "https", hostname: "media.discordapp.net" },
     ],
   },
   async redirects() {

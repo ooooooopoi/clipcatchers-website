@@ -375,3 +375,14 @@
     background: transparent;
   }
 }
+
+/* The clipper dashboard is the one dark surface on an otherwise white site.
+   The `dark` class on its shell re-points the variables for everything inside
+   it, but <body> is above that element and keeps the light --background, which
+   shows as a white band on overscroll and behind the mobile URL bar. This
+   reaches back up to darken it only on those routes. */
+body:has(.clipper-shell) {
+  background-color: hsl(222 47% 6%);
+  /* Makes the scrollbars and form controls the browser draws itself match. */
+  color-scheme: dark;
+}

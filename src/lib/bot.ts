@@ -100,6 +100,16 @@ export type BotCampaign = {
   min_views: number;
   /** 0 means uncapped. */
   max_views: number;
+  /**
+   * The campaign banner. A Discord attachment URL, so it carries an expiring
+   * signature and must be passed around whole — stripping the query string
+   * 404s it. Empty when no banner was set.
+   */
+  image_url: string;
+  /** Requirements and assets doc. Empty when there isn't one. */
+  brief_url: string;
+  /** Unix seconds, 0 when the campaign never closed. */
+  closed_at: number;
 };
 
 export function fetchCampaigns() {
