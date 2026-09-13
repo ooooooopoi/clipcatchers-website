@@ -103,6 +103,32 @@ export function fetchPayoutHistory(limit = 300) {
   return call<PayoutHistory>(`/api/payouts/history?limit=${limit}`);
 }
 
+export type PayoutWallet = {
+  /** False when the key, RPC or token address can't produce a usable wallet. */
+  ready: boolean;
+  /** Why not, when ready is false. Never contains the key. */
+  reason?: string;
+  address?: string;
+  chain_id?: number;
+  /** Native coin, for gas. */
+  native?: number;
+  /** USDT held. */
+  token?: number;
+  minimum_usd: number;
+  fee_percent: number;
+  gas_charged_to_clipper: boolean;
+  max_gas_share: number;
+  max_per_recipient: number;
+  max_per_run: number;
+  /** Non-empty when gas deduction is switched on but can't be priced. */
+  gas_config_warning: string;
+};
+
+/** The float wallet's state and the rules money leaves under. */
+export function fetchPayoutWallet() {
+  return call<PayoutWallet>("/api/payouts/wallet");
+}
+
 export function fetchPayouts(campaignId?: number, withAddress = false) {
   const params = new URLSearchParams();
   if (campaignId) params.set("campaign", String(campaignId));

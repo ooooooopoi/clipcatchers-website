@@ -14,7 +14,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { teamSignatureValid } from "@/lib/share";
-import { fetchCampaigns, fetchPayoutHistory, fetchPayouts, type PayoutHistory } from "@/lib/bot";
+import {
+  fetchCampaigns,
+  fetchPayoutHistory,
+  fetchPayoutWallet,
+  fetchPayouts,
+} from "@/lib/bot";
 import { formatCurrency, formatNumber } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Payouts", robots: { index: false, follow: false } };
@@ -35,7 +40,6 @@ export default async function PayoutsPage({
 
   let payouts;
   let campaigns: { id: number; name: string; active: number }[] = [];
-  let history: PayoutHistory | null = null;
   let error: string | null = null;
   try {
     [payouts, { campaigns }] = await Promise.all([
@@ -46,14 +50,13 @@ export default async function PayoutsPage({
     error = e instanceof Error ? e.message : "Couldn't reach the bot.";
   }
 
-  // Separately, and allowed to fail on its own: what has already been paid is
-  // worth seeing even when the owed figures can't be reached, and a history
-  // that 500s shouldn't take the page with it.
-  try {
-    history = await fetchPayoutHistory(200);
-  } catch {
-    history = null;
-  }
+  // Both fetched separately and allowed to fail on their own. What has been
+  // paid, and whether the wallet can pay anything, are worth seeing even when
+  // the owed figures can't be reached — and neither should take the page down.
+  const [history, wallet] = await Promise.all([
+    fetchPayoutHistory(400).catch(() => null),
+    fetchPayoutWallet().catch(() => null),
+  ]);
 
   // Same destination across accounts is worth seeing before money moves.
   const destinations = new Map<string, string[]>();
@@ -91,6 +94,139 @@ export default async function PayoutsPage({
           <p className="mt-6 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
             {error}
           </p>
+        )}
+
+        {/* ── The wallet money actually leaves from ─────────────────────
+            Put above the owed tables on purpose. "$2,014 owed" is not
+            actionable on its own — whether the float can cover it, and
+            whether there is gas to move it, decides whether any of the
+            buttons below will do anything. That was previously only
+            discoverable by a clipper pressing withdraw and being told no. */}
+        {wallet && (
+          <section className="mt-6">
+            <div
+              className={`surface rounded-2xl border bg-card ${
+                wallet.ready ? "border-border" : "border-warning/40"
+              }`}
+            >
+              <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border px-5 py-4">
+                <div className="min-w-0">
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                    Payout wallet
+                  </p>
+                  {wallet.ready && wallet.address ? (
+                    <a
+                      href={`https://etherscan.io/address/${wallet.address}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1 block truncate font-mono text-sm underline-offset-4 hover:underline"
+                    >
+                      {wallet.address}
+                    </a>
+                  ) : (
+                    <p className="mt-1 text-sm text-warning">
+                      {wallet.reason ?? "Not configured."}
+                    </p>
+                  )}
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${
+                    wallet.ready
+                      ? "bg-success/10 text-success"
+                      : "bg-warning/10 text-warning"
+                  }`}
+                >
+                  {wallet.ready ? "Ready to send" : "Can't send"}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 divide-x divide-border sm:grid-cols-4">
+                <WalletStat
+                  value={wallet.ready ? `$${(wallet.token ?? 0).toFixed(2)}` : "—"}
+                  label="USDT in wallet"
+                  tone={
+                    wallet.ready && (wallet.token ?? 0) <= 0 ? "warning" : undefined
+                  }
+                />
+                <WalletStat
+                  value={wallet.ready ? `${(wallet.native ?? 0).toFixed(4)} ETH` : "—"}
+                  label="for gas"
+                  tone={
+                    wallet.ready && (wallet.native ?? 0) <= 0 ? "warning" : undefined
+                  }
+                />
+                <WalletStat
+                  value={formatCurrency((payouts?.total_owed ?? 0) * 100)}
+                  label="currently owed"
+                />
+                <WalletStat
+                  value={
+                    wallet.ready
+                      ? formatCurrency(
+                          Math.max((wallet.token ?? 0) - (payouts?.total_owed ?? 0), 0) * 100,
+                        )
+                      : "—"
+                  }
+                  label="headroom after paying"
+                  tone={
+                    wallet.ready && (wallet.token ?? 0) < (payouts?.total_owed ?? 0)
+                      ? "warning"
+                      : undefined
+                  }
+                />
+              </div>
+
+              {/* The rules every payment obeys, stated once rather than
+                  rediscovered from a refusal message. */}
+              <div className="flex flex-wrap gap-x-5 gap-y-1 border-t border-border px-5 py-3 text-xs text-muted-foreground">
+                <span>
+                  Minimum <strong className="font-mono">${wallet.minimum_usd.toFixed(0)}</strong>
+                </span>
+                <span>
+                  Fee <strong className="font-mono">{wallet.fee_percent}%</strong>
+                </span>
+                <span>
+                  Gas{" "}
+                  <strong>
+                    {wallet.gas_charged_to_clipper ? "charged to clipper" : "absorbed by us"}
+                  </strong>
+                </span>
+                <span>
+                  Refused above{" "}
+                  <strong className="font-mono">
+                    {Math.round(wallet.max_gas_share * 100)}%
+                  </strong>{" "}
+                  gas
+                </span>
+                <span>
+                  Cap{" "}
+                  <strong className="font-mono">
+                    ${wallet.max_per_recipient.toFixed(0)}
+                  </strong>{" "}
+                  each ·{" "}
+                  <strong className="font-mono">${wallet.max_per_run.toFixed(0)}</strong> a run
+                </span>
+                {wallet.chain_id != null && (
+                  <span>
+                    Chain <strong>{wallet.chain_id === 1 ? "Ethereum" : wallet.chain_id}</strong>
+                  </span>
+                )}
+              </div>
+
+              {wallet.gas_config_warning && (
+                <p className="border-t border-warning/30 bg-warning/5 px-5 py-2.5 text-xs text-warning">
+                  {wallet.gas_config_warning}
+                </p>
+              )}
+
+              {wallet.ready && (wallet.token ?? 0) < (payouts?.total_owed ?? 0) && (
+                <p className="border-t border-warning/30 bg-warning/5 px-5 py-2.5 text-xs text-warning">
+                  The wallet holds less than is owed. Payouts will go out until it runs dry and
+                  then start failing — top it up before releasing more campaigns.
+                </p>
+              )}
+            </div>
+          </section>
         )}
 
         {payouts && (
@@ -310,6 +446,30 @@ export default async function PayoutsPage({
           Internal view — contains payout addresses. Don&apos;t share this link.
         </footer>
       </div>
+    </div>
+  );
+}
+
+function WalletStat({
+  value,
+  label,
+  tone,
+}: {
+  value: string;
+  label: string;
+  /** Warning when the figure is the reason a payout won't work. */
+  tone?: "warning";
+}) {
+  return (
+    <div className="px-4 py-4">
+      <p
+        className={`font-mono text-lg font-semibold tracking-tight ${
+          tone === "warning" ? "text-warning" : ""
+        }`}
+      >
+        {value}
+      </p>
+      <p className="mt-0.5 text-xs text-muted-foreground">{label}</p>
     </div>
   );
 }
