@@ -1,7 +1,32 @@
 import NextAuth from "next-auth";
+import { NextResponse } from "next/server";
 import { authConfig } from "@/auth.config";
 
-export default NextAuth(authConfig).auth;
+const { auth } = NextAuth(authConfig);
+
+/**
+ * Host-aware on top of the session gate: app.clipcatchers.net is the clipper
+ * app's front door, and its root shows the app launcher instead of the
+ * marketing homepage.
+ *
+ * A rewrite rather than a redirect, so the address bar keeps saying
+ * app.clipcatchers.net — that address IS the product to a clipper, and
+ * bouncing them to clipcatchers.net/app would teach them the wrong URL.
+ *
+ * Only `/` is special-cased. Every other path serves identically on either
+ * host, which keeps DM'd /clipper/... links working wherever they're opened
+ * and means nothing else needs to know the subdomain exists.
+ */
+export default auth((request) => {
+  const host = request.headers.get("host") ?? "";
+  const isAppHost = host === "app.clipcatchers.net" || host.startsWith("app.localhost");
+
+  if (isAppHost && request.nextUrl.pathname === "/") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/app";
+    return NextResponse.rewrite(url);
+  }
+});
 
 export const config = {
   // Pages only. API routes guard themselves via getSessionUser() so they can

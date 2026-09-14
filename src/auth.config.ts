@@ -2,6 +2,27 @@ import type { NextAuthConfig } from "next-auth";
 import "@/lib/env";
 
 /**
+ * Whether this deployment answers on clipcatchers.net — and therefore also on
+ * app.clipcatchers.net, which shares its sessions.
+ *
+ * Guarded rather than unconditional because a cookie domain that doesn't match
+ * the serving host is silently dropped by the browser: applying
+ * .clipcatchers.net on localhost or a vercel.app preview wouldn't degrade
+ * sign-in, it would delete it.
+ */
+const SHARED_COOKIE_DOMAIN = (process.env.AUTH_URL ?? "").includes("clipcatchers.net")
+  ? ".clipcatchers.net"
+  : undefined;
+
+const COOKIE_FLAGS = {
+  httpOnly: true,
+  sameSite: "lax",
+  path: "/",
+  secure: true,
+  domain: SHARED_COOKIE_DOMAIN,
+} as const;
+
+/**
  * Edge-safe half of the auth setup: no Prisma, no bcrypt. The middleware
  * imports this on its own; the full config in src/auth.ts adds the provider.
  */
@@ -10,6 +31,45 @@ export const authConfig = {
   session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 },
   pages: { signIn: "/login", error: "/login" },
   providers: [],
+
+  // ── One session across clipcatchers.net and app.clipcatchers.net ────────
+  // Every auth cookie is widened to the parent domain, not just the session:
+  // the OAuth dance starts on whichever host the clipper pressed the button
+  // on, but Discord only redirects back to the apex callback. The state and
+  // PKCE cookies written at the start must be readable at that callback, or
+  // a sign-in begun on the app subdomain dies there with a state mismatch —
+  // which looks like Discord being broken, not like a cookie scope.
+  //
+  // The CSRF cookie is renamed as well as widened: its default name carries
+  // the __Host- prefix, and browsers refuse to store a __Host- cookie that
+  // sets a Domain at all. Keeping the default name would again mean the
+  // cookie silently never exists.
+  ...(SHARED_COOKIE_DOMAIN
+    ? {
+        cookies: {
+          sessionToken: {
+            name: "__Secure-authjs.session-token",
+            options: COOKIE_FLAGS,
+          },
+          callbackUrl: {
+            name: "__Secure-authjs.callback-url",
+            options: { ...COOKIE_FLAGS, httpOnly: false },
+          },
+          csrfToken: {
+            name: "__Secure-authjs.csrf-token",
+            options: COOKIE_FLAGS,
+          },
+          state: {
+            name: "__Secure-authjs.state",
+            options: { ...COOKIE_FLAGS, maxAge: 900 },
+          },
+          pkceCodeVerifier: {
+            name: "__Secure-authjs.pkce.code_verifier",
+            options: { ...COOKIE_FLAGS, maxAge: 900 },
+          },
+        },
+      }
+    : {}),
   callbacks: {
     authorized({ auth, request }) {
       const signedIn = Boolean(auth?.user);
@@ -30,6 +90,13 @@ export const authConfig = {
       // the path is the credential, and the page checks it again before it
       // reads anything.
       if (pathname.startsWith("/clipper/")) return true;
+
+      // The app subdomain's front door — app.clipcatchers.net/ rewrites here.
+      // It has to be reachable signed out, since its whole job is to offer the
+      // sign-in. Exact match, not a prefix: startsWith("/app") would also
+      // open /apple-touch-icon and anything else that happens to share the
+      // letters.
+      if (pathname === "/app") return true;
 
       // ── The public marketing site ───────────────────────────────────────
       // Everything under / needs a session by default, so a marketing page
@@ -120,6 +187,35 @@ export const authConfig = {
         return true;
       }
       return signedIn;
+    },
+    /**
+     * Where a completed sign-in may land. The default allows the apex only,
+     * which would strand a sign-in that started on app.clipcatchers.net: the
+     * callback happens on the apex, and the return to the app subdomain is a
+     * cross-origin URL the default refuses — so the clipper who signed in on
+     * the app would be quietly delivered to the marketing site instead.
+     *
+     * Allowed: clipcatchers.net and its subdomains, https only. The check
+     * runs on URL-parsed hostnames rather than on the raw string, so a
+     * crafted value like https://clipcatchers.net.attacker.example can't
+     * pass by containing our name — its parsed hostname ends in
+     * .attacker.example, not .clipcatchers.net.
+     */
+    redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      try {
+        const target = new URL(url);
+        const home = new URL(baseUrl);
+        const ours =
+          target.hostname === home.hostname ||
+          target.hostname === "clipcatchers.net" ||
+          target.hostname.endsWith(".clipcatchers.net");
+        if (ours && target.protocol === "https:") return url;
+      } catch {
+        // Fall through to baseUrl — an unparseable callbackUrl is not a
+        // reason to break the sign-in that carried it.
+      }
+      return baseUrl;
     },
     jwt({ token, user, trigger, session }) {
       if (user) {
