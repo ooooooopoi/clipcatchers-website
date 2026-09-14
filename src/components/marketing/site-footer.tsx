@@ -73,9 +73,22 @@ const COLUMNS = [
 export function SiteFooter() {
   return (
     <footer className="relative z-10 border-t border-border bg-muted/30">
-      <div className="mx-auto w-full max-w-6xl px-5 py-14">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
-          <div>
+      <div className="mx-auto w-full max-w-6xl px-5 py-12 sm:py-14">
+        {/*
+          Two columns from the smallest screen up, not one.
+
+          Stacked single-file, the four blocks ran 1,015px — a screen and a
+          quarter of nothing but left-aligned links, which is the shape that
+          makes a footer feel like a sitemap dump you have to scroll past
+          rather than a place to find one thing. Pairing the link groups cuts
+          it to roughly one screen and gives the eye a second column to land
+          on, so the groups read as groups instead of one continuous list.
+        */}
+        <div className="grid grid-cols-2 gap-x-6 gap-y-9 sm:gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
+          {/* The brand block keeps the full width on mobile — the tagline is a
+              two-line sentence, and in a half-width column it breaks into six
+              ragged lines. */}
+          <div className="col-span-2 sm:col-span-1">
             <Link href="/" className="flex items-center gap-2.5">
               <BrandMark className="h-8 w-8" />
               <span className="text-sm font-semibold tracking-tight">Clip Catchers</span>
@@ -92,30 +105,59 @@ export function SiteFooter() {
             </Link>
           </div>
 
-          {COLUMNS.map((column) => (
-            <div key={column.heading}>
-              <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground/70">
-                {column.heading}
-              </p>
-              <ul className="mt-4 space-y-2.5">
-                {column.links.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {COLUMNS.map((column, i) => {
+            // An odd number of link groups leaves the last one alone in the
+            // left half of its row, with dead space beside it and the same
+            // left edge as the group above — which rebuilds the single-file
+            // line the two columns were meant to break. That one goes full
+            // width instead, and lays its links along the row.
+            //
+            // Derived from the count rather than matched on "Account", so a
+            // fourth group squares the grid off and this stops applying by
+            // itself.
+            const isOrphan = COLUMNS.length % 2 === 1 && i === COLUMNS.length - 1;
+            return (
+              <div key={column.heading} className={isOrphan ? "col-span-2 sm:col-span-1" : undefined}>
+                <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground/70">
+                  {column.heading}
+                </p>
+                {/* Roomier rows on mobile than on desktop: these are tap
+                    targets there, and 2.5 of spacing puts adjacent links
+                    inside each other's thumb. */}
+                <ul
+                  className={
+                    isOrphan
+                      ? "mt-4 flex flex-wrap gap-x-6 gap-y-3 sm:mt-4 sm:block sm:space-y-2.5"
+                      : "mt-4 space-y-3 sm:space-y-2.5"
+                  }
+                >
+                  {column.links.map((link) => (
+                    <li key={link.label}>
+                      <Link
+                        href={link.href}
+                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
         </div>
 
-        <div className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6 text-xs text-muted-foreground">
+        {/*
+          col-reverse on mobile, row on desktop. Left to itself, flex-wrap put
+          the copyright on its own line above the links — giving the least
+          useful line in the footer the most prominent position, and burying
+          Privacy and Terms at the very bottom of an already long scroll.
+          Reversing visually rather than reordering the markup keeps the
+          copyright last for anything reading the DOM.
+        */}
+        <div className="mt-10 flex flex-col-reverse gap-4 border-t border-border pt-6 text-xs text-muted-foreground sm:mt-12 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <span>© {new Date().getFullYear()} Clip Catchers. All rights reserved.</span>
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2.5">
             {/* No longer conditional. It was guarded on an environment
                 variable that was never set, so this link has never once
                 rendered — the one route a creator had from the footer was
