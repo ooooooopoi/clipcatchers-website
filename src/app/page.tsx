@@ -1,21 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Ban, Gauge, Phone, ReceiptText, ShieldCheck } from "lucide-react";
-import { AfterLaunch } from "@/components/marketing/after-launch";
 import { Clients } from "@/components/marketing/clients";
 import { ClipsWall } from "@/components/marketing/clips-wall";
-import { Comparison } from "@/components/marketing/comparison";
 import { OrganizationSchema } from "@/components/marketing/organization-schema";
-import { Control } from "@/components/marketing/control";
-import { HowItWorks } from "@/components/marketing/how-it-works";
-import { Industries } from "@/components/marketing/industries";
-import { Pricing } from "@/components/marketing/pricing";
 import { Proof } from "@/components/marketing/proof";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SiteHeader } from "@/components/marketing/site-header";
 import { StarField } from "@/components/marketing/star-field";
 import { Ticker } from "@/components/marketing/ticker";
-import { Verification } from "@/components/marketing/verification";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getSessionUser } from "@/lib/auth-helpers";
@@ -246,9 +239,9 @@ export default async function HomePage() {
         <Proof stats={stats} />
 
         {/* The brand/clipper mode switcher stood here. Its brand half repeated
-            the HowItWorks section a few blocks below — same four beats, same
-            page — and its clipper half is served by the "For creators" panel
-            further down, so removing it cost the page nothing it still says
+            the how-it-works beats (now on /how-it-works rather than this page)
+            and its clipper half is served by the "For creators" panel further
+            down, so removing it cost the page nothing it still says
             elsewhere. */}
 
         {/* The terms, running edge to edge. Still the only full-bleed *band*
@@ -278,36 +271,72 @@ export default async function HomePage() {
         </section>
 
         <Clients />
-        <HowItWorks />
 
-        {/* The mock client report used to sit here. It was built from a real
-            campaign's figures, but nobody could say whose — and a panel of
-            invented-looking numbers under a line promising every figure is
-            real was doing the opposite of its job. The claim it carried
-            ("a private link, no login") is made in the FAQ below and on
-            /results, both of which can point at something true. */}
+        {/* ── One topic, one page ───────────────────────────────────────
+            Seven full sections used to stack here — how it works,
+            comparison, verification, control, industries, pricing and the
+            after-launch timeline. Every one already had (or now has) its
+            own page saying the same thing at proper depth, so the homepage
+            was a second, shallower copy of the whole site that had to be
+            scrolled past to reach the ask.
 
-        <Comparison />
-        <Verification />
-        {/* Straight after verification on purpose. That section answers "is
-            the number real"; this one answers "and what stops the number
-            costing me more than I meant" — the same reader, one question
-            later. */}
-        <Control />
-
-        {/* The per-client results table stood here — seven rows of
-            "Undisclosed client" against a bar and a view count. It still
-            exists in full at /results, which both the nav and the footer link
-            to; it is off the homepage rather than gone. */}
-
-        <Industries />
-        <Pricing />
-
-        {/* Deliberately after the price. Everything above argues the case; the
-            last thing standing between a convinced reader and the form is
-            procedural — what the next week actually looks like — and it's
-            cheapest to answer immediately before the ask. */}
-        <AfterLaunch />
+            What replaces them is a door per topic, not a summary of one —
+            a summary is just the stack growing back. Pricing, control and
+            comparison live on /pricing; the process and verification on
+            /how-it-works; the first-week timeline on /launch; industries
+            on /use-cases. The homepage keeps what only it can do: the
+            proof (clips, ticker, clients) and the ask. */}
+        <section className="relative z-10 mx-auto w-full max-w-6xl px-5 py-16 sm:py-20">
+          <h2 className="display text-center text-2xl sm:text-4xl">
+            THE DETAIL, WHERE IT BELONGS
+          </h2>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                href: "/how-it-works",
+                title: "How it works",
+                body: "Brief to payout in six stages — including how every clip is checked and views are read off the live posts.",
+              },
+              {
+                href: "/pricing",
+                title: "Pricing",
+                body: `$${RATE_PER_THOUSAND.toFixed(2)} per 1,000 delivered views, and the controls that stop a budget running away.`,
+              },
+              {
+                href: "/results",
+                title: "Results",
+                body: "Every campaign we've run, with the delivered views behind each one.",
+              },
+              {
+                href: "/use-cases",
+                title: "Use cases",
+                body: "Music, apps, brands, creators — what clipping looks like for each.",
+              },
+              {
+                href: "/for-creators",
+                title: "For creators",
+                body: "Clip content you'd post anyway and earn per 1,000 views.",
+              },
+              {
+                href: "/launch",
+                title: "Launch a campaign",
+                body: "The brief form, and what the first week looks like after you press send.",
+              },
+            ].map((t) => (
+              <Link
+                key={t.href}
+                href={t.href}
+                className="surface group rounded-2xl border border-border bg-card p-6 transition-colors hover:border-primary/40"
+              >
+                <h3 className="display-sm flex items-center justify-between text-base">
+                  {t.title}
+                  <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t.body}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
 
         {/* For creators — deliberately one panel, deliberately late. They're
             the supply side and they arrive through Discord anyway; the top of

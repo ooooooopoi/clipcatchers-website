@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { BrandMark } from "@/components/brand";
+import { AfterLaunch } from "@/components/marketing/after-launch";
 import { LaunchPanel } from "@/components/launch-panel";
 import { StarField } from "@/components/marketing/star-field";
 import { RATE_PER_THOUSAND } from "@/lib/pricing";
@@ -112,6 +113,12 @@ export default async function QuotePage({
         <div className="mt-10">
           <LaunchPanel initialMode={initialMode} />
         </div>
+
+        {/* What the first week looks like, directly under the form it
+            describes. Lived on the homepage until it went one-topic-one-page;
+            here it answers the exact question someone hovering over "send"
+            actually has, instead of being scrolled past by everyone else. */}
+        <AfterLaunch />
 
         {/* "Already a client? Sign in to your dashboard" was here and has gone
             with the rest of the sign-in links. This is the page someone lands

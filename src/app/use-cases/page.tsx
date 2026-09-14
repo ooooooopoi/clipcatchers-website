@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { Industries } from "@/components/marketing/industries";
 import { PageShell } from "@/components/marketing/page-shell";
 import { USE_CASES } from "@/lib/use-cases";
 
@@ -76,6 +77,12 @@ export default function UseCasesPage() {
           — the model doesn&apos;t care what the category is.
         </p>
       </section>
+
+      {/* Moved here from the homepage when it went one-topic-one-page. It
+          answers the objection underneath this whole page — "what would
+          creators even post about us?" — so it belongs with the categories
+          rather than in a stack everyone scrolls past. */}
+      <Industries />
     </PageShell>
   );
 }
