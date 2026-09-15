@@ -168,7 +168,7 @@ export default async function HomePage() {
         <section className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-16 pt-14 text-center sm:pt-20">
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs text-muted-foreground shadow-[0_1px_2px_hsl(var(--foreground)/0.04)]">
             <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-            Performance-based creator distribution for brands
+            Performance-based creator distribution for brands and artists
           </span>
 
           {/* No coloured span. On a monochrome page emphasis comes from
