@@ -6,6 +6,7 @@ import { AfterLaunch } from "@/components/marketing/after-launch";
 import { LaunchPanel } from "@/components/launch-panel";
 import { StarField } from "@/components/marketing/star-field";
 import { RATE_PER_THOUSAND } from "@/lib/pricing";
+import { parseQuotePrefill } from "@/lib/quote-options";
 import { SITE_STATS } from "@/lib/site-stats";
 
 // Two forms on purpose. The <title> goes through the root layout's
@@ -48,6 +49,16 @@ const REASSURANCE = [
  * then noticing a switch. Anything other than "call" falls through to the
  * brief, so a mangled or truncated URL shows the form rather than an error.
  *
+ * ── Prefilled offers ────────────────────────────────────────────────────
+ * `?category=music&budget=1500&artist=Some+Label` opens the brief with those
+ * answers already given, so a figure agreed in a DM can be sent as a link
+ * instead of retyped into a form — and the reply that comes back carries the
+ * number that was actually discussed rather than a bracket around it.
+ *
+ * Everything is validated against the form's own option lists in
+ * lib/quote-options: an unrecognised value leaves the field unanswered rather
+ * than inventing an option, exactly as `mode` already does.
+ *
  * searchParams is a promise in Next 15, and reading it opts this page into
  * dynamic rendering. That's the cost of the deep link and it's a fair one:
  * this page has a form on it and nothing worth caching.
@@ -55,10 +66,16 @@ const REASSURANCE = [
 export default async function QuotePage({
   searchParams,
 }: {
-  searchParams: Promise<{ mode?: string }>;
+  searchParams: Promise<{
+    mode?: string;
+    category?: string;
+    budget?: string;
+    artist?: string;
+  }>;
 }) {
-  const { mode } = await searchParams;
+  const { mode, category, budget, artist } = await searchParams;
   const initialMode = mode === "call" ? "call" : "brief";
+  const prefill = parseQuotePrefill({ category, budget, artist });
 
   return (
     <div className="relative min-h-screen overflow-x-clip">
@@ -111,7 +128,7 @@ export default async function QuotePage({
         </div>
 
         <div className="mt-10">
-          <LaunchPanel initialMode={initialMode} />
+          <LaunchPanel initialMode={initialMode} prefill={prefill} />
         </div>
 
         {/* What the first week looks like, directly under the form it

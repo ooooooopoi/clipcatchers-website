@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { FileText, Phone } from "lucide-react";
 import { QuoteForm, type QuoteMode } from "@/components/quote-form";
+import type { QuotePrefill } from "@/lib/quote-options";
 import { cn } from "@/lib/utils";
 
 /**
@@ -41,7 +42,14 @@ const TABS = [
   },
 ];
 
-export function LaunchPanel({ initialMode = "brief" }: { initialMode?: QuoteMode }) {
+export function LaunchPanel({
+  initialMode = "brief",
+  prefill,
+}: {
+  initialMode?: QuoteMode;
+  /** Form defaults seeded from the URL, passed straight through. */
+  prefill?: QuotePrefill;
+}) {
   const [mode, setMode] = useState<QuoteMode>(initialMode);
 
   return (
@@ -100,7 +108,7 @@ export function LaunchPanel({ initialMode = "brief" }: { initialMode?: QuoteMode
         aria-labelledby={`launch-tab-${mode}`}
         className="mt-4"
       >
-        <QuoteForm mode={mode} />
+        <QuoteForm mode={mode} prefill={prefill} />
       </div>
     </div>
   );

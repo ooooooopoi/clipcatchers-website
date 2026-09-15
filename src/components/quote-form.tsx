@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowRight, Check, Loader2, Phone } from "lucide-react";
 import { ChoiceChips } from "@/components/ui/choice-chips";
 import { Button } from "@/components/ui/button";
+import { BUDGETS, CATEGORIES, type QuotePrefill } from "@/lib/quote-options";
 import { cn } from "@/lib/utils";
 
 /**
@@ -36,19 +37,9 @@ import { cn } from "@/lib/utils";
  */
 export type QuoteMode = "brief" | "call";
 
-const BUDGETS = ["Under $500", "$500 – $1,000", "$1,000 – $5,000", "$5,000+", "Not sure yet"];
-
-const CATEGORIES = [
-  "Music / label",
-  "Gaming",
-  "App",
-  "Crypto / web3",
-  "iGaming / casino",
-  "Podcast",
-  "Consumer brand",
-  "Startup / SaaS",
-  "Something else",
-];
+// CATEGORIES and BUDGETS now live in lib/quote-options, so the server
+// component behind /launch can validate a ?category=/?budget= prefill against
+// the same lists this form renders.
 
 /**
  * When they'd like the call.
@@ -61,10 +52,18 @@ const CATEGORIES = [
  */
 const WINDOWS = ["As soon as possible", "This week", "Next week", "No rush"];
 
-export function QuoteForm({ mode = "brief" }: { mode?: QuoteMode }) {
+export function QuoteForm({
+  mode = "brief",
+  prefill,
+}: {
+  mode?: QuoteMode;
+  /** Defaults seeded from the URL. See lib/quote-options. */
+  prefill?: QuotePrefill;
+}) {
   const [state, setState] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
   const call = mode === "call";
+  const budgetOptions = prefill?.budgetOptions ?? BUDGETS;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -140,7 +139,12 @@ export function QuoteForm({ mode = "brief" }: { mode?: QuoteMode }) {
           placeholder="you@company.com"
           invalidMessage="That doesn't look like an email address yet."
         />
-        <TextField label="Brand, artist or company" name="artist" placeholder="Optional" />
+        <TextField
+          label="Brand, artist or company"
+          name="artist"
+          placeholder="Optional"
+          defaultValue={prefill?.artist}
+        />
         {/* Explicit keys, and they matter. These two occupy the same slot, so
             without them React reconciles one into the other and keeps the DOM
             node — meaning a release date typed in brief mode would still be
@@ -173,14 +177,17 @@ export function QuoteForm({ mode = "brief" }: { mode?: QuoteMode }) {
           name="category"
           label="What are you promoting?"
           options={CATEGORIES}
+          defaultValue={prefill?.category}
           hint="Pick the closest"
         />
 
         <ChoiceChips
           name="budget"
           label="Rough budget"
-          options={BUDGETS}
-          hint="Only so the first reply is realistic"
+          options={budgetOptions}
+          defaultValue={prefill?.budget}
+          // An exact figure means this was quoted, not guessed at.
+          hint={prefill?.budget && budgetOptions !== BUDGETS ? "Change it if it's moved" : "Only so the first reply is realistic"}
         />
 
         {call && (
@@ -278,6 +285,7 @@ function TextField({
   placeholder,
   autoComplete,
   invalidMessage,
+  defaultValue,
   className,
 }: {
   label: string;
@@ -287,9 +295,15 @@ function TextField({
   placeholder?: string;
   autoComplete?: string;
   invalidMessage?: string;
+  defaultValue?: string;
   className?: string;
 }) {
-  const [status, setStatus] = useState<"empty" | "ok" | "bad">("empty");
+  // Seeded, not "empty", when the field arrives prefilled — otherwise the
+  // green tick that marks a valid answer stays off until the visitor touches
+  // a field that was already correct when they got here.
+  const [status, setStatus] = useState<"empty" | "ok" | "bad">(
+    defaultValue?.trim() ? "ok" : "empty",
+  );
   const [touched, setTouched] = useState(false);
 
   const check = (el: HTMLInputElement) => {
@@ -314,6 +328,7 @@ function TextField({
           required={required}
           placeholder={placeholder}
           autoComplete={autoComplete}
+          defaultValue={defaultValue}
           aria-invalid={showBad || undefined}
           aria-describedby={showBad && invalidMessage ? `${name}-error` : undefined}
           onBlur={(e) => {
