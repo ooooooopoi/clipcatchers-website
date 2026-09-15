@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { BadgeDollarSign, Check, Loader2, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { STANDARD_CLIPPER_RATE, STANDARD_CLIPPER_RATE_LABEL } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 
 /**
@@ -49,8 +50,12 @@ export function NewCampaignForm({ sig }: { sig: string }) {
     const form = new FormData(e.currentTarget);
     const payload = {
       name: String(form.get("name") ?? ""),
-      rate_amount: Number(form.get("rate_amount") ?? 0),
-      rate_per_views: perViews,
+      // Organic has no rate input, so the standard is sent explicitly rather
+      // than left to the form. Reading the missing field would give 0, which
+      // the API correctly refuses — the campaign would simply fail to open,
+      // with an error about a field the person never saw.
+      rate_amount: paidAds ? Number(form.get("rate_amount") ?? 0) : STANDARD_CLIPPER_RATE.amount,
+      rate_per_views: paidAds ? perViews : STANDARD_CLIPPER_RATE.perViews,
       min_views: Number(form.get("min_views") ?? 0),
       max_views: Number(form.get("max_views") ?? 0),
       budget: Number(form.get("budget") ?? 0),
@@ -165,30 +170,58 @@ export function NewCampaignForm({ sig }: { sig: string }) {
         <Field label="Artist or brand" name="artist" placeholder="Shown on the card" />
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-[160px_1fr]">
-        <Field
-          label="Rate ($)"
-          name="rate_amount"
-          type="number"
-          step="0.01"
-          min="0.01"
-          required
-          placeholder="25"
-        />
-        <div>
-          <span className="text-sm font-medium">Per</span>
-          <div className="mt-2 flex gap-2">
-            {PER_VIEWS.map((o) => (
-              <Chip
-                key={o.value}
-                active={perViews === o.value}
-                onClick={() => setPerViews(o.value)}
-                label={o.label}
-              />
-            ))}
+      {/*
+        The rate is only asked for on paid ads.
+
+        Organic campaigns nearly all run at the same number, and re-typing it
+        every time is how a campaign ends up at $1 or $100 per 100K from a
+        slipped keystroke — a rate is the one field where a typo is money
+        rather than cosmetics. Paid ads have no such default: the rate there
+        is negotiated against what the clipper is expected to spend, so it has
+        to be entered deliberately every time.
+
+        The standard is still shown rather than hidden. A form that silently
+        decides what a campaign pays is worse than one that asks, so it says
+        the figure and where to change it.
+      */}
+      {paidAds ? (
+        <div className="grid gap-5 sm:grid-cols-[160px_1fr]">
+          <Field
+            label="Rate ($)"
+            name="rate_amount"
+            type="number"
+            step="0.01"
+            min="0.01"
+            required
+            placeholder="25"
+          />
+          <div>
+            <span className="text-sm font-medium">Per</span>
+            <div className="mt-2 flex gap-2">
+              {PER_VIEWS.map((o) => (
+                <Chip
+                  key={o.value}
+                  active={perViews === o.value}
+                  onClick={() => setPerViews(o.value)}
+                  label={o.label}
+                />
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="rounded-lg border border-border bg-card px-4 py-3">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <span className="text-sm font-medium">Rate</span>
+            <span className="font-mono text-sm">{STANDARD_CLIPPER_RATE_LABEL}</span>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            The standard organic rate. To run this one at something else, open it and
+            change the rate with{" "}
+            <code className="font-mono">/campaign-edit</code>.
+          </p>
+        </div>
+      )}
 
       <div className="grid gap-5 sm:grid-cols-3">
         <Field

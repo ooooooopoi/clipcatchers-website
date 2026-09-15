@@ -19,6 +19,27 @@ export const RATE_PER_THOUSAND = 0.5;
 export const RATE_LABEL = `$${RATE_PER_THOUSAND.toFixed(2)}`;
 
 /**
+ * What an organic campaign pays a clipper, by default.
+ *
+ * ── Not the same number as RATE_PER_THOUSAND, and never interchangeable ──
+ * RATE_PER_THOUSAND is what a *client* pays us. This is what we pay a
+ * *clipper*. Confusing them in either direction is a five-fold error on real
+ * money — quoting a client $0.10 or paying a clipper $0.50 — so they are
+ * named for who pays rather than for being rates.
+ *
+ * Derived from what campaigns actually run at rather than chosen: $10 per
+ * 100,000 is the modal rate across the live set, with $10.50 close behind.
+ * Anything unusual is still set per campaign with /campaign-edit; this is
+ * only the value an organic campaign opens with when nobody says otherwise.
+ */
+export const STANDARD_CLIPPER_RATE = { amount: 10, perViews: 100_000 } as const;
+
+/** "$10 / 100K views" — the standard rate written the way campaigns quote it. */
+export const STANDARD_CLIPPER_RATE_LABEL = `$${STANDARD_CLIPPER_RATE.amount} / ${
+  STANDARD_CLIPPER_RATE.perViews / 1000
+}K views`;
+
+/**
  * What a budget should deliver at the published rate.
  *
  * Rounded down to the nearest 10,000 so the figure never reads as a promise
