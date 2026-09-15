@@ -14,7 +14,9 @@ import {
 import { cn } from "@/lib/utils";
 
 /**
- * The front door, for a product whose median campaign is $900.
+ * The front door. The budget brackets now start at a $1,000 minimum — the
+ * "median campaign is $900" this was originally written around is history,
+ * and the floor is stated on the form rather than discovered in the reply.
  *
  * Only a name and an email are required. Everything else is context that
  * makes the first reply useful, and asking for it as a requirement costs more

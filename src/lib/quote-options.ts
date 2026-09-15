@@ -8,11 +8,28 @@
  * send a value no one downstream recognises.
  */
 
+/**
+ * Budget brackets, starting at the floor rather than below it.
+ *
+ * The first option used to be "Under $500" and the top one "$5,000+", which
+ * invited enquiries beneath what we take and then flattened everything
+ * serious into one bucket. Leading with the minimum does the qualifying on
+ * the form instead of in the first reply, and the upper brackets separate
+ * budgets that want quite different answers.
+ *
+ * Boundaries don't overlap: a number belongs to exactly one bracket, so two
+ * people with the same budget can't pick differently.
+ */
 export const BUDGETS = [
-  "Under $500",
-  "$500 – $1,000",
-  "$1,000 – $5,000",
-  "$5,000+",
+  "$1,000 minimum",
+  "$1,001 – $5,000",
+  "$5,001 – $10,000",
+  "$10,001 – $15,000",
+  "$15,000+",
+  // Kept, though it isn't a figure. The field is optional, so someone who
+  // doesn't know can already skip it — but a stated "not sure" is a different
+  // signal from silence, and it's the answer that stops someone guessing a
+  // bracket and making the first reply wrong.
   "Not sure yet",
 ] as const;
 
@@ -61,14 +78,14 @@ function matchOption(
  * Whether the value was *meant* as an amount, whether or not it is a valid one.
  *
  * Digits, currency punctuation and a leading sign — but no letters and no
- * dashes between numbers, so the bracket labels ("Under $500",
- * "$1,000 – $5,000") are not caught by it.
+ * dashes between numbers, so the bracket labels ("$1,000 minimum",
+ * "$1,001 – $5,000") are not caught by it.
  *
  * This exists to stop a rejected amount falling through to the bracket
  * matcher. `?budget=-500` failed parseAmount, then squash() dropped the minus
- * and "500" prefix-matched "$500 – $1,000" — so a nonsense link quietly
- * preselected a real budget. A value aimed at the number field and refused
- * there must end as no answer, not as a different answer.
+ * and "500" prefix-matched a real bracket — so a nonsense link quietly
+ * preselected a budget nobody chose. A value aimed at the number field and
+ * refused there must end as no answer, not as a different answer.
  */
 const AMOUNT_ISH = /^[-+]?[$\s]*\d[\d,.\s]*$/;
 
