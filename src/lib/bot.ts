@@ -165,6 +165,26 @@ export type BotCampaign = {
   brief_url: string;
   /** Unix seconds, 0 when the campaign never closed. */
   closed_at: number;
+  /**
+   * 1 when the campaign pays for boosted/paid placement instead of organic
+   * posting. It decides which of the clipper's two boards the campaign shows
+   * on, and the boards are separate because the work is: an organic rate
+   * assumes a clip earned its own views, and paying that rate to someone who
+   * bought them — or the reverse — is wrong in both directions.
+   *
+   * Optional because the bot only began sending it with the Ads section. A
+   * moment where the site is ahead of the bot reads undefined and treats the
+   * campaign as organic, which is what every campaign was before this.
+   */
+  paid_ads?: number;
+  /** Free-text section shown on the card. */
+  details?: string;
+  /**
+   * Rules and requirements. On a paid-ads campaign this is the half that says
+   * what you are expected to spend, so it is load-bearing there rather than
+   * decorative.
+   */
+  rules?: string;
 };
 
 export function fetchCampaigns() {

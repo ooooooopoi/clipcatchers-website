@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BadgeDollarSign,
   Banknote,
   CircleHelp,
   Clapperboard,
@@ -28,6 +29,10 @@ import {
  */
 const SECTIONS = [
   { href: "", label: "Campaigns", icon: Megaphone },
+  // Paid placement, deliberately next to Campaigns rather than further down:
+  // it is the other half of the same question ("what can I cut?"), and the
+  // two boards only work as a pair if finding one means finding the other.
+  { href: "/ads", label: "Ads", icon: BadgeDollarSign },
   { href: "/clips", label: "Clips", icon: Clapperboard },
   { href: "/marketplace", label: "Marketplace", icon: Store, soon: true },
   { href: "/accounts", label: "Accounts", icon: UserRound },

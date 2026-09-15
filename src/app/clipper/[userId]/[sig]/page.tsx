@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { BadgeDollarSign } from "lucide-react";
 import { CampaignCard } from "@/components/clipper/campaign-card";
 import { CampaignFilter, type CampaignType } from "@/components/clipper/campaign-filter";
 import { BotOffline, PageHeading } from "@/components/clipper/chrome";
-import { loadClipper } from "@/lib/clipper-data";
+import { isPaidAds, loadClipper } from "@/lib/clipper-data";
 
 export const metadata: Metadata = { title: "Campaigns" };
 
@@ -26,7 +27,14 @@ export default async function CampaignsPage({
   const { campaigns, offline } = await loadClipper(userId, sig);
   const base = `/clipper/${encodeURIComponent(userId)}/${sig}`;
 
-  const shown = campaigns
+  // Paid-ad campaigns live on their own board. Excluded here rather than
+  // merely sorted lower, because their rates assume money is going behind the
+  // clip — listed beside organic ones, the higher number reads as the better
+  // deal to someone who has no intention of spending, and they are underpaid
+  // for the work they actually do.
+  const organic = campaigns.filter((c) => !isPaidAds(c));
+
+  const shown = organic
     .filter((c) =>
       filter === "all" ? true : filter === "active" ? c.active : !c.active,
     )
@@ -34,7 +42,8 @@ export default async function CampaignsPage({
     // to cut wants what is open; the ended ones are here to look back at.
     .sort((a, b) => Number(b.active) - Number(a.active) || b.id - a.id);
 
-  const active = campaigns.filter((c) => c.active);
+  const active = organic.filter((c) => c.active);
+  const liveAds = campaigns.filter((c) => isPaidAds(c) && c.active).length;
 
   return (
     <>
@@ -45,6 +54,25 @@ export default async function CampaignsPage({
         />
         {!offline ? <CampaignFilter value={filter} base={base} /> : null}
       </div>
+
+      {/* Moving these onto their own board hides them from the page everyone
+          opens first, so the page has to point at them — otherwise the
+          separation costs the campaigns their audience. Only when some are
+          live; a line advertising an empty board is worse than no line. */}
+      {!offline && liveAds > 0 ? (
+        <a
+          href={`${base}/ads`}
+          className="mt-6 flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-3 text-sm transition-colors hover:border-[hsl(var(--border-strong))]"
+        >
+          <BadgeDollarSign className="h-4 w-4 shrink-0 text-primary-ink" aria-hidden="true" />
+          <span>
+            <strong className="font-medium">{liveAds}</strong> paid-ad{" "}
+            {liveAds === 1 ? "campaign is" : "campaigns are"} open — these pay for boosted
+            placement.
+          </span>
+          <span className="ml-auto shrink-0 text-primary-ink">View →</span>
+        </a>
+      ) : null}
 
       {offline ? (
         <BotOffline />

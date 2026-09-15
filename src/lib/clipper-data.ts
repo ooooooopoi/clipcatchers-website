@@ -73,6 +73,22 @@ export function rateLabel(c: Pick<BotCampaign, "rate_amount" | "rate_per_views">
   return `$${c.rate_amount} / ${compact(c.rate_per_views)} views`;
 }
 
+/**
+ * Whether a campaign belongs on the Ads board rather than Campaigns.
+ *
+ * One predicate, used by both pages, because the two boards must partition
+ * the list rather than each filter it. Two separate conditions would
+ * eventually disagree, and the way that shows up is a campaign appearing on
+ * both boards — or, worse, on neither, which nobody reports because there is
+ * nothing on screen to report.
+ *
+ * Undefined counts as organic: the flag is newer than the campaigns, and a
+ * bot that hasn't been redeployed yet sends nothing here.
+ */
+export function isPaidAds(c: Pick<BotCampaign, "paid_ads">): boolean {
+  return Number(c.paid_ads ?? 0) === 1;
+}
+
 export const STATUS_TONE: Record<string, string> = {
   approved: "border-success/30 bg-success/10 text-success",
   pending: "border-warning/30 bg-warning/10 text-warning",
