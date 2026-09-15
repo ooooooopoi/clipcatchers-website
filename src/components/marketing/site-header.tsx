@@ -85,11 +85,12 @@ export function SiteHeader({
             : "border border-border/60 bg-card/70 backdrop-blur-md",
         )}
       >
-        {/* The name on its own. The icon tile sat to its left and the two were
-            saying the same thing twice in a bar with room for neither.
-            Dropping it also freed the ~50px that made this bar overflow at
-            320px. */}
-        <Link href="/" className="flex shrink-0 items-center">
+        {/* Mark and name together. The tile was dropped once for overflowing
+            this bar at 320px, so it returns on a condition: hidden below
+            360px, where the wordmark needs every pixel of the row, and drawn
+            everywhere both fit. */}
+        <Link href="/" className="flex shrink-0 items-center gap-2.5">
+          <BrandMark className="hidden h-8 w-8 min-[360px]:block sm:h-9 sm:w-9" />
           <span className="wordmark whitespace-nowrap text-base min-[360px]:text-lg sm:text-2xl">
             Clip Catchers
           </span>
