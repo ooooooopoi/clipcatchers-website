@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import { BrandWordmark } from "@/components/brand";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -85,10 +85,21 @@ export default async function TeamCampaignsPage({
           Everything
         </Link>
 
-        <h1 className="mt-3 text-2xl font-semibold tracking-tight">Campaigns</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Every campaign, live and closed, with what it has spent.
-        </p>
+        <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Campaigns</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Every campaign, live and closed, with what it has spent.
+            </p>
+          </div>
+          <Link
+            href={`/team/${sig}/campaigns/new`}
+            className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-foreground px-4 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
+          >
+            <Plus className="h-4 w-4" />
+            New campaign
+          </Link>
+        </div>
 
         {error && (
           <p className="mt-6 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">

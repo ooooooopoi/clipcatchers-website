@@ -191,6 +191,37 @@ export function fetchCampaigns() {
   return call<{ campaigns: BotCampaign[] }>("/api/campaigns");
 }
 
+/**
+ * What the team dashboard can set when opening a campaign.
+ *
+ * A subset of the columns on purpose — board_message_id and the payout flags
+ * are written by the bot as things happen, and a form that could set them
+ * would be a form that can lie about what has already occurred.
+ */
+export type NewCampaign = {
+  name: string;
+  rate_amount: number;
+  rate_per_views: number;
+  min_views?: number;
+  max_views?: number;
+  budget?: number;
+  category?: string;
+  platform?: string;
+  artist?: string;
+  brief_url?: string;
+  image_url?: string;
+  details?: string;
+  rules?: string;
+  paid_ads?: boolean;
+};
+
+export function createCampaign(campaign: NewCampaign) {
+  return call<{ created: number; campaign: BotCampaign }>("/api/campaigns", {
+    method: "POST",
+    body: JSON.stringify(campaign),
+  });
+}
+
 export function markPaid(userId: string, campaignId?: number, paid = true) {
   return call<{ clips_marked: number; amount: number }>("/api/payouts/mark-paid", {
     method: "POST",
