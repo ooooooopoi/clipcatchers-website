@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { FileText, Phone } from "lucide-react";
 import { QuoteForm, type QuoteMode } from "@/components/quote-form";
-import { BookingEmbed } from "@/components/marketing/booking-embed";
 import { bookingUrl } from "@/lib/booking";
 import type { QuotePrefill } from "@/lib/quote-options";
 import { cn } from "@/lib/utils";
@@ -53,7 +52,6 @@ export function LaunchPanel({
   prefill?: QuotePrefill;
 }) {
   const [mode, setMode] = useState<QuoteMode>(initialMode);
-  const call = mode === "call";
   const booking = bookingUrl();
 
   return (
@@ -68,15 +66,26 @@ export function LaunchPanel({
       >
         {TABS.map((tab) => {
           const active = mode === tab.mode;
+          // With a scheduler configured, "Book a call" leaves for it rather
+          // than switching a panel underneath. The header link redirects
+          // there already; a tab that instead revealed a form would make the
+          // same words do two different things depending on where they were
+          // pressed. An anchor, not a router push — the calendar is not ours.
+          const leaves = tab.mode === "call" && Boolean(booking);
+          const Tag = leaves ? "a" : "button";
           return (
-            <button
+            <Tag
               key={tab.mode}
-              type="button"
-              role="tab"
+              {...(leaves
+                ? { href: booking as string }
+                : {
+                    type: "button" as const,
+                    role: "tab",
+                    "aria-selected": active,
+                    "aria-controls": "launch-panel",
+                    onClick: () => setMode(tab.mode),
+                  })}
               id={`launch-tab-${tab.mode}`}
-              aria-selected={active}
-              aria-controls="launch-panel"
-              onClick={() => setMode(tab.mode)}
               className={cn(
                 "flex flex-col items-start gap-1 rounded-xl px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card sm:px-5",
                 // Filled near-black when selected, matching the chips inside
@@ -101,7 +110,7 @@ export function LaunchPanel({
               >
                 {tab.blurb}
               </span>
-            </button>
+            </Tag>
           );
         })}
       </div>
@@ -112,31 +121,14 @@ export function LaunchPanel({
         aria-labelledby={`launch-tab-${mode}`}
         className="mt-4"
       >
-        {/* The scheduler first, when there is one: it confirms a slot on the
-            spot, which is the whole reason someone picked this tab over the
-            brief. The form stays underneath rather than being replaced — a
-            booking flow whose only answer is "none of these times work" is a
-            dead end, and the person who hits it is the one still trying. */}
-        {call && booking ? (
-          <>
-            <BookingEmbed url={booking} />
-            <details className="group mt-5">
-              <summary className="cursor-pointer list-none text-sm text-muted-foreground transition-colors hover:text-foreground">
-                <span className="underline decoration-border underline-offset-4 group-open:hidden">
-                  None of those times work? Ask for another →
-                </span>
-                <span className="hidden underline decoration-border underline-offset-4 group-open:inline">
-                  Hide the request form
-                </span>
-              </summary>
-              <div className="mt-4">
-                <QuoteForm mode={mode} prefill={prefill} />
-              </div>
-            </details>
-          </>
-        ) : (
-          <QuoteForm mode={mode} prefill={prefill} />
-        )}
+        {/* No embed branch here any more. With a scheduler configured, call
+            mode never reaches this panel: /launch?mode=call redirects before
+            rendering, and the tab above is an anchor that leaves. Without one,
+            `booking` is null and the branch was false anyway — so it was
+            unreachable in both directions and only looked like a third
+            behaviour. The scheduler asks its own questions now; this form is
+            the written brief. */}
+        <QuoteForm mode={mode} prefill={prefill} />
       </div>
     </div>
   );

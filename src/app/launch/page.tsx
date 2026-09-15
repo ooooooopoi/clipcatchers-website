@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { BrandMark } from "@/components/brand";
 import { AfterLaunch } from "@/components/marketing/after-launch";
@@ -7,6 +8,7 @@ import { LaunchPanel } from "@/components/launch-panel";
 import { StarField } from "@/components/marketing/star-field";
 import { RATE_PER_THOUSAND } from "@/lib/pricing";
 import { parseQuotePrefill } from "@/lib/quote-options";
+import { bookingUrl } from "@/lib/booking";
 import { SITE_STATS } from "@/lib/site-stats";
 
 // Two forms on purpose. The <title> goes through the root layout's
@@ -76,6 +78,23 @@ export default async function QuotePage({
   const { mode, category, budget, artist } = await searchParams;
   const initialMode = mode === "call" ? "call" : "brief";
   const prefill = parseQuotePrefill({ category, budget, artist });
+
+  // ── "Book a call" goes to the calendar, not to a form about the calendar ──
+  // Six places link here with ?mode=call — header, footer, homepage twice,
+  // page shell, and DMs. Redirecting the route rather than editing the links
+  // means one decision, and every link already sent still lands in the right
+  // place.
+  //
+  // The questions move into the scheduler's own booking form, where they are
+  // answered by someone who has already picked a time. Asking them here
+  // first put a nine-field gate in front of the thing they clicked, and the
+  // reply still had to negotiate a slot afterwards.
+  //
+  // Automatic fallback: with no NEXT_PUBLIC_BOOKING_URL this is skipped and
+  // the request-a-time form serves as before, so unsetting the variable
+  // restores the old behaviour without a deploy.
+  const booking = bookingUrl();
+  if (initialMode === "call" && booking) redirect(booking);
 
   return (
     <div className="relative min-h-screen overflow-x-clip">
