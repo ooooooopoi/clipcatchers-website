@@ -1,10 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, Check, Loader2, Phone } from "lucide-react";
 import { ChoiceChips } from "@/components/ui/choice-chips";
 import { Button } from "@/components/ui/button";
 import { BUDGETS, CATEGORIES, type QuotePrefill } from "@/lib/quote-options";
+import {
+  CALL_TIMES,
+  composeCallWindow,
+  localTimezoneLabel,
+  todayISO,
+} from "@/lib/booking";
 import { cn } from "@/lib/utils";
 
 /**
@@ -44,13 +50,20 @@ export type QuoteMode = "brief" | "call";
 /**
  * When they'd like the call.
  *
- * Not a date picker and not a calendar embed. We don't publish a live
- * availability feed, so a picker would be offering slots we can't promise —
- * and the honest version of "when suits you" at this scale is a rough window
- * that a human confirms by reply. Four coarse answers is all the precision
- * that is actually being acted on.
+ * ── This used to be four chips, and the reasoning has changed ───────────
+ * It was "as soon as possible / this week / next week / no rush", argued for
+ * on the grounds that we don't publish availability so a picker would offer
+ * slots we can't promise. That holds for a picker we build. It does not hold
+ * once a real scheduler is embedded above this, because that one owns the
+ * calendar it is offering.
+ *
+ * So this is now the fallback rather than the whole answer: a real date and a
+ * time of day for the person who opened every slot and found none of them
+ * work. It still promises nothing — the copy says we confirm by reply — but
+ * "Tue 22 Sep, afternoon" is something a human can act on in one message,
+ * where "this week" always cost two.
  */
-const WINDOWS = ["As soon as possible", "This week", "Next week", "No rush"];
+const CALL_DAY_PARTS = CALL_TIMES;
 
 export function QuoteForm({
   mode = "brief",
@@ -70,7 +83,24 @@ export function QuoteForm({
     setError(null);
     setState("sending");
     const form = new FormData(e.currentTarget);
-    const payload = { ...Object.fromEntries(form.entries()), mode };
+    const fields = Object.fromEntries(form.entries());
+
+    // The date, the time of day and the timezone collapse into the one
+    // `callWindow` string the API and the bot already understand, so asking
+    // for a specific day costs no new field anywhere downstream. Composed
+    // here rather than in an effect because the timezone is browser-only —
+    // reading it during render would be a hydration mismatch.
+    if (call) {
+      fields.callWindow = composeCallWindow({
+        date: String(fields.callDate ?? ""),
+        time: String(fields.callTime ?? ""),
+        timezone: localTimezoneLabel(),
+      });
+      delete fields.callDate;
+      delete fields.callTime;
+    }
+
+    const payload = { ...fields, mode };
     try {
       const res = await fetch("/api/quote", {
         method: "POST",
@@ -191,12 +221,33 @@ export function QuoteForm({
         />
 
         {call && (
-          <ChoiceChips
-            name="callWindow"
-            label="When suits you?"
-            options={WINDOWS}
-            defaultValue="This week"
-          />
+          <div className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-[minmax(0,220px)_1fr] sm:items-start">
+              <div className="min-w-0">
+                <label htmlFor="callDate" className="text-sm font-medium">
+                  Preferred day
+                </label>
+                <input
+                  id="callDate"
+                  name="callDate"
+                  type="date"
+                  // Today, not tomorrow — someone asking at 9am may well mean
+                  // this afternoon, and a min of tomorrow silently refuses
+                  // the most urgent request the form receives.
+                  min={todayISO()}
+                  className="mt-2 h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none transition-colors hover:border-[hsl(var(--border-strong))] focus-visible:border-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                />
+              </div>
+              <ChoiceChips
+                name="callTime"
+                label="Time of day"
+                options={CALL_DAY_PARTS}
+                defaultValue="Any time"
+                className="min-w-0"
+              />
+            </div>
+            <TimezoneNote />
+          </div>
         )}
       </div>
 
@@ -277,6 +328,33 @@ export function QuoteForm({
  * field is left, and from then on it re-checks as they type, which is what
  * makes the error disappear the moment it's actually fixed.
  */
+/**
+ * "Times in GMT+3 — we'll confirm by reply."
+ *
+ * Says two things that are each worth a line. The timezone, because a day and
+ * a time of day mean nothing without one and asking for it is a field nobody
+ * wants to fill in. And that this is a request, not a booking — the scheduler
+ * above confirms instantly and this doesn't, so the difference has to be
+ * written down or the person who used the fallback is left waiting for an
+ * invite that was never coming.
+ *
+ * Rendered only after mount: the offset is browser-only, and reading it
+ * during SSR would both report the server's timezone and mismatch on
+ * hydration. Until then it renders the sentence without the zone rather than
+ * nothing, so the layout doesn't jump.
+ */
+function TimezoneNote() {
+  const [zone, setZone] = useState<string | null>(null);
+  useEffect(() => setZone(localTimezoneLabel()), []);
+
+  return (
+    <p className="text-xs text-muted-foreground">
+      {zone ? `Times in ${zone}. ` : ""}
+      We&apos;ll confirm by reply within a working day.
+    </p>
+  );
+}
+
 function TextField({
   label,
   name,

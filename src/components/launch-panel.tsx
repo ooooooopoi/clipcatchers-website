@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { FileText, Phone } from "lucide-react";
 import { QuoteForm, type QuoteMode } from "@/components/quote-form";
+import { BookingEmbed } from "@/components/marketing/booking-embed";
+import { bookingUrl } from "@/lib/booking";
 import type { QuotePrefill } from "@/lib/quote-options";
 import { cn } from "@/lib/utils";
 
@@ -51,6 +53,8 @@ export function LaunchPanel({
   prefill?: QuotePrefill;
 }) {
   const [mode, setMode] = useState<QuoteMode>(initialMode);
+  const call = mode === "call";
+  const booking = bookingUrl();
 
   return (
     <div>
@@ -108,7 +112,31 @@ export function LaunchPanel({
         aria-labelledby={`launch-tab-${mode}`}
         className="mt-4"
       >
-        <QuoteForm mode={mode} prefill={prefill} />
+        {/* The scheduler first, when there is one: it confirms a slot on the
+            spot, which is the whole reason someone picked this tab over the
+            brief. The form stays underneath rather than being replaced — a
+            booking flow whose only answer is "none of these times work" is a
+            dead end, and the person who hits it is the one still trying. */}
+        {call && booking ? (
+          <>
+            <BookingEmbed url={booking} />
+            <details className="group mt-5">
+              <summary className="cursor-pointer list-none text-sm text-muted-foreground transition-colors hover:text-foreground">
+                <span className="underline decoration-border underline-offset-4 group-open:hidden">
+                  None of those times work? Ask for another →
+                </span>
+                <span className="hidden underline decoration-border underline-offset-4 group-open:inline">
+                  Hide the request form
+                </span>
+              </summary>
+              <div className="mt-4">
+                <QuoteForm mode={mode} prefill={prefill} />
+              </div>
+            </details>
+          </>
+        ) : (
+          <QuoteForm mode={mode} prefill={prefill} />
+        )}
       </div>
     </div>
   );
