@@ -4,12 +4,13 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Clapperboard, Coins, DollarSign, Eye, Gauge, Users } from "lucide-react";
 import { BrandWordmark } from "@/components/brand";
 import { StatCard } from "@/components/dashboard/stat-card";
+import { CampaignEditor } from "@/components/team/campaign-editor";
 import { GrowthChart } from "@/components/team/growth-chart";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { prisma } from "@/lib/prisma";
 import { teamSignatureValid, shareSignature } from "@/lib/share";
-import { fetchCampaignClips } from "@/lib/bot";
+import { fetchCampaignClips, fetchCampaigns } from "@/lib/bot";
 import { effectiveCpm } from "@/lib/pricing";
 import { formatCurrency, formatNumber } from "@/lib/format";
 
@@ -55,13 +56,28 @@ export default async function TeamCampaignPage({
   if (!/^\d+$/.test(id)) notFound();
   const campaignId = Number(id);
 
-  let data: Awaited<ReturnType<typeof fetchCampaignClips>> | null = null;
-  let error: string | null = null;
-  try {
-    data = await fetchCampaignClips(campaignId);
-  } catch (e) {
-    error = e instanceof Error ? e.message : "Couldn't reach the bot.";
-  }
+  // Two calls to the bot that don't depend on each other: the clips endpoint
+  // returns the clips, the campaign record carries the settings behind them.
+  // Sent together rather than in sequence — the bot is a Railway hop away and
+  // awaiting them one after the other doubles the page's time to first byte for
+  // no reason. Each is allowed to fail on its own: the figures are worth
+  // reading when the editor can't be offered, and the editor is worth offering
+  // when the figures can't be read.
+  const [clipsResult, campaign] = await Promise.all([
+    fetchCampaignClips(campaignId).then(
+      (d) => ({ ok: true as const, data: d }),
+      (e: unknown) => ({
+        ok: false as const,
+        message: e instanceof Error ? e.message : "Couldn't reach the bot.",
+      }),
+    ),
+    fetchCampaigns()
+      .then(({ campaigns }) => campaigns.find((c) => c.id === campaignId) ?? null)
+      .catch(() => null),
+  ]);
+
+  const data = clipsResult.ok ? clipsResult.data : null;
+  const error = clipsResult.ok ? null : clipsResult.message;
 
   const externalId = `bot-${campaignId}`;
 
@@ -177,6 +193,13 @@ export default async function TeamCampaignPage({
             </a>
           )}
         </div>
+
+        {/* Editing sits above the figures because it is what this page is
+            opened to do once a campaign is running — the numbers below are
+            read, the settings are changed. Absent when the bot couldn't be
+            reached: a form pre-filled with nothing would save blanks over
+            live settings. */}
+        {campaign ? <CampaignEditor sig={sig} campaign={campaign} /> : null}
 
         {error && (
           <p className="mt-6 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
