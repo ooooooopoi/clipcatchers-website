@@ -222,6 +222,41 @@ export function createCampaign(campaign: NewCampaign) {
   });
 }
 
+/**
+ * Change an existing campaign.
+ *
+ * Every key is optional and the bot only writes the ones present, so a patch
+ * that moves a campaign between boards touches nothing else. Sending the whole
+ * object back would mean every save re-asserting values nobody edited — and
+ * the first time two people had the page open, one would silently undo the
+ * other.
+ */
+export type CampaignPatch = Partial<{
+  name: string;
+  budget: number;
+  min_views: number;
+  max_views: number;
+  rate_amount: number;
+  platform: string;
+  artist: string;
+  details: string;
+  rules: string;
+  brief_url: string;
+  image_url: string;
+  active: boolean;
+  paid_ads: boolean;
+}>;
+
+export function updateCampaign(id: number, patch: CampaignPatch) {
+  return call<{
+    before: Record<string, unknown>;
+    after: Record<string, unknown> & { paid_ads?: number; active?: number };
+  }>(`/api/campaigns/${id}`, {
+    method: "POST",
+    body: JSON.stringify(patch),
+  });
+}
+
 export function markPaid(userId: string, campaignId?: number, paid = true) {
   return call<{ clips_marked: number; amount: number }>("/api/payouts/mark-paid", {
     method: "POST",

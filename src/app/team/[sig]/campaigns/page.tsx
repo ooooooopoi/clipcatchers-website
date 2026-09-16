@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Plus } from "lucide-react";
 import { BrandWordmark } from "@/components/brand";
+import { BoardToggle } from "@/components/team/board-toggle";
 import { Progress } from "@/components/ui/progress";
 import {
   Table,
@@ -15,6 +16,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { teamSignatureValid, shareSignature } from "@/lib/share";
 import { fetchCampaigns, fetchStats } from "@/lib/bot";
+import { isPaidAds } from "@/lib/clipper-data";
 import { formatCurrency, formatNumber } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Campaigns", robots: { index: false, follow: false } };
@@ -36,6 +38,7 @@ export default async function TeamCampaignsPage({
     clips: number;
     spentCents: number;
     totalViews: number;
+    paidAds: boolean;
   }[] = [];
   let error: string | null = null;
 
@@ -61,6 +64,9 @@ export default async function TeamCampaignsPage({
         clips: clipCounts.get(c.id) ?? 0,
         spentCents: m?.spentCents ?? 0,
         totalViews: m?.totalViews ?? 0,
+        // The same predicate the clipper boards use, so this column cannot
+        // disagree with the board a clipper actually sees.
+        paidAds: isPaidAds(c),
       };
     });
   } catch (e) {
@@ -113,6 +119,7 @@ export default async function TeamCampaignsPage({
               <TableRow>
                 <TableHead>campaign</TableHead>
                 <TableHead>status</TableHead>
+                <TableHead>board</TableHead>
                 <TableHead className="text-right">clips</TableHead>
                 <TableHead className="text-right">views</TableHead>
                 <TableHead className="text-right">spent</TableHead>
@@ -146,6 +153,9 @@ export default async function TeamCampaignsPage({
                       >
                         {c.active ? "live" : "closed"}
                       </span>
+                    </TableCell>
+                    <TableCell>
+                      <BoardToggle sig={sig} id={c.id} paidAds={c.paidAds} />
                     </TableCell>
                     <TableCell className="text-right font-mono">{formatNumber(c.clips)}</TableCell>
                     <TableCell className="text-right font-mono">
