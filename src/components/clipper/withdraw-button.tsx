@@ -17,6 +17,8 @@ type Result = {
   tx_hash?: string;
   settled_clips?: number;
   awaiting?: number;
+  /** What was asked for, echoed back on a too_much or below_minimum refusal. */
+  asked?: number;
   reason?: string;
 };
 
@@ -169,6 +171,14 @@ export function WithdrawButton({
       awaiting_release: `Your $${(body.awaiting ?? 0).toFixed(
         2,
       )} isn't released yet. It opens once the campaign finishes and the figures are checked.`,
+      // The button already checks this against the figure the page rendered
+      // with, so reaching here means the balance moved underneath it — an
+      // audit landed, or an admin paid the clips out — and the server's number
+      // is the true one. Worth saying plainly rather than falling through to
+      // "couldn't withdraw", which reads like a fault.
+      too_much: `You asked for $${(body.asked ?? 0).toFixed(2)} but $${(
+        body.settled ?? 0
+      ).toFixed(2)} is available now — it changed while this page was open. Reload and try again.`,
       nothing: "Nothing settled to withdraw yet.",
       no_method: "No payout method set. Run /set-payout in Discord.",
       paypal: "PayPal payouts go in an admin batch — you're already in the next one.",

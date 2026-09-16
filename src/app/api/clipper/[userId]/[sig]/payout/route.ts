@@ -24,13 +24,19 @@ export const dynamic = "force-dynamic";
  * happen at all.
  *
  * ── What is sent to the bot ──────────────────────────────────────────────
- * Only the user id, and only the one from the signed path. No amount, no
- * address, no destination: what is owed and where it goes are read from the
- * database on the bot's side. There is therefore no field here an attacker
- * could use to redirect or inflate a payment.
+ * The user id — only ever the one from the signed path, never the body, since
+ * a signature proves the id it was minted for and nothing else — and an
+ * optional amount.
+ *
+ * The amount is the only caller-supplied field, and it can only ever *reduce*
+ * what moves: the bot refuses anything above the settled balance and then
+ * settles whole clips adding up to no more than the request. No address and no
+ * destination are accepted, so where the money goes is still read from the
+ * database on the bot's side and there is no field here that could redirect or
+ * inflate a payment.
  */
 export async function POST(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ userId: string; sig: string }> },
 ) {
   try {
@@ -56,11 +62,27 @@ export async function POST(
       return badRequest("Payouts aren't configured on this deployment.");
     }
 
+    // A partial withdrawal. Absent means "everything settled", which is what
+    // the button sends when the field is left blank — so an unparseable body
+    // is treated as absent rather than refused.
+    const payload = (await request.json().catch(() => ({}))) as { amount?: unknown };
+    let amount: number | undefined;
+    if (payload.amount !== undefined && payload.amount !== null && payload.amount !== "") {
+      const parsed = Number(payload.amount);
+      // Number("") is 0 and Number("abc") is NaN; both would otherwise reach
+      // the bot as a request to move a nonsense sum.
+      if (!Number.isFinite(parsed) || parsed <= 0) {
+        return badRequest("Enter an amount greater than zero, or leave it blank.");
+      }
+      amount = Math.round(parsed * 100) / 100;
+    }
+
     const res = await fetch(
       `${botUrl.replace(/\/+$/, "")}/api/users/${encodeURIComponent(userId)}/withdraw`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-ingest-secret": secret },
+        body: JSON.stringify(amount === undefined ? {} : { amount }),
         cache: "no-store",
       },
     );
