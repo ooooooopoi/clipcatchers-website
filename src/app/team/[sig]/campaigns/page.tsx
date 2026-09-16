@@ -3,21 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Plus } from "lucide-react";
 import { BrandWordmark } from "@/components/brand";
-import { BoardToggle } from "@/components/team/board-toggle";
-import { Progress } from "@/components/ui/progress";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { CampaignsTable, type CampaignTableRow } from "@/components/team/campaigns-table";
 import { prisma } from "@/lib/prisma";
 import { teamSignatureValid, shareSignature } from "@/lib/share";
 import { fetchCampaigns, fetchStats } from "@/lib/bot";
 import { isPaidAds } from "@/lib/clipper-data";
-import { formatCurrency, formatNumber } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Campaigns", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -30,16 +20,7 @@ export default async function TeamCampaignsPage({
   const { sig } = await params;
   if (!teamSignatureValid(sig)) notFound();
 
-  let rows: {
-    id: number;
-    name: string;
-    active: number;
-    budget: number;
-    clips: number;
-    spentCents: number;
-    totalViews: number;
-    paidAds: boolean;
-  }[] = [];
+  let rows: CampaignTableRow[] = [];
   let error: string | null = null;
 
   try {
@@ -48,25 +29,36 @@ export default async function TeamCampaignsPage({
 
     // Spend and views come from the mirrored campaigns, which carry the same
     // figures the client reports show — so the two can't disagree.
-    const mirrored = await prisma.campaign.findMany({
-      where: { externalId: { in: campaigns.map((c) => `bot-${c.id}`) } },
-      select: { externalId: true, spentCents: true, totalViews: true },
-    });
+    //
+    // Allowed to fail on its own. The bot has already returned every campaign
+    // by this point and the mirror only enriches two columns, so letting it
+    // throw here would blank the whole list — and a rotated Neon endpoint
+    // looks exactly like the bot being down, which is the wrong thing to go
+    // looking at.
+    const mirrored = await prisma.campaign
+      .findMany({
+        where: { externalId: { in: campaigns.map((c) => `bot-${c.id}`) } },
+        select: { externalId: true, spentCents: true, totalViews: true },
+      })
+      .catch(() => [] as { externalId: string; spentCents: number; totalViews: number }[]);
     const byExternal = new Map(mirrored.map((m) => [m.externalId, m]));
 
     rows = campaigns.map((c) => {
       const m = byExternal.get(`bot-${c.id}`);
       return {
-        id: c.id,
-        name: c.name,
-        active: c.active,
-        budget: c.budget ?? 0,
+        // The whole record, not the columns printed: the row's edit sheet
+        // opens on the fields behind the campaign, and re-fetching them per
+        // edit would be a bot round-trip that can fail with the sheet open.
+        campaign: c,
         clips: clipCounts.get(c.id) ?? 0,
         spentCents: m?.spentCents ?? 0,
         totalViews: m?.totalViews ?? 0,
         // The same predicate the clipper boards use, so this column cannot
         // disagree with the board a clipper actually sees.
         paidAds: isPaidAds(c),
+        // Minted here because it's an HMAC over INGEST_SECRET, which stays
+        // server-side.
+        reportSig: shareSignature(`bot-${c.id}`) || null,
       };
     });
   } catch (e) {
@@ -113,107 +105,7 @@ export default async function TeamCampaignsPage({
           </p>
         )}
 
-        <div className="mt-6 rounded-xl border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>campaign</TableHead>
-                <TableHead>status</TableHead>
-                <TableHead>board</TableHead>
-                <TableHead className="text-right">clips</TableHead>
-                <TableHead className="text-right">views</TableHead>
-                <TableHead className="text-right">spent</TableHead>
-                <TableHead className="text-right">budget</TableHead>
-                <TableHead className="w-[180px]">progress</TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((c) => {
-                const budgetCents = Math.round(c.budget * 100);
-                const pct = budgetCents ? Math.min(100, (c.spentCents / budgetCents) * 100) : 0;
-                const over = budgetCents > 0 && c.spentCents > budgetCents;
-                return (
-                  <TableRow key={c.id}>
-                    <TableCell className="whitespace-nowrap font-medium">
-                      <Link
-                        href={`/team/${sig}/campaigns/${c.id}`}
-                        className="underline-offset-4 hover:text-primary hover:underline"
-                      >
-                        {c.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <span
-                        className={`rounded-full border px-2 py-0.5 text-xs font-medium ${
-                          c.active
-                            ? "border-success/30 bg-success/10 text-success"
-                            : "border-border text-muted-foreground"
-                        }`}
-                      >
-                        {c.active ? "live" : "closed"}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <BoardToggle sig={sig} id={c.id} paidAds={c.paidAds} />
-                    </TableCell>
-                    <TableCell className="text-right font-mono">{formatNumber(c.clips)}</TableCell>
-                    <TableCell className="text-right font-mono">
-                      {formatNumber(c.totalViews)}
-                    </TableCell>
-                    <TableCell
-                      className={`text-right font-mono ${over ? "text-warning" : ""}`}
-                    >
-                      {formatCurrency(c.spentCents)}
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-muted-foreground">
-                      {budgetCents ? formatCurrency(budgetCents) : "—"}
-                    </TableCell>
-                    <TableCell>
-                      {budgetCents ? (
-                        <div>
-                          <Progress
-                            value={pct}
-                            className="h-2"
-                            indicatorClassName={over ? "bg-warning" : undefined}
-                          />
-                          <p className="mt-1 text-[11px] text-muted-foreground">
-                            {over
-                              ? `over by ${formatCurrency(c.spentCents - budgetCents)}`
-                              : `${pct.toFixed(0)}% · ${formatCurrency(budgetCents - c.spentCents)} left`}
-                          </p>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">no budget</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap text-right">
-                      <Link
-                        href={`/team/${sig}/payouts?campaign=${c.id}`}
-                        className="text-xs text-primary underline-offset-4 hover:underline"
-                      >
-                        payouts
-                      </Link>
-                      {shareSignature(`bot-${c.id}`) && (
-                        <>
-                          {" · "}
-                          <a
-                            href={`/c/bot-${c.id}/${shareSignature(`bot-${c.id}`)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-primary underline-offset-4 hover:underline"
-                          >
-                            report
-                          </a>
-                        </>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+        <CampaignsTable sig={sig} rows={rows} />
 
         <footer className="mt-10 border-t border-border pt-6 text-xs text-muted-foreground">
           Internal view — don&apos;t share this link.

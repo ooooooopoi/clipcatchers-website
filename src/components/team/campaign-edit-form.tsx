@@ -12,10 +12,10 @@ import type { BotCampaign } from "@/lib/bot";
 /**
  * The campaign edit form itself: one set of fields, one save path.
  *
- * Its own file rather than inline in CampaignEditor so that the button-and-
- * toggle wrapper stays readable, and so a second entrance — an edit sheet on
- * the campaigns list, say — can mount the same fields instead of growing a
- * near-copy that drifts. Today the detail page is the only caller.
+ * Its own file because it has two entrances that must not drift: the detail
+ * page's inline editor (CampaignEditor) and the campaigns list's edit sheet
+ * (CampaignsTable). Same fields, same diff-and-patch save, whichever door a
+ * change comes through.
  *
  * ── Why it sends only what changed ───────────────────────────────────────
  * The route takes a partial patch and the bot writes only the keys present.
