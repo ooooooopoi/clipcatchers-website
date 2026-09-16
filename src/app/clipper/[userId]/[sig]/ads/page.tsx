@@ -39,6 +39,7 @@ export default async function AdsPage({
     .sort((a, b) => Number(b.active) - Number(a.active) || b.id - a.id);
 
   const live = ads.filter((c) => c.active);
+  const ended = ads.filter((c) => !c.active);
 
   return (
     <>
@@ -75,17 +76,39 @@ export default async function AdsPage({
             unless a campaign says otherwise — check each one.
           </p>
 
+          {/* Two lists, not one grid under one heading. "Open now" sat above
+              every ad including the closed ones, so a finished campaign read
+              as available — and on this board that means spending real money
+              on a clip nobody will pay for. */}
           {live.length > 0 ? (
-            <h2 className="mt-8 text-sm font-medium uppercase tracking-wider text-muted-foreground">
-              Open now
-            </h2>
-          ) : null}
+            <>
+              <h2 className="mt-8 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+                Open now
+              </h2>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {live.map((c) => (
+                  <CampaignCard key={c.id} campaign={c} href={`${base}/clips`} showRules />
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className="mt-8 rounded-xl border border-dashed border-border py-12 text-center text-sm text-muted-foreground">
+              None open right now. The finished ones are below.
+            </p>
+          )}
 
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {ads.map((c) => (
-              <CampaignCard key={c.id} campaign={c} href={`${base}/clips`} />
-            ))}
-          </div>
+          {ended.length > 0 ? (
+            <>
+              <h2 className="mt-10 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+                Finished
+              </h2>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {ended.map((c) => (
+                  <CampaignCard key={c.id} campaign={c} href={`${base}/clips`} />
+                ))}
+              </div>
+            </>
+          ) : null}
         </>
       )}
     </>

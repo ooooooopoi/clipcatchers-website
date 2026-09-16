@@ -15,9 +15,20 @@ import type { BotCampaign } from "@/lib/bot";
 export function CampaignCard({
   campaign,
   href,
+  showRules = false,
 }: {
   campaign: BotCampaign;
   href: string;
+  /**
+   * Put the campaign's own rules on the face of the card.
+   *
+   * Off for organic campaigns, where the rules are detail behind the brief and
+   * the rate is the decision. On for paid ads, where they are not detail at
+   * all: "1 post per acc" against a rate 150× the organic one changes what the
+   * offer is worth, and a clipper who reads the rate and cuts twenty is out
+   * nineteen clips' worth of ad spend they will never be paid for.
+   */
+  showRules?: boolean;
 }) {
   const live = Boolean(campaign.active);
 
@@ -68,6 +79,26 @@ export function CampaignCard({
             : "No view floor"}
           {campaign.max_views > 0 ? ` · counts up to ${compact(campaign.max_views)}` : ""}
         </p>
+
+        {/* The campaign's own conditions, in its own words. Rendered as written
+            rather than summarised — they are short, and a paraphrase of a rule
+            somebody is held to is worse than the rule. */}
+        {showRules && (campaign.rules || "").trim() ? (
+          <ul className="mt-3 space-y-1 rounded-lg border border-warning/25 bg-warning/5 px-3 py-2">
+            {(campaign.rules || "")
+              .split("\n")
+              .map((line) => line.trim().replace(/^[•\-*]\s*/, ""))
+              .filter(Boolean)
+              .map((line) => (
+                <li key={line} className="flex gap-2 text-xs leading-relaxed">
+                  <span aria-hidden className="text-warning">
+                    !
+                  </span>
+                  <span>{line}</span>
+                </li>
+              ))}
+          </ul>
+        ) : null}
 
         <div className="mt-4 flex items-center gap-2">
           {live ? (
