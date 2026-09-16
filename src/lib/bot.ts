@@ -332,11 +332,19 @@ export type ClipperClip = {
 export type ClipperEarnings = {
   clips: number;
   /**
-   * Earned on a campaign that has ENDED and isn't paid yet — an actual debt.
-   * Excludes live campaigns, whose balance is provisional until the close
-   * audit runs. See `running`.
+   * Earned on a campaign that has ENDED and isn't paid yet — an actual debt,
+   * net of any `advance`. Excludes live campaigns, whose balance is
+   * provisional until the close audit runs. See `running`.
    */
   owed: number;
+  /**
+   * Money already sent by self-service withdrawal that no settled clip covers
+   * yet. Already subtracted from `owed` and `withdrawable` by the bot; carried
+   * so the page can say why the per-campaign rows sum to more than the tile —
+   * without it, $239.84 of a $240 clip already in someone's wallet rendered
+   * as money still coming.
+   */
+  advance?: number;
   /**
    * Earned so far on campaigns still running. Not owed: the figure moves with
    * views, and the audit at close can reject clips that were sitting as

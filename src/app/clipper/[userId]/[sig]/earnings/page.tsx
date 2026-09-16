@@ -18,6 +18,10 @@ export default async function EarningsPage({
 
   const clips = earnings?.breakdown ?? [];
   const groups = groupByCampaign(clips);
+  // Already sent ahead of clips settling. The bot nets it out of `owed`, so
+  // the per-campaign rows (gross clip value) sum to more than the tile — this
+  // is the line that accounts for the difference on screen.
+  const advance = earnings?.advance ?? 0;
 
   // Earning clips only — the campaign totals below should add up to the money,
   // so a rejected or below-floor clip belongs in the count, not the sum.
@@ -114,13 +118,32 @@ export default async function EarningsPage({
                     )}
                   </li>
                   ))}
+
+                  {advance > 0 ? (
+                    // Money that already left, listed with the campaigns so the
+                    // column still adds up. Withdrawals take dollars, not whole
+                    // clips — so a clip can stand "unpaid" above while most of
+                    // its value is in the wallet already. Without this row the
+                    // page quietly claims that money is still coming.
+                    <li className="surface flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-border bg-card px-4 py-3.5">
+                      <span className="min-w-0 flex-1 truncate font-medium">
+                        Already withdrawn, ahead of clips settling
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        counted off the total above
+                      </span>
+                      <span className="font-mono text-sm font-semibold text-muted-foreground">
+                        −{dollars(advance)}
+                      </span>
+                    </li>
+                  ) : null}
                 </ul>
 
                 <p className="mt-3 text-xs text-muted-foreground/70">
                   On a finished campaign the figure on the right is what you&apos;re owed. On
                   one still running it&apos;s what you&apos;ve earned so far, which can still
-                  change. Anything already sent shows as paid out and isn&apos;t counted
-                  again.
+                  change. Anything already sent — whether a payout or a withdrawal you made
+                  yourself — isn&apos;t counted again.
                 </p>
               </>
             )}
