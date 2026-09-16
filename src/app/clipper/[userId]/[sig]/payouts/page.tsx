@@ -26,6 +26,16 @@ export default async function PayoutsPage({
   const awaiting = earnings?.awaiting_release ?? 0;
   const hasPayout = Boolean(earnings?.payout_method);
 
+  // What a single withdrawal can actually take. The transfer refuses an
+  // over-ceiling amount outright rather than trimming it, so offering the
+  // whole balance to anyone above the cap produced a button that could only
+  // fail — which read as a frozen balance rather than a capped one.
+  //
+  // Falls back to the full figure when the bot hasn't got the fix yet, which
+  // is the behaviour that was there before.
+  const takeNow = earnings?.withdrawable_now ?? withdrawable;
+  const capped = takeNow < withdrawable;
+
   return (
     <>
       <PageHeading
@@ -49,11 +59,22 @@ export default async function PayoutsPage({
                 {dollars(withdrawable)}
               </p>
 
+              {/* The headline is the whole balance because that is what is
+                  theirs. This line is what today's transfer will carry, and
+                  it only appears when the two differ — otherwise it would be
+                  a caveat on a number nothing is capping. */}
+              {capped ? (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Up to <span className="font-medium text-foreground">{dollars(takeNow)}</span>{" "}
+                  per withdrawal — the rest stays in your balance for the next one.
+                </p>
+              ) : null}
+
               {withdrawable > 0 ? (
                 <WithdrawButton
                   userId={userId}
                   sig={sig}
-                  withdrawable={withdrawable}
+                  withdrawable={takeNow}
                   minimum={earnings?.payout_minimum ?? 12}
                   method={earnings?.payout_method ?? ""}
                   signedInAs={session?.user?.discordId ?? null}

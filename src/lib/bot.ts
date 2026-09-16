@@ -349,6 +349,21 @@ export type ClipperEarnings = {
    * reachable by /withdraw — the rest is earned but still locked.
    */
   withdrawable: number;
+  /**
+   * The most a single withdrawal can take — `withdrawable` capped at the
+   * bot's per-recipient ceiling.
+   *
+   * These differ for anyone owed more than the ceiling, which is the bug it
+   * exists for: the transfer refuses an over-ceiling amount outright rather
+   * than trimming it, so offering the whole balance produced a button that
+   * could only fail. Offer this; state `withdrawable` as the total.
+   *
+   * Optional because the bot only began sending it with that fix. An older
+   * bot means falling back to `withdrawable`, which is what was there before.
+   */
+  withdrawable_now?: number;
+  /** The ceiling itself, for copy that has to explain the cap. */
+  max_per_withdrawal?: number;
   awaiting_release: number;
   /** "USDT" | "PayPal" | "" when they've never run /set-payout. */
   payout_method: string;
