@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import {
   BotUnavailable,
@@ -30,7 +31,19 @@ export type ClipperData = {
   offline: boolean;
 };
 
-export async function loadClipper(userId: string, sig: string): Promise<ClipperData> {
+/**
+ * Memoised for the duration of one request, by userId and sig.
+ *
+ * The shell and the page inside it both need this — the notifications bell in
+ * the sidebar is built from the same earnings and campaigns the page renders —
+ * and a layout is rendered alongside its page, not before it. Without `cache`
+ * that is three extra bot round-trips on every single page view, for data the
+ * request already has in hand.
+ */
+export const loadClipper = cache(async function loadClipper(
+  userId: string,
+  sig: string,
+): Promise<ClipperData> {
   // 404 rather than 401, on every route rather than only the layout. A layout
   // guard is not a boundary — pages are individually requestable — and a 401
   // would confirm which clippers exist to anyone guessing ids.
@@ -54,7 +67,7 @@ export async function loadClipper(userId: string, sig: string): Promise<ClipperD
     if (!(error instanceof BotUnavailable)) throw error;
     return { userId, sig, earnings: null, accounts: [], campaigns: [], offline: true };
   }
-}
+});
 
 /** Money from the bot arrives as dollars, not cents — formatCurrency takes cents. */
 export function dollars(n: number) {

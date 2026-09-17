@@ -166,6 +166,17 @@ export type BotCampaign = {
   /** Unix seconds, 0 when the campaign never closed. */
   closed_at: number;
   /**
+   * 1 once an admin has released this campaign's payouts. Until then a
+   * clipper's earnings on it are owed but not reachable by /withdraw, which is
+   * the difference between `owed` and `withdrawable` on their earnings.
+   *
+   * Optional for the same reason as `paid_ads`: a site ahead of the bot reads
+   * undefined, and undefined must mean "not released" rather than crash.
+   */
+  payouts_released?: number;
+  /** Unix seconds when that happened, 0 when it hasn't. */
+  payouts_released_at?: number;
+  /**
    * 1 when the campaign pays for boosted/paid placement instead of organic
    * posting. It decides which of the clipper's two boards the campaign shows
    * on, and the boards are separate because the work is: an organic rate
