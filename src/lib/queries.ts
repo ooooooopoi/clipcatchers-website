@@ -129,8 +129,22 @@ export async function getDashboardData(userId: string) {
     take: 4,
   });
 
+  // Which campaigns actually produced the views, biggest first.
+  //
+  // Deliberately its own query rather than a reuse of `campaigns` above: that
+  // list is the five most recently *touched*, which is a different question
+  // and would put a campaign that was renamed yesterday ahead of the one that
+  // delivered ninety percent of the result.
+  const byViews = await prisma.campaign.findMany({
+    where: { userId, totalViews: { gt: 0 } },
+    orderBy: { totalViews: "desc" },
+    take: 6,
+    select: { id: true, name: true, totalViews: true, status: true },
+  });
+
   return {
     campaigns,
+    byViews,
     statusCounts,
     totals: {
       campaigns: totals._count._all,
