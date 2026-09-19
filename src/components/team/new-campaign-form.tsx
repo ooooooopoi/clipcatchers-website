@@ -110,11 +110,19 @@ export function NewCampaignForm({ sig }: { sig: string }) {
           </code>{" "}
           in Discord when you want it posted.
         </p>
-        <div className="mt-6 flex justify-center gap-3">
+        {/* The moment a campaign is most likely to need changing is right
+            here, before it is announced — a rate typed wrong, missing rules,
+            no banner. This screen used to offer only "create another" and
+            "back", so the fix meant finding the campaign again in a list of
+            twenty-eight. */}
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <Button onClick={() => router.push(`/team/${sig}/campaigns/${created.id}`)}>
+            Edit campaign
+          </Button>
           <Button variant="outline" onClick={() => { setState("idle"); setCreated(null); }}>
             Create another
           </Button>
-          <Button onClick={() => router.push(`/team/${sig}/campaigns`)}>
+          <Button variant="outline" onClick={() => router.push(`/team/${sig}/campaigns`)}>
             Back to campaigns
           </Button>
         </div>
