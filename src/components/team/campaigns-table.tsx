@@ -189,13 +189,18 @@ export function CampaignsTable({ sig, rows }: { sig: string; rows: CampaignTable
                       )}
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-right">
+                      {/* Named in full rather than "edit". Sat among "edit ·
+                          payouts · report" it read as a row action of the same
+                          weight as the two links beside it, and the one control
+                          on this page that changes a campaign was the hardest
+                          of the three to find. */}
                       <button
                         type="button"
                         onClick={() => setEditing(r)}
-                        className="inline-flex items-center gap-1 text-xs text-primary underline-offset-4 hover:underline"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-primary underline-offset-4 hover:underline"
                       >
                         <Pencil className="h-3 w-3" aria-hidden="true" />
-                        edit
+                        edit campaign
                       </button>
                       {" · "}
                       <Link
