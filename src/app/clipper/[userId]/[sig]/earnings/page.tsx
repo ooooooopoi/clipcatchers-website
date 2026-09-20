@@ -55,17 +55,17 @@ export default async function EarningsPage({
               label="owed to you"
               hint="From campaigns that have finished."
             />
-            {/* Named for what it counts. This is the worth of clips that have
-                settled and been paid, not the total that has reached them —
-                the two differ by any advance, and "paid so far" claimed to be
-                the second while reporting the first. The advance has its own
-                line further down this page. */}
+            {/* What has reached them, not what their settled clips are worth.
+                The two differ by any advance, and this printed the second
+                under a label promising the first. */}
             <Stat
-              value={dollars(earnings?.already_paid ?? 0)}
-              label="settled and paid out"
+              value={dollars(
+                earnings?.total_sent ?? (earnings?.already_paid ?? 0) + advance,
+              )}
+              label="paid so far"
               hint={
                 advance > 0
-                  ? `A further ${dollars(advance)} reached you ahead of the clips covering it.`
+                  ? `Includes ${dollars(advance)} sent ahead of the clips covering it.`
                   : undefined
               }
             />

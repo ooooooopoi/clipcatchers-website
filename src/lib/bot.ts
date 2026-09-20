@@ -372,6 +372,17 @@ export type ClipperEarnings = {
   running: number;
   already_paid: number;
   /**
+   * Every dollar actually sent, read from the payment records rather than
+   * rebuilt out of clip worths. It differs from `already_paid` by any advance,
+   * and unlike a clip-derived figure it reconciles to the cent against the
+   * payout history — each payment was rounded when written, clip worths
+   * weren't, so the two can't agree.
+   *
+   * Optional because an older bot doesn't send it. Fall back rather than
+   * printing a zero over money somebody has been paid.
+   */
+  total_sent?: number;
+  /**
    * Of `owed`, the part whose campaigns an admin has released. Only this is
    * reachable by /withdraw — the rest is earned but still locked.
    */

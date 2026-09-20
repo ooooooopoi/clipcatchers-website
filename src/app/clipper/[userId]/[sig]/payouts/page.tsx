@@ -26,6 +26,12 @@ export default async function PayoutsPage({
   const awaiting = earnings?.awaiting_release ?? 0;
   /** Money already sent that no settled clip covers yet. 0 for most people. */
   const advance = earnings?.advance ?? 0;
+  /**
+   * Falls back to the clip-derived figure when the bot is older than this
+   * field. That total can sit a cent or two low, which is better than a page
+   * reporting $0 paid to somebody who has been paid.
+   */
+  const totalSent = earnings?.total_sent ?? (earnings?.already_paid ?? 0) + advance;
   const hasPayout = Boolean(earnings?.payout_method);
 
   // What a single withdrawal can actually take. The transfer refuses an
@@ -155,22 +161,20 @@ export default async function PayoutsPage({
             <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
               History
             </h2>
-            {/* "paid to you so far" was the wrong name for this number. It is
-                the worth of clips that have settled and been paid — it does not
-                include money sent ahead of settlement, so someone who had
-                withdrawn early saw a figure several hundred dollars below what
-                had actually reached their wallet, with nothing on the page
-                accounting for the gap. The label now says what it measures, and
-                the advance is shown beside it rather than silently missing. */}
+            {/* The money that has actually reached them, not the worth of
+                their settled clips. Those differ by any advance, and this tile
+                used to print the second under a label promising the first —
+                someone who had withdrawn early saw a figure hundreds below
+                their own wallet, with nothing on the page explaining it. */}
             <div className="surface mt-3 grid grid-cols-2 divide-x divide-border rounded-xl border border-border bg-card">
-              <Stat value={dollars(earnings?.already_paid ?? 0)} label="settled and paid out" />
+              <Stat value={dollars(totalSent)} label="paid to you so far" />
               <Stat value={formatNumber(earnings?.clips ?? 0)} label="clips submitted" />
             </div>
             {advance > 0 ? (
               <p className="mt-3 text-xs text-muted-foreground">
-                A further <span className="font-mono text-foreground">{dollars(advance)}</span>{" "}
-                has already reached you, withdrawn ahead of the clips that cover it. It comes
-                off your balance as those clips settle, so it is never sent twice.
+                Of that, <span className="font-mono text-foreground">{dollars(advance)}</span>{" "}
+                went out ahead of the clips that cover it. It comes off your balance as those
+                clips settle, so it is never sent twice.
               </p>
             ) : null}
           </section>
