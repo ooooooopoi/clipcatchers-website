@@ -254,6 +254,24 @@ function NoCampaignsYet() {
           Talk to us first
         </Link>
       </div>
+
+      {/* The exit for someone who is in the wrong dashboard entirely.
+          A clipper signed in with Discord never reaches this page — the layout
+          sends them to /me. But one who signed in with Google or an email has
+          no discord id on the session, so nothing marks them as a clipper and
+          they land here: on a brand's empty dashboard, being invited to brief
+          a creator network. This is the only screen that person sees, so it
+          has to be the one that offers the way out. */}
+      <p className="mt-10 border-t border-border pt-6 text-sm text-muted-foreground">
+        Clipping for us rather than running a campaign?{" "}
+        <Link
+          href="/me"
+          className="text-foreground underline underline-offset-4 hover:text-primary-ink"
+        >
+          Your clipper dashboard is here
+        </Link>{" "}
+        — sign in with Discord to reach it.
+      </p>
     </div>
   );
 }
