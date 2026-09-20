@@ -20,6 +20,7 @@ const schema = z.object({
   budget: z.coerce.number().min(0).optional(),
   min_views: z.coerce.number().int().min(0).optional(),
   max_views: z.coerce.number().int().min(0).optional(),
+  max_clips_per_account: z.coerce.number().int().min(0).max(500).optional(),
   rate_amount: z.coerce.number().positive().optional(),
   platform: z.string().trim().max(40).optional(),
   artist: z.string().trim().max(200).optional(),

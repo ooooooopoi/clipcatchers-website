@@ -156,6 +156,12 @@ export type BotCampaign = {
   /** 0 means uncapped. */
   max_views: number;
   /**
+   * How many clips one account may put into this campaign. 0 defers to the
+   * bot's global ceiling, which is what every campaign did before this
+   * existed — so 0 and undefined mean the same thing.
+   */
+  max_clips_per_account?: number;
+  /**
    * The campaign banner. A Discord attachment URL, so it carries an expiring
    * signature and must be passed around whole — stripping the query string
    * 404s it. Empty when no banner was set.
@@ -215,6 +221,7 @@ export type NewCampaign = {
   rate_per_views: number;
   min_views?: number;
   max_views?: number;
+  max_clips_per_account?: number;
   budget?: number;
   category?: string;
   platform?: string;
@@ -247,6 +254,7 @@ export type CampaignPatch = Partial<{
   budget: number;
   min_views: number;
   max_views: number;
+  max_clips_per_account: number;
   rate_amount: number;
   platform: string;
   artist: string;

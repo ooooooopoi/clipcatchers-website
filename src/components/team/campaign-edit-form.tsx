@@ -62,6 +62,7 @@ export function CampaignEditForm({
     rate_amount: String(campaign.rate_amount ?? ""),
     min_views: String(campaign.min_views ?? 0),
     max_views: String(campaign.max_views ?? 0),
+    max_clips_per_account: String(campaign.max_clips_per_account ?? 0),
     budget: String(campaign.budget ?? 0),
     brief_url: campaign.brief_url ?? "",
     image_url: campaign.image_url ?? "",
@@ -80,7 +81,13 @@ export function CampaignEditForm({
     // Only the difference. Numbers are compared as numbers so "2000" and 2000
     // don't read as a change and rewrite a field nobody touched.
     const patch: Record<string, unknown> = {};
-    const numeric = new Set(["rate_amount", "min_views", "max_views", "budget"]);
+    const numeric = new Set([
+      "rate_amount",
+      "min_views",
+      "max_views",
+      "max_clips_per_account",
+      "budget",
+    ]);
     for (const key of Object.keys(initial) as (keyof typeof form)[]) {
       const now = form[key];
       const was = initial[key];
@@ -158,6 +165,16 @@ export function CampaignEditForm({
             inputMode="numeric"
             value={form.max_views}
             onChange={(e) => set("max_views", e.target.value)}
+          />
+        </Field>
+        <Field
+          label="Clips per account"
+          hint="0 uses the global limit. Set it low on a campaign where one good clip is the point, high where volume is."
+        >
+          <Input
+            inputMode="numeric"
+            value={form.max_clips_per_account}
+            onChange={(e) => set("max_clips_per_account", e.target.value)}
           />
         </Field>
       </div>
