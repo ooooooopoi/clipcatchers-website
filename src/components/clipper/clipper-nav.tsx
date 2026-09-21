@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import {
   BadgeDollarSign,
   CircleHelp,
-  Clapperboard,
   DollarSign,
   Megaphone,
   Store,
@@ -32,7 +31,6 @@ const SECTIONS = [
   // it is the other half of the same question ("what can I cut?"), and the
   // two boards only work as a pair if finding one means finding the other.
   { href: "/ads", label: "Ads", icon: BadgeDollarSign },
-  { href: "/clips", label: "Clips", icon: Clapperboard },
   { href: "/marketplace", label: "Marketplace", icon: Store, soon: true },
   { href: "/accounts", label: "Accounts", icon: UserRound },
   { href: "/earnings", label: "Earnings", icon: DollarSign },

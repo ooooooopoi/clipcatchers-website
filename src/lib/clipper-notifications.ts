@@ -105,7 +105,8 @@ export function buildNotices(data: ClipperData): ClipperNotice[] {
       title: `Clip rejected — ${clip.campaign}`,
       body: clip.flag_reason,
       at: null,
-      href: "/clips",
+      // No link since the Clips page went away. The reason — the one thing
+      // that page added for a rejection — is already this notice's body.
       tone: "warn",
     });
   }
@@ -113,9 +114,10 @@ export function buildNotices(data: ClipperData): ClipperNotice[] {
     notices.push({
       id: `rejected-more-${rejected.length}`,
       title: `${rejected.length - 6} more rejected clips`,
-      body: "Open Clips to read the reason on each one.",
+      // Used to say "Open Clips", which now points at nothing. Discord still
+      // lists every clip with its reason.
+      body: "Run /my-clips in Discord to see each one's reason.",
       at: null,
-      href: "/clips",
       tone: "warn",
     });
   }
@@ -127,7 +129,7 @@ export function buildNotices(data: ClipperData): ClipperNotice[] {
       title: `${belowMin} clip${belowMin === 1 ? "" : "s"} under the view floor`,
       body: `${belowMin === 1 ? "It earns" : "They earn"} nothing until past the campaign's minimum views. Still climbing counts.`,
       at: null,
-      href: "/clips",
+      href: "/earnings",
       tone: "plain",
     });
   }
