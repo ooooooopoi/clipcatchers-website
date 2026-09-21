@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BadgeDollarSign,
-  Banknote,
   CircleHelp,
   Clapperboard,
   DollarSign,
@@ -39,7 +38,6 @@ const SECTIONS = [
   { href: "/earnings", label: "Earnings", icon: DollarSign },
   { href: "/progress", label: "Progress", icon: Trophy, soon: true },
   { href: "/referrals", label: "Referrals", icon: Users, soon: true },
-  { href: "/payouts", label: "Payouts", icon: Banknote },
   { href: "/help", label: "Help", icon: CircleHelp },
 ] as const;
 

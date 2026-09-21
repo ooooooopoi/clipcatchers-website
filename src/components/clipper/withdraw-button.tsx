@@ -96,7 +96,7 @@ export function WithdrawButton({
         <Button
           type="button"
           variant="outline"
-          onClick={() => signIn("discord", { callbackUrl: `/clipper/${userId}/${sig}/payouts` })}
+          onClick={() => signIn("discord", { callbackUrl: `/clipper/${userId}/${sig}/earnings` })}
         >
           Sign in with Discord to withdraw
         </Button>

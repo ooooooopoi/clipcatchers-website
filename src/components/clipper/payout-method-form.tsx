@@ -108,7 +108,7 @@ export function PayoutMethodForm({
           variant="outline"
           className="mt-3"
           onClick={() =>
-            signIn("discord", { callbackUrl: `/clipper/${userId}/${sig}/payouts` })
+            signIn("discord", { callbackUrl: `/clipper/${userId}/${sig}/earnings` })
           }
         >
           Sign in with Discord to set it

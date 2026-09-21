@@ -63,7 +63,7 @@ export function buildNotices(data: ClipperData): ClipperNotice[] {
         ? `The minimum withdrawal is ${dollars(minimum)} — below that the transfer fee costs more than the payment. It keeps growing.`
         : "Yours to take whenever you want it.",
       at: null,
-      href: "/payouts",
+      href: "/earnings",
       tone: short ? "plain" : "good",
     });
   }
@@ -77,7 +77,7 @@ export function buildNotices(data: ClipperData): ClipperNotice[] {
       title: "No payout method set",
       body: "Your earnings have nowhere to go yet. Add a USDT address so a withdrawal can reach you.",
       at: null,
-      href: "/payouts",
+      href: "/earnings",
       tone: "warn",
     });
   }
@@ -166,7 +166,7 @@ export function buildNotices(data: ClipperData): ClipperNotice[] {
           mine.clips === 1 ? "" : "s"
         } is now withdrawable.`,
         at: when > 0 ? when : null,
-        href: "/payouts",
+        href: "/earnings",
         tone: "good",
       });
       continue;
