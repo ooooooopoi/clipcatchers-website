@@ -6,7 +6,7 @@ import {
   BadgeDollarSign,
   CircleHelp,
   DollarSign,
-  Megaphone,
+  LayoutDashboard,
   Store,
   Trophy,
   UserRound,
@@ -26,7 +26,7 @@ import {
  * until that exists rather than shipping a page that invents numbers.
  */
 const SECTIONS = [
-  { href: "", label: "Campaigns", icon: Megaphone },
+  { href: "", label: "Dashboard", icon: LayoutDashboard },
   // Paid placement, deliberately next to Campaigns rather than further down:
   // it is the other half of the same question ("what can I cut?"), and the
   // two boards only work as a pair if finding one means finding the other.

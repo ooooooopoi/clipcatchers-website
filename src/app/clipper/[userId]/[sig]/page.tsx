@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { BadgeDollarSign } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, BadgeDollarSign } from "lucide-react";
 import { CampaignCard } from "@/components/clipper/campaign-card";
 import { CampaignFilter, type CampaignType } from "@/components/clipper/campaign-filter";
 import { BotOffline, PageHeading } from "@/components/clipper/chrome";
-import { isPaidAds, loadClipper } from "@/lib/clipper-data";
+import { dollars, isPaidAds, loadClipper } from "@/lib/clipper-data";
 
-export const metadata: Metadata = { title: "Campaigns" };
+export const metadata: Metadata = { title: "Dashboard" };
 
 // The figures come from the bot and change as views are read; nothing here
 // should be cached between visits.
@@ -24,8 +25,13 @@ export default async function CampaignsPage({
   const filter: CampaignType =
     type === "active" || type === "ended" ? type : "all";
 
-  const { campaigns, accounts, offline } = await loadClipper(userId, sig);
+  const { campaigns, accounts, earnings, offline } = await loadClipper(userId, sig);
   const base = `/clipper/${encodeURIComponent(userId)}/${sig}`;
+
+  const withdrawable = earnings?.withdrawable ?? 0;
+  const running = earnings?.running ?? 0;
+  const advance = earnings?.advance ?? 0;
+  const totalSent = earnings?.total_sent ?? (earnings?.already_paid ?? 0) + advance;
 
   // Paid-ad campaigns live on their own board. Excluded here rather than
   // merely sorted lower, because their rates assume money is going behind the
@@ -49,11 +55,47 @@ export default async function CampaignsPage({
     <>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <PageHeading
-          title="Campaigns"
-          subtitle="Browse campaigns and submit clips to the ones that are live."
+          title="Dashboard"
+          subtitle="Where your money stands, and what's live to cut."
         />
         {!offline ? <CampaignFilter value={filter} base={base} /> : null}
       </div>
+
+      {/* ── The money, before the work ─────────────────────────────────────
+          The landing page listed campaigns and nothing else, so the answer to
+          "did I get paid?" — the reason most return visits happen — was two
+          taps away. These are the same figures Earnings leads with, read from
+          the request's already-memoised load, and the whole strip is a link:
+          it is a summary, and summaries that can't be opened get poked at. */}
+      {!offline && earnings ? (
+        <Link
+          href={`${base}/earnings`}
+          className="surface group mt-8 grid grid-cols-3 divide-x divide-border rounded-2xl border border-border bg-card transition-colors hover:border-[hsl(var(--border-strong))]"
+        >
+          <div className="px-5 py-5">
+            <p className="text-xs text-muted-foreground">Ready to withdraw</p>
+            <p className="mt-1.5 font-mono text-2xl font-semibold tracking-tight text-foreground">
+              {dollars(withdrawable)}
+            </p>
+          </div>
+          <div className="px-5 py-5">
+            <p className="text-xs text-muted-foreground">Still running</p>
+            <p className="mt-1.5 font-mono text-2xl font-semibold tracking-tight text-muted-foreground">
+              {dollars(running)}
+            </p>
+          </div>
+          <div className="relative px-5 py-5">
+            <p className="text-xs text-muted-foreground">Paid so far</p>
+            <p className="mt-1.5 font-mono text-2xl font-semibold tracking-tight text-muted-foreground">
+              {dollars(totalSent)}
+            </p>
+            <ArrowRight
+              aria-hidden="true"
+              className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50 transition-colors group-hover:text-foreground"
+            />
+          </div>
+        </Link>
+      ) : null}
 
       {/* Moving these onto their own board hides them from the page everyone
           opens first, so the page has to point at them — otherwise the
