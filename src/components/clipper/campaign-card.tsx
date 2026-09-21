@@ -114,6 +114,28 @@ export function CampaignCard({
           ) : null}
         </div>
 
+        {/* What the campaign says about itself — on a music campaign this is
+            where the sound link lives, which is the one thing a clipper cannot
+            start without. It was stored, shown on the Discord card, and
+            rendered nowhere on the website: nineteen campaigns carried details
+            that no clipper browsing here could see. */}
+        {(campaign.details || "").trim() ? (
+          <ul className="mt-3 space-y-1">
+            {(campaign.details || "")
+              .split("\n")
+              // The whitespace is required. Without it this strips the first
+              // character of "**Language:** English only", leaving a stray
+              // asterisk on every bolded line the campaign wrote for Discord.
+              .map((line) => line.trim().replace(/^[•\-*]\s+/, ""))
+              .filter(Boolean)
+              .map((line, i) => (
+                <li key={`${line}-${i}`} className="text-xs leading-relaxed text-muted-foreground">
+                  <DetailLine line={line} />
+                </li>
+              ))}
+          </ul>
+        ) : null}
+
         {/* The campaign's own conditions, in its own words. Rendered as written
             rather than summarised — they are short, and a paraphrase of a rule
             somebody is held to is worse than the rule. */}
@@ -121,14 +143,22 @@ export function CampaignCard({
           <ul className="mt-3 space-y-1 rounded-lg border border-warning/25 bg-warning/5 px-3 py-2">
             {(campaign.rules || "")
               .split("\n")
-              .map((line) => line.trim().replace(/^[•\-*]\s*/, ""))
+              // The whitespace is required. Without it this strips the first
+              // character of "**Language:** English only", leaving a stray
+              // asterisk on every bolded line the campaign wrote for Discord.
+              .map((line) => line.trim().replace(/^[•\-*]\s+/, ""))
               .filter(Boolean)
               .map((line) => (
                 <li key={line} className="flex gap-2 text-xs leading-relaxed">
                   <span aria-hidden className="text-warning">
                     !
                   </span>
-                  <span>{line}</span>
+                  {/* Same renderer as the details. Rules are written in the
+                      same Discord text as everything else, so a rule with a
+                      bolded label or a link in it has to survive the trip. */}
+                  <span>
+                    <DetailLine line={line} />
+                  </span>
                 </li>
               ))}
           </ul>
@@ -164,6 +194,68 @@ export function CampaignCard({
       </div>
     </article>
   );
+}
+
+/**
+ * One line of a campaign's details, with its links made clickable.
+ *
+ * The text is written for Discord, so a link arrives either masked as
+ * `[name](url)` or bare. Rendered raw, the first shows its own markup and the
+ * second shows a hundred characters of tracking parameters — on a card four
+ * inches wide, both are unusable. A masked link keeps its name; a bare one is
+ * shortened to host and last segment, which is enough to recognise a TikTok
+ * link without wrapping over three lines.
+ */
+function DetailLine({ line }: { line: string }) {
+  // Masked link, then bold, then bare link — one pass, so a bolded label
+  // followed by a link on the same line comes out as both rather than as
+  // whichever pattern happened to run first.
+  const pattern =
+    /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|\*\*([^*]+)\*\*|(https?:\/\/[^\s]+)/g;
+  const out: React.ReactNode[] = [];
+  let cursor = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
+
+  while ((match = pattern.exec(line)) !== null) {
+    if (match.index > cursor) out.push(line.slice(cursor, match.index));
+    const [, maskedText, maskedUrl, bold, bareUrl] = match;
+
+    if (bold !== undefined) {
+      out.push(
+        <strong key={key++} className="font-medium text-foreground">
+          {bold}
+        </strong>,
+      );
+    } else {
+      const url = (maskedUrl ?? bareUrl) as string;
+      out.push(
+        <a
+          key={key++}
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary-ink underline underline-offset-2 hover:opacity-80"
+        >
+          {maskedText ?? shortUrl(url)}
+        </a>,
+      );
+    }
+    cursor = match.index + match[0].length;
+  }
+  if (cursor < line.length) out.push(line.slice(cursor));
+  return <>{out}</>;
+}
+
+/** "https://vt.tiktok.com/ZSq7AM9Qv/?x=1" -> "vt.tiktok.com/ZSq7AM9Qv" */
+function shortUrl(url: string) {
+  try {
+    const u = new URL(url);
+    const last = u.pathname.split("/").filter(Boolean).pop();
+    return last ? `${u.host}/${last}` : u.host;
+  } catch {
+    return url;
+  }
 }
 
 function Pill({ children }: { children: React.ReactNode }) {
