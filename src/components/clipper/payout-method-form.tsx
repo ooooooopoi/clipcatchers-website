@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
-import { Check, Pencil } from "lucide-react";
+import { Check, Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -67,18 +67,30 @@ export function PayoutMethodForm({
   }
 
   if (!editing) {
+    // The destination reads as a field with its edit control beside it, rather
+    // than a label over a line of text with a button floated opposite. It is
+    // the same shape as the thing it stands for — somewhere money is going —
+    // and at 56px it matches the withdraw button under it instead of sitting
+    // at two-thirds its height.
     return (
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">Paid to</p>
-          <p className="mt-1 font-mono text-sm">
-            {method} · {masked}
-          </p>
+      <div className="flex items-stretch gap-3">
+        <div className="flex h-14 min-w-0 flex-1 items-center rounded-2xl border border-border bg-background/40 px-4">
+          {method ? (
+            <span className="truncate font-mono text-sm">
+              {method} · {masked}
+            </span>
+          ) : (
+            <span className="text-sm text-muted-foreground">No payout method</span>
+          )}
         </div>
-        <Button type="button" variant="outline" size="sm" onClick={() => setEditing(true)}>
-          <Pencil className="mr-2 h-3.5 w-3.5" />
-          Change
-        </Button>
+        <button
+          type="button"
+          onClick={() => setEditing(true)}
+          aria-label={method ? "Change payout method" : "Add a payout method"}
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-border transition-colors hover:border-[hsl(var(--border-strong))] hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {method ? <Pencil className="h-4 w-4" /> : <Plus className="h-5 w-5" />}
+        </button>
       </div>
     );
   }

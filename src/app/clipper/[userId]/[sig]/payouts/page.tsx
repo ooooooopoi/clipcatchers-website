@@ -58,25 +58,64 @@ export default async function PayoutsPage({
           {/* The split matters: money from a campaign that hasn't been released
               is earned but not reachable, and one combined total would read as
               "you have this" when /withdraw would refuse most of it. */}
-          <div className="surface mt-8 max-w-2xl overflow-hidden rounded-3xl border border-border bg-card">
-            <div className="border-b border-border px-6 py-7 sm:px-8 sm:py-8">
-              <p className="text-sm text-muted-foreground">Ready to withdraw</p>
+          {/* Two cards, not one with a rule through it. The balance is a fact
+              and the withdrawal is an action — joining them under one border
+              made the whole thing read as a single form, and the number stopped
+              being the headline. Borderless, roomy, and separated by a gap that
+              does the dividing instead. */}
+          <div className="mt-8 max-w-2xl space-y-4">
+            <div className="surface rounded-3xl bg-card p-7 sm:p-9">
+              <p className="text-base text-muted-foreground">Ready to withdraw</p>
               {/* The balance is the reason the page exists, so it is set at a
                   size nothing else here approaches. */}
-              <p className="mt-2 font-mono text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+              <p className="mt-3 font-mono text-5xl font-bold tracking-tight text-foreground sm:text-6xl">
                 {dollars(withdrawable)}
               </p>
 
-              {/* The headline is the whole balance because that is what is
-                  theirs. This line is what today's transfer will carry, and
-                  it only appears when the two differ — otherwise it would be
-                  a caveat on a number nothing is capping. */}
-              {capped ? (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Up to <span className="font-medium text-foreground">{dollars(takeNow)}</span>{" "}
-                  per withdrawal — the rest stays in your balance for the next one.
+              {/* The per-withdrawal cap is stated beside the button that has
+                  to obey it, not here. The headline is the whole balance,
+                  because that is what is theirs. */}
+              {withdrawable === 0 ? (
+                <p className="mt-4 text-sm text-muted-foreground">
+                  {awaiting > 0
+                    ? "Nothing to withdraw yet — see what's on the way below."
+                    : (earnings?.running ?? 0) > 0
+                      ? "Nothing yet. Earnings open up once their campaign finishes."
+                      : "Nothing yet. Approved clips above the view floor build this up."}
                 </p>
               ) : null}
+            </div>
+
+            {/* The action, in its own card.
+                Editable here rather than "run /set-payout in Discord": a
+                clipper who cannot set this cannot be paid at all, and sending
+                them to another app to fix the one thing blocking their money
+                is where most of them would stop. */}
+            <div className="surface rounded-3xl bg-card p-7 sm:p-9">
+              <p className="text-base text-muted-foreground">Withdraw</p>
+
+              <div className="mt-5">
+                <PayoutMethodForm
+                  userId={userId}
+                  sig={sig}
+                  method={earnings?.payout_method ?? ""}
+                  masked={earnings?.payout_address ?? ""}
+                  signedInAs={session?.user?.discordId ?? null}
+                />
+              </div>
+
+              {/* Said outright rather than left to be inferred from a blank
+                  field. Not having one is the single thing that stops money
+                  reaching someone, and fourteen clippers are currently owed
+                  money they cannot be sent because of it. */}
+              <p className="mt-5 text-sm text-muted-foreground">
+                This payout method is currently:{" "}
+                {hasPayout ? (
+                  <span className="text-success">ready to receive</span>
+                ) : (
+                  <span className="text-warning">not set</span>
+                )}
+              </p>
 
               {withdrawable > 0 ? (
                 <WithdrawButton
@@ -89,46 +128,22 @@ export default async function PayoutsPage({
                   feePercent={earnings?.payout_fee_percent ?? 0}
                   gasFromClipper={earnings?.payout_gas_from_clipper ?? false}
                 />
-              ) : awaiting > 0 ? (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  Nothing to withdraw yet — see below for what&apos;s on the way.
-                </p>
-              ) : (earnings?.running ?? 0) > 0 ? (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  Nothing to withdraw yet. Earnings become withdrawable once their campaign
-                  finishes — see below.
-                </p>
               ) : (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  Nothing to withdraw yet. Approved clips above the view floor build this up.
-                </p>
+                <button
+                  type="button"
+                  disabled
+                  className="mt-5 h-14 w-full cursor-not-allowed rounded-2xl border border-border text-base font-semibold opacity-40"
+                >
+                  Withdraw
+                </button>
               )}
-            </div>
 
-            {/* Editable here rather than "run /set-payout in Discord": a
-                clipper who cannot set this cannot be paid at all, and sending
-                them to another app to fix the one thing blocking their money
-                is where most of them would stop. */}
-            <div className="px-6 py-6 sm:px-8">
-              <PayoutMethodForm
-                userId={userId}
-                sig={sig}
-                method={earnings?.payout_method ?? ""}
-                masked={earnings?.payout_address ?? ""}
-                signedInAs={session?.user?.discordId ?? null}
-              />
-              {/* Said outright rather than left to be inferred from a blank
-                  field. Not having one is the single thing that stops money
-                  reaching someone, and fourteen clippers are currently owed
-                  money they cannot be sent because of it. */}
-              <p className="mt-4 border-t border-border pt-4 text-sm text-muted-foreground">
-                Status:{" "}
-                {earnings?.payout_method ? (
-                  <span className="text-success">Ready to receive</span>
-                ) : (
-                  <span className="text-warning">No payout method — you can&apos;t be paid yet</span>
-                )}
-              </p>
+              {capped ? (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Up to <span className="font-medium text-foreground">{dollars(takeNow)}</span>{" "}
+                  per withdrawal — the rest stays for the next one.
+                </p>
+              ) : null}
             </div>
           </div>
 
