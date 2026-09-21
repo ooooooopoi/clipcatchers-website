@@ -56,14 +56,27 @@ export function SubmitClipForm({
   sig,
   accounts,
   campaigns,
+  initialCampaignId = "",
+  onSubmitted,
+  bare = false,
 }: {
   userId: string;
   sig: string;
   accounts: ClipperAccount[];
   campaigns: Campaign[];
+  /** Preselects the campaign — set when the form opens from a campaign card. */
+  initialCampaignId?: string;
+  /** Called after a successful submission; a card's dialog closes on it. */
+  onSubmitted?: () => void;
+  /**
+   * Drop the form's own card frame. On the Clips page the frame is what
+   * separates it from the list below; inside a dialog the dialog is the frame,
+   * and keeping both draws a card inside a card.
+   */
+  bare?: boolean;
 }) {
   const [platform, setPlatform] = useState<Platform>("TikTok");
-  const [campaignId, setCampaignId] = useState("");
+  const [campaignId, setCampaignId] = useState(initialCampaignId);
   const [accountId, setAccountId] = useState("");
   const [url, setUrl] = useState("");
   const [busy, setBusy] = useState(false);
@@ -177,13 +190,18 @@ export function SubmitClipForm({
       setUrl("");
       toast.success("Submitted. It'll show as pending until we've checked the post is yours.");
       startTransition(() => router.refresh());
+      onSubmitted?.();
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <div className="surface mt-4 rounded-2xl border border-border bg-card p-5 sm:p-6">
+    <div
+      className={
+        bare ? "" : "surface mt-4 rounded-2xl border border-border bg-card p-5 sm:p-6"
+      }
+    >
       {/* The link comes first now.
           It used to be third, after two dropdowns, which had the form asking
           for the answers a clipper has to think about before the one already

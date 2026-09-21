@@ -24,7 +24,7 @@ export default async function CampaignsPage({
   const filter: CampaignType =
     type === "active" || type === "ended" ? type : "all";
 
-  const { campaigns, offline } = await loadClipper(userId, sig);
+  const { campaigns, accounts, offline } = await loadClipper(userId, sig);
   const base = `/clipper/${encodeURIComponent(userId)}/${sig}`;
 
   // Paid-ad campaigns live on their own board. Excluded here rather than
@@ -94,7 +94,7 @@ export default async function CampaignsPage({
 
           <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {shown.map((c) => (
-              <CampaignCard key={c.id} campaign={c} href={`${base}/clips`} />
+              <CampaignCard key={c.id} campaign={c} userId={userId} sig={sig} accounts={accounts} />
             ))}
           </div>
         </>

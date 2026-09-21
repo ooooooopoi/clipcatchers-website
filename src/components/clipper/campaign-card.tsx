@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { CampaignArt } from "@/components/clipper/campaign-art";
 import { CampaignBrief } from "@/components/clipper/campaign-brief";
+import { SubmitClipDialog } from "@/components/clipper/submit-clip-dialog";
 import { compact, rateLabel } from "@/lib/clipper-data";
-import type { BotCampaign } from "@/lib/bot";
+import type { BotCampaign, ClipperAccount } from "@/lib/bot";
 
 /**
  * One campaign in the browse grid, led by its artwork and its rate.
@@ -22,11 +22,17 @@ import type { BotCampaign } from "@/lib/bot";
  */
 export function CampaignCard({
   campaign,
-  href,
+  userId,
+  sig,
+  accounts,
   showRules = false,
 }: {
   campaign: BotCampaign;
-  href: string;
+  /** Who is browsing — the submit dialog files the clip under them. */
+  userId: string;
+  sig: string;
+  /** Their registered accounts, so the dialog can offer the right ones. */
+  accounts: ClipperAccount[];
   /**
    * Put the campaign's own rules on the face of the card.
    *
@@ -152,12 +158,15 @@ export function CampaignCard({
             still lines its buttons up. */}
         <div className="mt-auto flex items-center gap-2 pt-4">
           {live ? (
-            <Link
-              href={href}
-              className="inline-flex h-9 flex-1 items-center justify-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              Submit a clip
-            </Link>
+            // Opens the form right here with this campaign preselected. It
+            // used to link to the Clips page, which then asked "which
+            // campaign?" — a question the click had already answered.
+            <SubmitClipDialog
+              campaign={campaign}
+              userId={userId}
+              sig={sig}
+              accounts={accounts}
+            />
           ) : (
             <span className="inline-flex h-9 flex-1 items-center justify-center rounded-lg border border-border px-3 text-sm text-muted-foreground">
               Closed

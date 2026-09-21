@@ -30,7 +30,7 @@ export default async function AdsPage({
   params: Promise<{ userId: string; sig: string }>;
 }) {
   const { userId, sig } = await params;
-  const { campaigns, offline } = await loadClipper(userId, sig);
+  const { campaigns, accounts, offline } = await loadClipper(userId, sig);
   const base = `/clipper/${encodeURIComponent(userId)}/${sig}`;
 
   const ads = campaigns
@@ -87,7 +87,7 @@ export default async function AdsPage({
               </h2>
               <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {live.map((c) => (
-                  <CampaignCard key={c.id} campaign={c} href={`${base}/clips`} showRules />
+                  <CampaignCard key={c.id} campaign={c} userId={userId} sig={sig} accounts={accounts} showRules />
                 ))}
               </div>
             </>
@@ -104,7 +104,7 @@ export default async function AdsPage({
               </h2>
               <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {ended.map((c) => (
-                  <CampaignCard key={c.id} campaign={c} href={`${base}/clips`} />
+                  <CampaignCard key={c.id} campaign={c} userId={userId} sig={sig} accounts={accounts} />
                 ))}
               </div>
             </>
