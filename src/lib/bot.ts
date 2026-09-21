@@ -169,6 +169,17 @@ export type BotCampaign = {
   image_url: string;
   /** Requirements and assets doc. Empty when there isn't one. */
   brief_url: string;
+  /**
+   * Budget consumed so far — approved and pending clips above the campaign's
+   * view floor. Optional because an older bot doesn't send it.
+   */
+  spent?: number;
+  /**
+   * 1 when the budget must not be shown to clippers. The bot sends the real
+   * figures regardless, because the team dashboard reads the same endpoint —
+   * so anything clipper-facing has to check this before rendering them.
+   */
+  hide_budget?: number;
   /** Unix seconds, 0 when the campaign never closed. */
   closed_at: number;
   /**

@@ -61,6 +61,8 @@ export function CampaignBrief({ campaign }: { campaign: BotCampaign }) {
             </DialogDescription>
           </DialogHeader>
 
+          <BudgetBar campaign={campaign} />
+
           {details.length > 0 ? (
             <Section label="The campaign">
               {details.map((line, i) => (
@@ -103,6 +105,78 @@ export function CampaignBrief({ campaign }: { campaign: BotCampaign }) {
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+/**
+ * How much of the campaign's money is still there to earn.
+ *
+ * ── Why a clipper needs this ─────────────────────────────────────────────
+ * The rate tells you what a view is worth; it doesn't tell you whether there
+ * is anything left to win. A campaign at 95% with a good rate is a worse bet
+ * than one at 20% with a lower one, and until now nothing on this page
+ * distinguished them — a clipper could cut for a budget that ran out while
+ * they were editing.
+ *
+ * ── What it deliberately doesn't do ──────────────────────────────────────
+ * Nothing renders when hide_budget is set. The bot sends the real figures
+ * either way because the team dashboard reads the same endpoint, so this is
+ * the check that keeps an undisclosed budget undisclosed.
+ *
+ * Spend counts approved *and pending* clips, so the bar can read higher than
+ * what has actually been paid. That is the honest direction to be wrong in:
+ * the money is committed the moment a clip qualifies, and a bar that only
+ * counted settled clips would show room that isn't there.
+ */
+function BudgetBar({ campaign }: { campaign: BotCampaign }) {
+  const budget = campaign.budget ?? 0;
+  const spent = campaign.spent ?? 0;
+  if (!budget || Number(campaign.hide_budget ?? 0) === 1) return null;
+
+  const pct = Math.min(100, (spent / budget) * 100);
+  const left = Math.max(0, budget - spent);
+  // Under a couple of percent the fill is a sliver that reads as nothing at
+  // all, so it gets a floor — the bar's job is to say "barely touched", not
+  // to be measured with a ruler.
+  const width = spent > 0 ? Math.max(pct, 2) : 0;
+  const nearlyGone = pct >= 90;
+
+  return (
+    <section>
+      <div className="flex items-baseline justify-between gap-3">
+        <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          Budget
+        </h3>
+        <p className="font-mono text-xs text-muted-foreground">
+          <span className={nearlyGone ? "text-warning" : "text-foreground"}>
+            ${left.toFixed(2)}
+          </span>{" "}
+          left of ${budget.toFixed(2)}
+        </p>
+      </div>
+      <div
+        className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted"
+        role="progressbar"
+        aria-valuenow={Math.round(pct)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`${Math.round(pct)}% of the budget used`}
+      >
+        <div
+          className={`h-full rounded-full transition-all ${
+            nearlyGone ? "bg-warning" : "bg-primary"
+          }`}
+          style={{ width: `${width}%` }}
+        />
+      </div>
+      <p className="mt-1.5 text-xs text-muted-foreground">
+        {pct >= 100
+          ? "Fully committed — this campaign is done paying out."
+          : nearlyGone
+            ? `${Math.round(pct)}% committed. Close to the cap, so cut soon or pick another.`
+            : `${Math.round(pct)}% committed.`}
+      </p>
+    </section>
   );
 }
 
