@@ -212,7 +212,7 @@ export function SubmitClipForm({
                 : "https://www.instagram.com/reel/…"
             }
             className={cn(
-              "h-12 w-full rounded-xl border bg-background pl-9 pr-24 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring",
+              "h-12 w-full rounded-2xl border bg-background pl-9 pr-24 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring",
               looksWrong
                 ? "border-warning/60 focus-visible:border-warning"
                 : "border-border hover:border-[hsl(var(--border-strong))] focus-visible:border-foreground",
@@ -341,7 +341,7 @@ function Notice({ tone, children }: { tone: "warning"; children: React.ReactNode
   return (
     <p
       className={cn(
-        "rounded-xl border p-4 text-sm leading-relaxed",
+        "rounded-2xl border p-4 text-sm leading-relaxed",
         tone === "warning" && "border-warning/30 bg-warning/10 text-warning",
       )}
     >

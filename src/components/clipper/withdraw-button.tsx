@@ -199,28 +199,34 @@ export function WithdrawButton({
     gasFromClipper ? "the network fee for the transfer" : null,
   ].filter(Boolean);
 
+  // Amount above, action below, both the full width of the card. The two used
+  // to sit side by side, which left the one button that moves money the same
+  // size as the box beside it and no wider than its own label.
   return (
-    <div className="mt-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-            $
-          </span>
-          <input
-            type="text"
-            inputMode="decimal"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ""))}
-            placeholder={withdrawable.toFixed(2)}
-            aria-label="Amount to withdraw"
-            disabled={!enough || busy}
-            className="h-10 w-32 rounded-lg border border-border bg-background pl-6 pr-3 font-mono text-sm outline-none transition-colors focus:border-primary disabled:opacity-50"
-          />
-        </div>
-        <Button type="button" onClick={() => void withdraw()} loading={busy} disabled={!enough}>
-          {busy ? "Sending…" : amount.trim() ? `Withdraw $${amount.trim()}` : "Withdraw it all"}
-        </Button>
+    <div className="mt-5">
+      <div className="relative">
+        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-base text-muted-foreground">
+          $
+        </span>
+        <input
+          type="text"
+          inputMode="decimal"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ""))}
+          placeholder={withdrawable.toFixed(2)}
+          aria-label="Amount to withdraw"
+          disabled={!enough || busy}
+          className="h-12 w-full rounded-2xl border border-border bg-background/60 pl-8 pr-4 font-mono text-base outline-none transition-colors focus:border-primary disabled:opacity-50"
+        />
       </div>
+      <button
+        type="button"
+        onClick={() => void withdraw()}
+        disabled={!enough || busy}
+        className="mt-3 h-12 w-full rounded-2xl border border-border bg-transparent text-base font-semibold transition-colors hover:border-[hsl(var(--border-strong))] hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        {busy ? "Sending…" : amount.trim() ? `Withdraw $${amount.trim()}` : "Withdraw"}
+      </button>
       <p className="mt-2 max-w-md text-xs text-muted-foreground">
         {!enough
           ? `Minimum withdrawal is $${minimum.toFixed(0)}. Below that the transfer fee costs more than the payment is worth, so it stays here and keeps growing.`

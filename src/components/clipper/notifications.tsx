@@ -127,7 +127,7 @@ export function ClipperNotifications({
           </SheetHeader>
 
           {notices.length === 0 ? (
-            <div className="mt-10 rounded-xl border border-dashed border-border px-6 py-12 text-center">
+            <div className="mt-10 rounded-2xl border border-dashed border-border px-6 py-12 text-center">
               <Bell className="mx-auto h-5 w-5 text-muted-foreground/60" aria-hidden="true" />
               <p className="mt-3 text-sm font-medium">Nothing to report</p>
               <p className="mt-1.5 text-sm text-muted-foreground">
@@ -230,7 +230,7 @@ function NoticeRow({
   );
 
   const shell = cn(
-    "flex w-full gap-3 rounded-xl border p-3 text-left transition-colors",
+    "flex w-full gap-3 rounded-2xl border p-3 text-left transition-colors",
     unread ? "border-primary/30 bg-primary/[0.04]" : "border-border",
   );
 

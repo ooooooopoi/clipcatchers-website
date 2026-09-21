@@ -103,7 +103,7 @@ export function AccountManager({
   return (
     <>
       {accounts.length === 0 ? (
-        <p className="mt-8 rounded-xl border border-dashed border-border py-16 text-center text-sm text-muted-foreground">
+        <p className="mt-8 rounded-2xl border border-dashed border-border py-16 text-center text-sm text-muted-foreground">
           No accounts registered yet. Add the profile you post from to start submitting clips.
         </p>
       ) : (
@@ -111,7 +111,7 @@ export function AccountManager({
           {accounts.map((a) => (
             <li
               key={a.id}
-              className="surface flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3.5"
+              className="surface flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3.5"
             >
               <span className="rounded-md border border-border px-2 py-0.5 text-xs text-muted-foreground">
                 {a.platform}
@@ -138,7 +138,7 @@ export function AccountManager({
       {/* The code, once. It is never returned by any read endpoint, so if they
           navigate away it has to come from /my-accounts in Discord. */}
       {issued && (
-        <div className="surface mt-4 max-w-2xl rounded-xl border border-primary/30 bg-primary/5 px-5 py-4">
+        <div className="surface mt-4 max-w-2xl rounded-2xl border border-primary/30 bg-primary/5 px-5 py-4">
           <p className="text-sm font-medium">@{issued.handle} added — one step left</p>
           <p className="mt-1.5 text-sm text-muted-foreground">
             Put this code in your bio, then it can be verified:
@@ -171,7 +171,7 @@ export function AccountManager({
           </Button>
         </div>
       ) : adding ? (
-        <div className="surface mt-6 max-w-2xl space-y-4 rounded-xl border border-border bg-card p-5">
+        <div className="surface mt-6 max-w-2xl space-y-4 rounded-2xl border border-border bg-card p-5">
           <div>
             <Label>Platform</Label>
             <div className="mt-2 flex flex-wrap gap-2">

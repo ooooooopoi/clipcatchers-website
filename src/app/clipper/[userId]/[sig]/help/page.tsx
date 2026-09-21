@@ -57,7 +57,7 @@ export default async function HelpPage({
         {FAQ.map((item) => (
           <div
             key={item.q}
-            className="surface rounded-xl border border-border bg-card px-5 py-4"
+            className="surface rounded-2xl border border-border bg-card px-5 py-4"
           >
             <dt className="font-medium">{item.q}</dt>
             <dd className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.a}</dd>

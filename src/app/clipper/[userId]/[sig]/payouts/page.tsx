@@ -58,12 +58,12 @@ export default async function PayoutsPage({
           {/* The split matters: money from a campaign that hasn't been released
               is earned but not reachable, and one combined total would read as
               "you have this" when /withdraw would refuse most of it. */}
-          <div className="surface mt-8 max-w-2xl rounded-2xl border border-border bg-card">
-            <div className="border-b border-border px-5 py-6 sm:px-7 sm:py-7">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                Ready to withdraw
-              </p>
-              <p className="mt-1.5 font-mono text-3xl font-semibold tracking-tight text-primary-ink sm:text-4xl">
+          <div className="surface mt-8 max-w-2xl overflow-hidden rounded-3xl border border-border bg-card">
+            <div className="border-b border-border px-6 py-7 sm:px-8 sm:py-8">
+              <p className="text-sm text-muted-foreground">Ready to withdraw</p>
+              {/* The balance is the reason the page exists, so it is set at a
+                  size nothing else here approaches. */}
+              <p className="mt-2 font-mono text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
                 {dollars(withdrawable)}
               </p>
 
@@ -109,7 +109,7 @@ export default async function PayoutsPage({
                 clipper who cannot set this cannot be paid at all, and sending
                 them to another app to fix the one thing blocking their money
                 is where most of them would stop. */}
-            <div className="border-t border-border px-5 py-4 sm:px-7">
+            <div className="px-6 py-6 sm:px-8">
               <PayoutMethodForm
                 userId={userId}
                 sig={sig}
@@ -117,6 +117,18 @@ export default async function PayoutsPage({
                 masked={earnings?.payout_address ?? ""}
                 signedInAs={session?.user?.discordId ?? null}
               />
+              {/* Said outright rather than left to be inferred from a blank
+                  field. Not having one is the single thing that stops money
+                  reaching someone, and fourteen clippers are currently owed
+                  money they cannot be sent because of it. */}
+              <p className="mt-4 border-t border-border pt-4 text-sm text-muted-foreground">
+                Status:{" "}
+                {earnings?.payout_method ? (
+                  <span className="text-success">Ready to receive</span>
+                ) : (
+                  <span className="text-warning">No payout method — you can&apos;t be paid yet</span>
+                )}
+              </p>
             </div>
           </div>
 
@@ -132,7 +144,7 @@ export default async function PayoutsPage({
               Not available yet
             </h2>
             <ul className="mt-3 space-y-2">
-              <li className="surface flex flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-xl border border-border bg-card px-4 py-3.5">
+              <li className="surface flex flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-2xl border border-border bg-card px-4 py-3.5">
                 <div className="min-w-0">
                   <p className="text-sm font-medium">On campaigns still running</p>
                   <p className="text-xs text-muted-foreground">
@@ -143,7 +155,7 @@ export default async function PayoutsPage({
                   {dollars(earnings?.running ?? 0)}
                 </span>
               </li>
-              <li className="surface flex flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-xl border border-border bg-card px-4 py-3.5">
+              <li className="surface flex flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-2xl border border-border bg-card px-4 py-3.5">
                 <div className="min-w-0">
                   <p className="text-sm font-medium">Finished, awaiting release</p>
                   <p className="text-xs text-muted-foreground">
@@ -166,7 +178,7 @@ export default async function PayoutsPage({
                 used to print the second under a label promising the first —
                 someone who had withdrawn early saw a figure hundreds below
                 their own wallet, with nothing on the page explaining it. */}
-            <div className="surface mt-3 grid grid-cols-2 divide-x divide-border rounded-xl border border-border bg-card">
+            <div className="surface mt-3 grid grid-cols-2 divide-x divide-border rounded-2xl border border-border bg-card">
               <Stat value={dollars(totalSent)} label="paid to you so far" />
               <Stat value={formatNumber(earnings?.clips ?? 0)} label="clips submitted" />
             </div>

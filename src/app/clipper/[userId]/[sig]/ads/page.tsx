@@ -54,7 +54,7 @@ export default async function AdsPage({
         // Not the generic "nothing here" box. This board is empty most of the
         // time, and an empty state that reads as a fault gets reported as one
         // — so it says what would fill it and where to go meanwhile.
-        <div className="mt-8 rounded-xl border border-dashed border-border px-6 py-16 text-center">
+        <div className="mt-8 rounded-2xl border border-dashed border-border px-6 py-16 text-center">
           <Megaphone className="mx-auto h-6 w-6 text-muted-foreground/60" aria-hidden="true" />
           <p className="mt-3 text-sm font-medium">No paid-ad campaigns right now</p>
           <p className="mx-auto mt-1.5 max-w-sm text-sm text-muted-foreground">
@@ -92,7 +92,7 @@ export default async function AdsPage({
               </div>
             </>
           ) : (
-            <p className="mt-8 rounded-xl border border-dashed border-border py-12 text-center text-sm text-muted-foreground">
+            <p className="mt-8 rounded-2xl border border-dashed border-border py-12 text-center text-sm text-muted-foreground">
               None open right now. The finished ones are below.
             </p>
           )}

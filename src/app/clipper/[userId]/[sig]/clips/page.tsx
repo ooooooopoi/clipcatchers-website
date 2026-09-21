@@ -46,7 +46,7 @@ export default async function ClipsPage({
             </h2>
 
             {groups.length === 0 ? (
-              <p className="mt-4 rounded-xl border border-dashed border-border py-16 text-center text-sm text-muted-foreground">
+              <p className="mt-4 rounded-2xl border border-dashed border-border py-16 text-center text-sm text-muted-foreground">
                 Nothing submitted yet.
               </p>
             ) : (
@@ -82,7 +82,7 @@ export default async function ClipsPage({
                       {group.clips.map((clip) => (
                         <li
                           key={clip.id}
-                          className="surface flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card px-4 py-3"
+                          className="surface flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3"
                         >
                           <span
                             className={`shrink-0 rounded-full border px-2 py-0.5 text-xs font-medium ${

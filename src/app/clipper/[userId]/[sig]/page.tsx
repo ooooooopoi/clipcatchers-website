@@ -77,7 +77,7 @@ export default async function CampaignsPage({
       {offline ? (
         <BotOffline />
       ) : shown.length === 0 ? (
-        <p className="mt-8 rounded-xl border border-dashed border-border py-16 text-center text-sm text-muted-foreground">
+        <p className="mt-8 rounded-2xl border border-dashed border-border py-16 text-center text-sm text-muted-foreground">
           {filter === "active"
             ? "Nothing is open right now. Your existing clips keep earning."
             : filter === "ended"

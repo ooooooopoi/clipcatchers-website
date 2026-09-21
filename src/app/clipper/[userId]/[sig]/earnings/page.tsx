@@ -85,7 +85,7 @@ export default async function EarningsPage({
             </h2>
 
             {groups.length === 0 ? (
-              <p className="mt-4 rounded-xl border border-dashed border-border py-16 text-center text-sm text-muted-foreground">
+              <p className="mt-4 rounded-2xl border border-dashed border-border py-16 text-center text-sm text-muted-foreground">
                 Nothing yet. Submit a clip to a live campaign and it shows up here.
               </p>
             ) : (
@@ -98,7 +98,7 @@ export default async function EarningsPage({
                 {groups.map((group) => (
                   <li
                     key={group.id}
-                    className="surface flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-border bg-card px-4 py-3.5"
+                    className="surface flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl border border-border bg-card px-4 py-3.5"
                   >
                     <span className="min-w-0 flex-1 truncate font-medium">{group.name}</span>
                     <span className="text-xs text-muted-foreground">
@@ -138,7 +138,7 @@ export default async function EarningsPage({
                     // clips — so a clip can stand "unpaid" above while most of
                     // its value is in the wallet already. Without this row the
                     // page quietly claims that money is still coming.
-                    <li className="surface flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-border bg-card px-4 py-3.5">
+                    <li className="surface flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl border border-border bg-card px-4 py-3.5">
                       <span className="min-w-0 flex-1 truncate font-medium">
                         Already withdrawn, ahead of clips settling
                       </span>
