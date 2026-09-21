@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CampaignArt } from "@/components/clipper/campaign-art";
+import { CampaignBrief } from "@/components/clipper/campaign-brief";
 import { compact, rateLabel } from "@/lib/clipper-data";
 import type { BotCampaign } from "@/lib/bot";
 
@@ -114,27 +115,10 @@ export function CampaignCard({
           ) : null}
         </div>
 
-        {/* What the campaign says about itself — on a music campaign this is
-            where the sound link lives, which is the one thing a clipper cannot
-            start without. It was stored, shown on the Discord card, and
-            rendered nowhere on the website: nineteen campaigns carried details
-            that no clipper browsing here could see. */}
-        {(campaign.details || "").trim() ? (
-          <ul className="mt-3 space-y-1">
-            {(campaign.details || "")
-              .split("\n")
-              // The whitespace is required. Without it this strips the first
-              // character of "**Language:** English only", leaving a stray
-              // asterisk on every bolded line the campaign wrote for Discord.
-              .map((line) => line.trim().replace(/^[•\-*]\s+/, ""))
-              .filter(Boolean)
-              .map((line, i) => (
-                <li key={`${line}-${i}`} className="text-xs leading-relaxed text-muted-foreground">
-                  <DetailLine line={line} />
-                </li>
-              ))}
-          </ul>
-        ) : null}
+        {/* Details live behind the Brief button rather than on the card. They
+            were printed here for a moment and a campaign with four lines of
+            them made its entire row that tall — the grid is for comparing
+            rates, the brief is for after you have picked one. */}
 
         {/* The campaign's own conditions, in its own words. Rendered as written
             rather than summarised — they are short, and a paraphrase of a rule
@@ -180,16 +164,7 @@ export function CampaignCard({
             </span>
           )}
 
-          {campaign.brief_url ? (
-            <a
-              href={campaign.brief_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex h-9 shrink-0 items-center justify-center rounded-lg border border-border px-3 text-sm transition-colors hover:bg-accent"
-            >
-              Brief
-            </a>
-          ) : null}
+          <CampaignBrief campaign={campaign} />
         </div>
       </div>
     </article>
