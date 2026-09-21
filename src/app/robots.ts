@@ -15,7 +15,20 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/", "/dashboard", "/campaigns", "/analytics", "/billing", "/settings", "/c/", "/team/"],
+      // /brief/ is on the list for the same reason /c/ is: a brief carries a
+      // rate and a budget, which is a commercial position rather than
+      // something to be indexed.
+      disallow: [
+        "/api/",
+        "/dashboard",
+        "/campaigns",
+        "/analytics",
+        "/billing",
+        "/settings",
+        "/c/",
+        "/team/",
+        "/brief/",
+      ],
     },
     sitemap: `${BASE}/sitemap.xml`,
   };
