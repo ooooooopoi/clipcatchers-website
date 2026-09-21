@@ -62,7 +62,7 @@ export default async function AdsPage({
             shows up here with its own rate and spend rules.
           </p>
           <a
-            href={base}
+            href={`${base}/explore`}
             className="mt-5 inline-block text-sm text-primary-ink underline-offset-4 hover:underline"
           >
             Browse organic campaigns →

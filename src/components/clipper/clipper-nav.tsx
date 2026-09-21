@@ -6,6 +6,7 @@ import {
   BadgeDollarSign,
   CircleHelp,
   DollarSign,
+  Compass,
   LayoutDashboard,
   Store,
   Trophy,
@@ -27,6 +28,7 @@ import {
  */
 const SECTIONS = [
   { href: "", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/explore", label: "Explore", icon: Compass },
   // Paid placement, deliberately next to Campaigns rather than further down:
   // it is the other half of the same question ("what can I cut?"), and the
   // two boards only work as a pair if finding one means finding the other.
