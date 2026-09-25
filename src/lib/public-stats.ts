@@ -189,6 +189,14 @@ async function query(): Promise<PublicStats> {
   // racing on bad arithmetic is worse than one that sits still — so this
   // stops rather than guesses. Seed rows were one cause; this catches the
   // next one without needing to know what it is.
+  //
+  // ── Why this stays a share of 100% and not something tighter ────────────
+  // A tighter bound looks safer and is wrong here. The window currently reads
+  // 55% of lifetime, which sounds impossible until you count the campaigns:
+  // sixteen closed in the last thirty days, at roughly 10M delivered each.
+  // The business is young enough that most of what it has ever delivered
+  // genuinely did happen this month, and a ceiling set by intuition rather
+  // than by counting would have frozen a counter that was telling the truth.
   const rateIsCredible = viewsInWindow > 0 && viewsInWindow <= totalViews;
 
   return {

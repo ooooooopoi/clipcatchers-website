@@ -49,11 +49,36 @@ export function LiveViews({
   // re-render can't restart the clock and make the number jump backwards.
   const anchor = useRef({ value: initial, at: Date.now() });
 
-  // A new `initial` means a real refresh landed. Re-anchor on it: the counter
-  // snaps back to a read figure rather than drifting away from one forever.
+  // The highest figure this session has shown, so the number can never walk
+  // backwards. Separate from the anchor on purpose — see below.
+  const peak = useRef(initial);
+
+  // A new `initial` means a real refresh landed.
+  //
+  // ── Why the display is floored but the anchor is not ────────────────────
+  // Impressions delivered is cumulative, so on screen it must only ever climb.
+  // This used to setViews(initial) flat, which walked the number visibly
+  // backwards on any refresh that landed below the projection — the common
+  // case, not the rare one, since the rate is a 30-day average while delivery
+  // comes in campaign-shaped bursts. A counter that counts down is a counter
+  // advertising that it was made up, on the one figure this page asks to be
+  // believed.
+  //
+  // The floor goes on the displayed value only. Anchoring on it instead —
+  // which is what the obvious one-line fix does — feeds the projection its own
+  // output, and it compounds: measured over a quiet hour that ran 170k clear
+  // of the server and kept climbing, which is the same lie in the other
+  // direction. Projecting from the last real read means an overshoot is spent
+  // down rather than banked: the number holds flat until delivery catches up
+  // with it, then ticks on.
+  //
+  // A genuine fall — an audit rejecting clips takes their views with them —
+  // shows up on the next page load, which starts from the server's figure.
   useEffect(() => {
     anchor.current = { value: initial, at: Date.now() };
-    setViews(initial);
+    const next = Math.max(peak.current, initial);
+    peak.current = next;
+    setViews(next);
   }, [initial]);
 
   useEffect(() => {
@@ -83,7 +108,10 @@ export function LiveViews({
     // tick would have, it just gets there in fewer steps.
     const tick = () => {
       const elapsed = (Date.now() - anchor.current.at) / 1000;
-      setViews(anchor.current.value + Math.floor(elapsed * perSecond));
+      const projected = anchor.current.value + Math.floor(elapsed * perSecond);
+      const next = Math.max(projected, peak.current);
+      peak.current = next;
+      setViews(next);
     };
 
     // A tab restored from the background may have missed many intervals.
