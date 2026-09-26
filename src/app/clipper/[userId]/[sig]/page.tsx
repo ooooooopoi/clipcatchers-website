@@ -43,6 +43,12 @@ export default async function DashboardPage({
   // one they posted last.
   const clips = [...(earnings?.breakdown ?? [])].sort((a, b) => b.id - a.id);
 
+  // The audit's own thresholds, straight from the bot. Null when an older bot
+  // doesn't send them, which switches the engagement guidance off rather than
+  // letting the page invent a bar of its own.
+  const floorPct = earnings?.engagement_floor_pct ?? null;
+  const floorFrom = earnings?.engagement_min_views ?? null;
+
   return (
     <>
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -140,6 +146,12 @@ export default async function DashboardPage({
                       <span className="font-mono text-xs text-muted-foreground">
                         {compact(clip.views)} views
                       </span>
+                      <Engagement
+                        pct={clip.engagement_pct}
+                        views={clip.views}
+                        floor={floorPct}
+                        minViews={floorFrom}
+                      />
                       {/* Worth is provisional while the campaign runs; muted
                           until it's a settled figure, so a moving number
                           doesn't dress as a promise. */}
@@ -175,6 +187,15 @@ export default async function DashboardPage({
                         Under the campaign&apos;s view floor — earns nothing until it
                         passes it.
                       </p>
+                    ) : atRisk(clip, floorPct, floorFrom) ? (
+                      // Said only while it can still be acted on. Once the
+                      // campaign closes the audit has already run, and telling
+                      // someone their engagement is low about a clip they can
+                      // no longer affect is just a poke.
+                      <p className="mt-1.5 pl-5 text-xs text-warning">
+                        Engagement is under {floorPct}% — clips below that can be
+                        rejected when the campaign closes.
+                      </p>
                     ) : null}
                   </li>
                 ))}
@@ -184,6 +205,72 @@ export default async function DashboardPage({
         </>
       )}
     </>
+  );
+}
+
+/**
+ * Whether a clip is heading for rejection on engagement, and can still be
+ * helped.
+ *
+ * All four conditions matter. Unread clips have no percentage and must not be
+ * accused on a number nobody measured; below the view floor the ratio is noise
+ * on a handful of interactions; a clip already rejected has its real reason
+ * printed above this; and once the campaign has closed the audit has run, so
+ * the warning is advice about a decision already taken.
+ */
+function atRisk(
+  clip: { engagement_pct?: number | null; views: number; status: string; campaign_active: boolean },
+  floor: number | null,
+  minViews: number | null,
+): boolean {
+  if (floor === null || minViews === null) return false;
+  if (clip.engagement_pct == null) return false;
+  return (
+    clip.views >= minViews &&
+    clip.engagement_pct < floor &&
+    clip.status === "approved" &&
+    clip.campaign_active
+  );
+}
+
+/**
+ * A clip's engagement, or nothing.
+ *
+ * Renders only when there is a real reading. Most clips are never scraped, and
+ * a dash in the column reads as "zero engagement" to the person whose clip it
+ * is — worse than leaving the space empty, because it is an accusation made out
+ * of missing data.
+ */
+function Engagement({
+  pct,
+  views,
+  floor,
+  minViews,
+}: {
+  pct?: number | null;
+  views: number;
+  floor: number | null;
+  minViews: number | null;
+}) {
+  if (pct == null) return null;
+
+  // Only coloured once the ratio means something. Under the view floor a
+  // couple of likes swing it by whole percent, and red on that is a scare
+  // about arithmetic rather than about the clip.
+  const judged = floor !== null && minViews !== null && views >= minViews;
+  const low = judged && pct < floor;
+
+  return (
+    <span
+      className={`font-mono text-xs ${low ? "text-warning" : "text-muted-foreground"}`}
+      title={
+        judged
+          ? `Likes, comments, shares and saves as a share of views. The close audit expects above ${floor}%.`
+          : `Likes, comments, shares and saves as a share of views. Only judged above ${minViews?.toLocaleString()} views.`
+      }
+    >
+      {pct.toFixed(1)}% eng
+    </span>
   );
 }
 

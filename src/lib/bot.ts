@@ -357,6 +357,19 @@ export type ClipperClip = {
   /** Above zero views but under the campaign floor, so earning nothing yet. */
   below_min: boolean;
   flag_reason: string;
+  /**
+   * (likes + comments + shares + saves) as a percentage of views, on the same
+   * formula the close audit judges a clip by.
+   *
+   * Null when nothing has been read yet, which is a different fact from 0% and
+   * must not render as one — most clips are never scraped at all. Optional
+   * because an older bot doesn't send the field.
+   */
+  engagement_pct?: number | null;
+  likes?: number | null;
+  comments?: number | null;
+  shares?: number | null;
+  saves?: number | null;
 };
 
 export type ClipperEarnings = {
@@ -435,6 +448,16 @@ export type ClipperEarnings = {
    * cast, so nothing caught it.
    */
   breakdown: ClipperClip[];
+  /**
+   * The engagement bar the close audit applies, and the view count above which
+   * it applies at all — sent by the bot rather than written here, so the figure
+   * a clipper reads can't drift from the one that rejects their clip.
+   *
+   * Optional because an older bot doesn't send them; the page hides the
+   * guidance rather than inventing a threshold.
+   */
+  engagement_floor_pct?: number;
+  engagement_min_views?: number;
 };
 
 export type ClipperAccount = { id: number; platform: string; handle: string };
