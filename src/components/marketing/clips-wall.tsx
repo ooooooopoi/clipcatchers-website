@@ -1,7 +1,7 @@
 import { unstable_cache } from "next/cache";
-import { looksEnglish } from "@/lib/caption-language";
 import { prisma } from "@/lib/prisma";
 import { formatCompact } from "@/lib/format";
+import { WALL_CLIPS } from "@/lib/wall-clips";
 
 /**
  * Real clips, on the front page, running edge to edge.
@@ -25,15 +25,13 @@ import { formatCompact } from "@/lib/format";
  * opposite phase and the seam jumps every cycle. `usable` enforces that;
  * don't make it odd.
  *
- ── Curated, not ranked ─────────────────────────────────────────────────
- * featuredRank decides what shows; scripts/feature-clips.ts sets it. Ranking
- * by views put French, Portuguese and Indonesian posts on an English homepage,
- * because the language is burned into the video frame where no caption test
- * reaches it — of the first twenty-five resolved clips, four were English.
- *
- * lib/caption-language.ts is now only the fallback, for when nothing is
- * picked. It reads captions, so it catches what a post declares and never what
- * it shows; that is exactly why curation exists above it.
+ ── Curated, and the list is in the code ─────────────────────────────────
+ * lib/wall-clips.ts decides what shows, in order. It replaced featuredRank,
+ * which lived in the production database and could only be changed from a
+ * session with access to it, so the belt went weeks without being refreshed.
+ * Ranking by views never worked here: the language is burned into the video
+ * frame where no caption test reaches it, and most top posts are slideshows.
+ * See that file for how the current set was chosen.
  *
  * ── Views, no handles, no link ──────────────────────────────────────────
  * The tiles are inert. They used to open the post, which is what made this
@@ -46,93 +44,53 @@ import { formatCompact } from "@/lib/format";
  * /videos/<externalId>.mp4, fetched and shrunk by scripts/fetch-clip-videos.py
  * and served off the CDN with the rest of the site. Re-hosted on the owner's
  * statement that the clipper terms grant reuse of submitted clips; if that
- * stops being true, delete public/videos and the poster fallback takes over
- * with no code change.
+ * stops being true, empty WALL_CLIPS and the section renders nothing.
  *
  * Views is also all there is: the bot's sync payload carries externalId, url,
  * platform, handle and views per clip, so the likes and shares it does track
  * never reach this database.
  *
- * ── Only clips with a cached thumbnail ───────────────────────────────────
- * ~91% of submitted links are vt.tiktok.com short links, which TikTok's
- * oEmbed refuses; each needs a redirect round trip of several seconds first.
- * scripts/resolve-clips.ts does that out of band and this only reads the
- * result, so a page render never waits on tiktok.com. oEmbed serves /video/
- * and not /photo/, and many of the best clips are photo posts — they have no
- * thumbnail and are absent, so this is the best *video* clips.
+ * ── No poster ───────────────────────────────────────────────────────────
+ * The poster used to be the TikTok thumbnail. Those URLs are signed and
+ * expire: on 2026-09-28 all twelve on the live belt answered 403, so every
+ * tile opened on a broken image until its video loaded. The first frame of
+ * the video is the poster now — preload="metadata" fetches just enough to
+ * paint it.
  */
 export type WallClip = {
-  href: string;
   /** Names the file under /videos — see fetch-clip-videos.py. */
   externalId: string;
-  thumbnailUrl: string;
   views: number;
 };
 
 /** Below this the belt has visible gaps between repeats. */
 const MINIMUM = 6;
-const WANTED = 12;
-/**
- * Read this many before filtering. The English test runs in JS on the stored
- * caption — it isn't expressible as a Prisma where — so the query has to
- * over-fetch or a run of French clips would starve the belt.
- */
-const CANDIDATES = 60;
-
-const select = {
-  externalId: true,
-  url: true,
-  canonicalUrl: true,
-  thumbnailUrl: true,
-  views: true,
-  caption: true,
-} as const;
 
 const load = unstable_cache(
   async (): Promise<WallClip[]> => {
-    const shape = (r: {
-      externalId: string;
-      url: string;
-      canonicalUrl: string | null;
-      thumbnailUrl: string | null;
-      views: number;
-    }) => ({
-      href: r.canonicalUrl ?? r.url,
-      externalId: r.externalId,
-      thumbnailUrl: r.thumbnailUrl as string,
-      views: r.views,
-    });
-
-    // Hand-picked wins outright. A curated list has already been looked at, so
-    // it skips the language guess entirely — that test reads captions, and the
-    // reason curation exists is that the language is in the pixels.
-    const featured = await prisma.campaignClip.findMany({
-      where: {
-        featuredRank: { not: null },
-        thumbnailUrl: { not: null },
-        campaign: { status: { not: "PENDING" } },
-      },
-      orderBy: { featuredRank: "asc" },
-      select,
-    });
-    if (featured.length >= MINIMUM) return featured.map(shape);
-
-    // Nothing picked (or too few survived a re-sync): fall back to the best
-    // by views that the caption test doesn't rule out. Weaker — it cannot see
-    // burned-in text — but better than an empty band.
-    const rows = await prisma.campaignClip.findMany({
-      where: {
-        thumbnailUrl: { not: null },
-        views: { gt: 0 },
-        campaign: { status: { not: "PENDING" } },
-      },
-      orderBy: { views: "desc" },
-      take: CANDIDATES,
-      select,
-    });
-    return rows.filter((r) => looksEnglish(r.caption)).slice(0, WANTED).map(shape);
+    // The list decides what shows and in what order. The database is only
+    // asked for fresher view counts, and it is allowed to be down: a belt
+    // with the counts as picked is better than no belt, which is what a
+    // failed query used to produce.
+    let live = new Map<string, number>();
+    try {
+      const rows = await prisma.campaignClip.findMany({
+        where: { externalId: { in: WALL_CLIPS.map((c) => c.externalId) } },
+        select: { externalId: true, views: true },
+      });
+      live = new Map(rows.map((r) => [r.externalId, r.views]));
+    } catch (error) {
+      console.error("clips-wall: live view counts unavailable, using the picked ones", error);
+    }
+    // Views only accumulate, so the larger of the two readings is the newer
+    // one. Taking the max also means a payable-capped figure in the database
+    // can never show a clip smaller than it was when it was chosen.
+    return WALL_CLIPS.map((c) => ({
+      externalId: c.externalId,
+      views: Math.max(c.views, live.get(c.externalId) ?? 0),
+    }));
   },
-  ["clips-wall"],
+  ["clips-wall-v2"],
   { revalidate: 3600, tags: ["clips-wall"] },
 );
 
@@ -153,24 +111,18 @@ function Phone({ clip, index }: { clip: WallClip; index: number }) {
         <div className="relative rounded-[1.6rem] bg-neutral-900 p-[5px] shadow-[0_18px_40px_-12px_rgba(15,23,42,0.45)] ring-1 ring-black/5">
           <div className="absolute left-1/2 top-[9px] z-10 h-[5px] w-10 -translate-x-1/2 rounded-full bg-neutral-700/90" />
           <div className="relative aspect-[9/17] overflow-hidden rounded-[1.3rem] bg-neutral-800">
-            {/* The thumbnail is the poster, which makes the fallback free: if
-                the file under /videos is missing — never fetched, or the
-                rights position changed and it was deleted — the browser shows
-                the poster and the belt looks exactly as it did before there
-                was any video at all. No existence check, no build step.
-
-                muted + playsInline are what make autoplay legal on iOS and
-                Chrome; without both, twelve tiles sit frozen on mobile.
-                preload="none" keeps first paint off the hook — the poster is
-                already on screen, so nothing is waiting on a video file. */}
+            {/* muted + playsInline are what make autoplay legal on iOS and
+                Chrome; without both, every tile sits frozen on mobile.
+                No poster: see "No poster" at the top of this file.
+                preload="metadata" is a few KB per tile and paints the first
+                frame, which is what the poster used to be for. */}
             <video
               src={`/videos/${clip.externalId}.mp4`}
-              poster={clip.thumbnailUrl}
               autoPlay
               muted
               loop
               playsInline
-              preload="none"
+              preload="metadata"
               aria-hidden
               className="h-full w-full object-cover"
             />
@@ -194,7 +146,7 @@ function Run({ clips, ariaHidden }: { clips: WallClip[]; ariaHidden?: boolean })
       {...(ariaHidden ? { "aria-hidden": true } : {})}
     >
       {clips.map((clip, i) => (
-        <Phone key={clip.href} clip={clip} index={i} />
+        <Phone key={clip.externalId} clip={clip} index={i} />
       ))}
     </ul>
   );

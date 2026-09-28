@@ -52,6 +52,12 @@ if not os.path.exists(YTDLP):
 SECONDS = 5
 HEIGHT = 640          # from 1280; still sharp in a 150px-wide phone frame
 CRF = "30"            # visually fine at this size, roughly a third the bytes
+# A ceiling on top of CRF. Constant quality is meant to spend more bits on
+# busy footage, and it does: at CRF 30 the same five seconds ranged from 67
+# to 1494 kb/s, so two tiles came out near 1 MB each, a quarter of the belt.
+# 560k over 5 s is ~350 KB. It is affordable because of where these play — a
+# 150px muted tile, where the detail it gives up cannot be seen.
+MAXRATE, BUFSIZE = "560k", "1120k"
 
 DRY = "--dry" in sys.argv
 
@@ -94,6 +100,7 @@ def main():
                    "-t", str(SECONDS), "-an",
                    "-vf", f"scale=-2:{HEIGHT}",
                    "-c:v", "libx264", "-preset", "slow", "-crf", CRF,
+                   "-maxrate", MAXRATE, "-bufsize", BUFSIZE,
                    "-pix_fmt", "yuv420p", "-movflags", "+faststart", final])
         if enc.returncode != 0 or not os.path.exists(final):
             print(f"    {external_id:>6}  ENCODE FAILED  {enc.stderr.strip()[:90]}")
