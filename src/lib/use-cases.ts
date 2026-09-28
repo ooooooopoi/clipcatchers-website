@@ -61,7 +61,7 @@ export const USE_CASES: UseCase[] = [
     intro:
       "A release has one window where distribution matters more than anything else, and it is measured in days. Clipping puts the same eight seconds of a track across hundreds of accounts inside that window, from creators whose audiences already watch this kind of edit.",
     assets: [
-      "The track, or just the hook — 8 to 20 seconds is plenty",
+      "The track, or just the hook (8 to 20 seconds is plenty)",
       "The official sound link on TikTok or Instagram, so plays attribute to you",
       "Any footage you already have: video, stills, cover art",
       "A note on what the song is about, if the edit should match it",
@@ -81,12 +81,12 @@ export const USE_CASES: UseCase[] = [
       },
     ],
     rules: [
-      "Use the official sound, not a re-upload — otherwise plays don't attribute",
+      "Use the official sound, not a re-upload, or plays don't attribute",
       "A minimum view threshold before a clip counts",
       "Anything you don't want the track associated with",
     ],
     caveat:
-      "Clipping moves distribution, not taste. If the hook doesn't hold a scroll, more clips is a more expensive way to find that out — and we'd rather tell you before the budget goes in.",
+      "Clipping moves distribution, not taste. If the hook doesn't hold a scroll, more clips is a more expensive way to find that out, and we'd rather tell you before the budget goes in.",
   },
   {
     slug: "gaming",
@@ -167,7 +167,7 @@ export const USE_CASES: UseCase[] = [
     icon: Coins,
     headline: "Reach on the channels that won't take your ad",
     intro:
-      "Most paid channels either refuse crypto outright or bury it in review. Creator distribution is the route that stays open — which is exactly why the brief matters more here than anywhere else on this list.",
+      "Most paid channels either refuse crypto outright or bury it in review. Creator distribution is the route that stays open, which is exactly why the brief matters more here than anywhere else on this list.",
     assets: [
       "What the project actually does, in plain words",
       "Chart, docs, or announcement to reference",
@@ -181,7 +181,7 @@ export const USE_CASES: UseCase[] = [
       },
       {
         title: "Announcement reaction",
-        body: "A listing, a partnership, a mainnet date. Timely, and short-lived — it works in the window and not after.",
+        body: "A listing, a partnership, a mainnet date. Timely, and short-lived: it works in the window and not after.",
       },
       {
         title: "Chart and mechanics breakdown",
@@ -194,7 +194,7 @@ export const USE_CASES: UseCase[] = [
       "Whether creators may hold the token they're posting about",
     ],
     caveat:
-      "We reject clips that make financial promises, and that rejection costs the creator their payout, not you. It also means a brief that quietly wants those claims will underdeliver — say what you actually want and we'll tell you if we'll run it.",
+      "We reject clips that make financial promises, and that rejection costs the creator their payout, not you. It also means a brief that quietly wants those claims will underdeliver. Say what you actually want and we'll tell you if we'll run it.",
   },
   {
     slug: "igaming",
@@ -203,7 +203,7 @@ export const USE_CASES: UseCase[] = [
     icon: Dices,
     headline: "Distribution in a category that's locked out of the auction",
     intro:
-      "iGaming is restricted or banned on most paid inventory, in most territories. What's left is creators — and a category where getting the rules right is the entire job, because the downside of getting them wrong isn't a wasted budget, it's a licence.",
+      "iGaming is restricted or banned on most paid inventory, in most territories. What's left is creators, and a category where getting the rules right is the entire job, because the downside of getting them wrong isn't a wasted budget, it's a licence.",
     assets: [
       "Your licence conditions and the territories they cover",
       "Approved wording, and the wording that's forbidden",
@@ -230,7 +230,7 @@ export const USE_CASES: UseCase[] = [
       "No implied returns, no 'guaranteed' outcomes",
     ],
     caveat:
-      "We enforce the brief; we are not your compliance department. The rules you give us are the rules we apply, so they need to be the ones your regulator would recognise — we'll follow them exactly, including the gaps.",
+      "We enforce the brief; we are not your compliance department. The rules you give us are the rules we apply, so they need to be the ones your regulator would recognise. We'll follow them exactly, including the gaps.",
   },
   {
     slug: "podcasts",
@@ -239,7 +239,7 @@ export const USE_CASES: UseCase[] = [
     icon: Mic,
     headline: "The best forty seconds, cut fifteen ways",
     intro:
-      "Every episode already contains the clips. The work is finding them and posting them everywhere, every week, which is a volume problem — and volume is the thing a network of creators is for.",
+      "Every episode already contains the clips. The work is finding them and posting them everywhere, every week, which is a volume problem, and volume is the thing a network of creators is for.",
     assets: [
       "The episode, video if you have it",
       "Timestamps you already know are good, if any",
@@ -266,7 +266,7 @@ export const USE_CASES: UseCase[] = [
       "Topics that are off the table",
     ],
     caveat:
-      "Clip views and downloads are different numbers with different shapes. A clip can do very well and move downloads modestly — worth agreeing which one you're buying before we start.",
+      "Clip views and downloads are different numbers with different shapes. A clip can do very well and move downloads modestly, so it's worth agreeing which one you're buying before we start.",
   },
   {
     slug: "consumer-brands",
@@ -315,7 +315,7 @@ export const USE_CASES: UseCase[] = [
     assets: [
       "A demo account or a walkthrough recording",
       "The one sentence that explains what you do",
-      "Who it's for — the sharper the better",
+      "Who it's for (the sharper the better)",
       "Founder footage, if you're willing to be in it",
     ],
     angles: [

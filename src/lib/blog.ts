@@ -46,7 +46,7 @@ export const POSTS: BlogPost[] = [
     readingMinutes: 6,
     intro: [
       "Every creator campaign arrives with a number attached. Two million views, four hundred clips, a screenshot of a dashboard. The number is the product, and almost nobody is shown how it was arrived at.",
-      "That matters because inflating it is cheap. Bought views cost a few dollars per thousand and land within hours. A campaign report is a spreadsheet, and a spreadsheet does not know where its figures came from. So the useful question is not whether a number is big — it is whether anyone can show you the individual posts behind it.",
+      "That matters because inflating it is cheap. Bought views cost a few dollars per thousand and land within hours. A campaign report is a spreadsheet, and a spreadsheet does not know where its figures came from. So the useful question is not whether a number is big. It is whether anyone can show you the individual posts behind it.",
       "Here are the four checks worth running, in the order they are worth running them.",
     ],
     sections: [
@@ -61,7 +61,7 @@ export const POSTS: BlogPost[] = [
       {
         heading: "2. Ask to see one clip, chosen by you",
         paragraphs: [
-          "A campaign total is unfalsifiable. A single post is not. Pick a clip — not one you are offered, one you pick — and ask for the link, the account, and what that clip was paid.",
+          "A campaign total is unfalsifiable. A single post is not. Pick a clip (not one you are offered, one you pick) and ask for the link, the account, and what that clip was paid.",
           "Three things fall out of that. You can open the post and read the view count yourself. You can see whether the account looks like a real account with a real audience, or a shell with nine followers and forty uploads. And you can check that what the clip earned matches the rate you agreed, rather than a rate that drifted.",
           "If a campaign cannot produce that for an arbitrary clip, the total is not evidence of anything. Every figure on a report should be traceable down to one video, and if the chain breaks anywhere it breaks everywhere.",
         ],
@@ -71,13 +71,13 @@ export const POSTS: BlogPost[] = [
         paragraphs: [
           "Bought views leave a signature. Views are the cheap thing to buy; comments, shares and saves are not, because they require accounts that behave like people. So a purchased clip tends to show a view count that has run away from everything else on the post.",
           "You do not need a model for this. Take the likes, comments, shares and saves, add them up, and divide by views. Organic short-form content usually lands somewhere in the low single-digit percentages. A clip at 800,000 views with 300 likes and no comments is not a clip that 800,000 people watched.",
-          "Two honest caveats. A genuinely viral post reaching far beyond its creator's audience will show a lower ratio than their normal work, because most of the reach is strangers who scrolled past. And a clip can be engagement-poor for dull reasons — a bad hook, the wrong audience — without anything being bought. This is a flag for a human to look at, not a verdict.",
+          "Two honest caveats. A genuinely viral post reaching far beyond its creator's audience will show a lower ratio than their normal work, because most of the reach is strangers who scrolled past. And a clip can be engagement-poor for dull reasons (a bad hook, the wrong audience) without anything being bought. This is a flag for a human to look at, not a verdict.",
         ],
       },
       {
         heading: "4. Check that the account was verified before it earned",
         paragraphs: [
-          "The gap most people miss is ownership. If anyone can submit any link, then a campaign is paying for views on posts the submitter may have nothing to do with — someone else's viral video, pasted into a form.",
+          "The gap most people miss is ownership. If anyone can submit any link, then a campaign is paying for views on posts the submitter may have nothing to do with: someone else's viral video, pasted into a form.",
           "The fix is dull and effective: before a creator's clips count for anything, they prove the account is theirs. A one-time code placed in the profile bio and checked against the live profile does it. It takes a creator about a minute and it closes the hole permanently.",
           "Ask whether this happens, and whether it happens before the first clip earns or after somebody complains.",
         ],
@@ -86,7 +86,7 @@ export const POSTS: BlogPost[] = [
         heading: "What good looks like",
         paragraphs: [
           "A campaign you can audit has four properties. Every view figure was read from the live post rather than reported. Every figure traces to one clip, which you can open. Clips are checked for the engagement pattern bought views leave behind, and failing ones earn nothing. And accounts prove ownership before they can earn at all.",
-          "None of that is exotic, and all of it is checkable by a buyer in about ten minutes. If you are about to fund a campaign, run the four checks on whoever you are about to fund — including us. A campaign that objects to being asked has told you something useful.",
+          "None of that is exotic, and all of it is checkable by a buyer in about ten minutes. If you are about to fund a campaign, run the four checks on whoever you are about to fund, including us. A campaign that objects to being asked has told you something useful.",
         ],
       },
     ],
