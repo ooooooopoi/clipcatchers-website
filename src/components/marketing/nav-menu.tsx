@@ -90,7 +90,7 @@ export function NavMenu({ group }: { group: NavGroup }) {
         <Link
           href={group.href}
           className={cn(
-            "rounded-md py-2 pl-2 text-[15px] transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            "whitespace-nowrap rounded-md py-2 pl-2 text-[15px] transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             active ? "text-foreground" : "text-muted-foreground",
           )}
         >

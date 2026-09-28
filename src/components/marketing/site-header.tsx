@@ -79,7 +79,7 @@ export function SiteHeader({
     <header className="sticky top-0 z-50 px-4 pt-3 sm:px-6 sm:pt-4">
       <div
         className={cn(
-          "mx-auto flex w-full max-w-6xl items-center gap-3 rounded-[1.75rem] px-3 py-3 transition-[background-color,border-color,box-shadow] duration-200 sm:gap-4 sm:px-4",
+          "mx-auto flex w-full max-w-6xl items-center gap-3 rounded-[1.75rem] px-3 py-3 transition-[background-color,border-color,box-shadow] duration-200 sm:gap-4 sm:px-4 xl:max-w-7xl",
           scrolled
             ? "border border-border bg-background shadow-[0_8px_30px_-12px_hsl(var(--foreground)/0.18)]"
             : "border border-border bg-background",
@@ -87,19 +87,26 @@ export function SiteHeader({
       >
         {/* Mark and name together. The tile was dropped once for overflowing
             this bar at 320px, so it returns on a condition: hidden below
-            360px, where the wordmark needs every pixel of the row, and drawn
-            everywhere both fit. */}
+            390px, where the wordmark needs every pixel of the row, and drawn
+            everywhere both fit. The line was 360 until it was measured: tile,
+            name and the Start/menu pair need 336px, and at 360 the bar has
+            304, so the menu button ran 5px off the screen. */}
         <Link href="/" className="flex shrink-0 items-center gap-2.5">
-          <BrandMark className="hidden h-8 w-8 min-[360px]:block sm:h-9 sm:w-9" />
+          <BrandMark className="hidden h-8 w-8 min-[390px]:block sm:h-9 sm:w-9" />
           <span className="wordmark whitespace-nowrap text-base min-[360px]:text-lg sm:text-2xl">
             Clip Catchers
           </span>
         </Link>
 
-        {/* The nav proper. Hidden below lg, where the sheet carries the same
-            links — four items plus two chevrons does not fit beside a wordmark
-            and a CTA on a tablet, let alone a phone. */}
-        <nav className="ml-6 hidden items-center gap-5 lg:flex" aria-label="Main">
+        {/* The nav proper, on one line or not at all. At lg it squeezed in by
+            wrapping: "How it works" stacked three words high at 1440 in
+            production. Measured there, the bar needs 1171px (logo 239, nav
+            425, creator sign-in 178, CTA and menu 261, gaps). The capsule
+            gives 1246 once it reaches its 1280 cap, and it only reaches the
+            cap from 1328 of page width — so the nav waits for 1360, which is
+            1343 of page once a Windows scrollbar takes its 17px. Below it the
+            sheet carries the same links, as it always has on tablets. */}
+        <nav className="ml-6 hidden items-center gap-5 min-[1360px]:flex" aria-label="Main">
           {NAV_LINKS.slice(0, 1).map((link) => (
             <TopLink key={link.href} href={link.href} label={link.label} pathname={pathname} />
           ))}
@@ -112,22 +119,11 @@ export function SiteHeader({
         </nav>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
-          {/* Booking, at xl and up only. It lost its place at lg when the nav
-              arrived; rather than shrink the nav it moves up a breakpoint,
-              because it is also in the hero, the closing panel and the sheet,
-              and the nav links are in none of those. */}
-          {!signedIn && (
-            <Button
-              asChild
-              variant="outline"
-              className="hidden h-12 rounded-full px-5 text-[15px] xl:inline-flex"
-            >
-              <Link href="/launch?mode=call">
-                <Phone />
-                Book a call
-              </Link>
-            </Button>
-          )}
+          {/* No "Book a call" in the bar. It sat here at xl and up and is the
+              reason the nav wrapped: with it the bar needs 1325px, more than
+              the capsule has at any width. It is the second button in the
+              hero, in the closing panel and in the sheet, and the nav links
+              are in none of those, so it is the one that gave way. */}
 
           {/* Creators, at lg and up. A clipper arriving here is the one visitor
               who definitely wants to sign in — it is the route to their own
@@ -174,19 +170,19 @@ export function SiteHeader({
                         fit a 375px bar once the wordmark is beside it, and
                         "Start" survives losing the rest of the sentence in a
                         way the old "Launch" — a verb with no object — didn't.
-                        The full label returns at xl, not lg: at lg the nav is
-                        already occupying the middle of the bar. */}
-                    <span className="xl:hidden">Start</span>
-                    <span className="hidden xl:inline">Start a campaign</span>
+                        The full label returns at lg, where it and the creator
+                        sign-in take 706px of the 942 the bar has. */}
+                    <span className="lg:hidden">Start</span>
+                    <span className="hidden lg:inline">Start a campaign</span>
                     <ArrowRight className="size-4 shrink-0" />
                   </Link>
                   <span aria-hidden className="h-full w-px bg-border" />
                 </>
               )}
 
-              {/* Shown at every width. Below lg it is the only route to the
-                  nav; at lg and up it still owns sign-in, legal and the
-                  creator link, which are not in the bar. */}
+              {/* Shown at every width. Below 1360 it is the only route to the
+                  nav; above it, it still owns booking, legal and the creator
+                  link, which are not in the bar. */}
               <SheetTrigger asChild>
                 <button
                   type="button"
@@ -329,7 +325,7 @@ function TopLink({
       href={href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "rounded-md py-2 text-[15px] transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "whitespace-nowrap rounded-md py-2 text-[15px] transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         active ? "text-foreground" : "text-muted-foreground",
       )}
     >
