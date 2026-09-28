@@ -68,6 +68,7 @@ const MINIMUM = 6;
 
 const load = unstable_cache(
   async (): Promise<WallClip[]> => {
+    if (WALL_CLIPS.length === 0) return [];
     // The list decides what shows and in what order. The database is only
     // asked for fresher view counts, and it is allowed to be down: a belt
     // with the counts as picked is better than no belt, which is what a

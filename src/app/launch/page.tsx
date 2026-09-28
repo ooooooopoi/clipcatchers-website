@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { BrandMark } from "@/components/brand";
 import { AfterLaunch } from "@/components/marketing/after-launch";
 import { LaunchPanel } from "@/components/launch-panel";
+import { SmoothScroll } from "@/components/marketing/smooth-scroll";
 import { RATE_PER_THOUSAND } from "@/lib/pricing";
 import { parseQuotePrefill } from "@/lib/quote-options";
 import { bookingUrl } from "@/lib/booking";
@@ -96,7 +97,8 @@ export default async function QuotePage({
   if (initialMode === "call" && booking) redirect(booking);
 
   return (
-    <div className="relative min-h-screen overflow-x-clip">
+    <div className="marketing relative min-h-screen overflow-x-clip">
+      <SmoothScroll />
 
       <header className="relative z-10 mx-auto flex w-full max-w-3xl items-center justify-between gap-4 px-5 py-5">
         <Link href="/" className="flex items-center gap-2.5">

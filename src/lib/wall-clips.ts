@@ -31,15 +31,9 @@
  */
 export type WallClipPick = { externalId: string; views: number };
 
-export const WALL_CLIPS: WallClipPick[] = [
-  { externalId: "305", views: 3_918_579 },
-  { externalId: "1305", views: 1_924_807 },
-  { externalId: "1473", views: 669_468 },
-  { externalId: "133", views: 462_299 },
-  { externalId: "4774", views: 410_783 },
-  { externalId: "49", views: 177_527 },
-  { externalId: "290", views: 174_763 },
-  { externalId: "579", views: 123_736 },
-  { externalId: "416", views: 92_399 },
-  { externalId: "98", views: 82_701 },
-];
+// Empty on 2026-09-28 at the owner's request. The ten clips below were the
+// best of the network's video posts, and every one of them but a single
+// landscape shot was a relationship-meme caption over stock footage — not
+// what a brand deciding whether to spend should see first. Add clips here
+// (and their files) and the belt reappears on the homepage by itself.
+export const WALL_CLIPS: WallClipPick[] = [];

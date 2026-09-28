@@ -198,6 +198,74 @@
     line-height: 1;
   }
 
+  /* ── Marketing type ─────────────────────────────────────────────────────
+     Headlines and figures on the public pages, set in Archivo at 112% width
+     — see layout.tsx for why that face. Scoped to `.marketing` because
+     .display is also used inside the dashboard and the clipper portal, which
+     keep their current type. Two classes of specificity beat the bare
+     .display rules above without an !important. */
+  .marketing .display,
+  .marketing .display-sm,
+  .marketing .display-num {
+    font-family: theme("fontFamily.display");
+    font-stretch: 112%;
+    font-variation-settings: "wdth" 112;
+  }
+
+  .marketing .display {
+    letter-spacing: -0.015em;
+  }
+
+  /* Figures: the delivered-views number and the closing stats. tabular-nums
+     because the big one is a live counter — proportional digits would make it
+     shiver sideways every second as they change width. */
+  .display-num {
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  /* ── Smooth scroll (see smooth-scroll.tsx) ──────────────────────────────
+     Lenis eases the scroll itself; the page's CSS `scroll-behavior: smooth`
+     on top of it would ease every step twice and feel like lag. Lenis adds
+     .lenis to <html> only while it is running, so reduced-motion visitors and
+     the dashboard keep native smooth scrolling. */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  html.lenis {
+    scroll-behavior: auto;
+  }
+
+  .lenis.lenis-stopped {
+    overflow: clip;
+  }
+
+  /* ── Headline reveal (see reveal.tsx) ───────────────────────────────────
+     Hidden until GSAP raises it line by line, so it never paints, jumps down
+     and slides back. The 1.5 s animation is the safety net: if the script
+     never runs, the headline still appears. A <noscript> style covers
+     JavaScript being off entirely. */
+  [data-reveal] {
+    visibility: hidden;
+    animation: reveal-safety 0s linear 1.5s forwards;
+  }
+
+  @keyframes reveal-safety {
+    to {
+      visibility: visible;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] {
+      visibility: visible;
+      animation: none;
+    }
+  }
+
   /* Section eyebrows. Small, wide, and quiet — the counterweight that lets
      .display be as loud as it is. */
   .eyebrow {

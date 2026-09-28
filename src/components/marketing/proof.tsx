@@ -1,7 +1,8 @@
 import { LiveViews } from "@/components/marketing/live-views";
 import { anchorImpressions } from "@/components/marketing/impressions";
 import type { PublicStats } from "@/lib/public-stats";
-import { AS_OF, SITE_STATS } from "@/lib/site-stats";
+import { Rise } from "@/components/marketing/reveal";
+import { SITE_STATS } from "@/lib/site-stats";
 
 /**
  * The proof, directly under the hero.
@@ -35,43 +36,31 @@ import { AS_OF, SITE_STATS } from "@/lib/site-stats";
  * calculation is two things to get wrong.
  */
 export function Proof({ stats }: { stats: PublicStats }) {
-  const { live, ticking, anchor, perSecond } = anchorImpressions(stats);
+  const { live, anchor, perSecond } = anchorImpressions(stats);
 
   return (
-    <section className="relative z-10 mx-auto w-full max-w-5xl px-5 pb-14">
-      {/* No grid and no dividers any more — there is nothing to divide it
-          from. The figure gets the size the other tiles were taking off it.
+    <section className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-16 pt-2 sm:pb-24">
+      {/* The result, as big as the page allows, and nothing under it but
+          what it counts. A 26-word note in 12px grey used to sit beneath the
+          figure explaining how it was measured; at that size it read as
+          small print, and small print under a big number is what makes a
+          claim look like it has a catch. The method is on /verification.
 
-          Measured rather than guessed, because the live figure is eleven
-          characters and the fallback is four, so the tight case never shows
-          up locally: "198,505,055" is 190px at the 30px mobile size against
-          240px of usable width at 320, and 304px at the 48px size from sm up.
-          Both clear, with the mobile case the closer of the two. */}
-      <div className="surface rounded-2xl border border-border bg-card px-5 py-10 text-center">
-        <p className="font-mono text-3xl font-semibold tracking-tight text-primary-ink sm:text-5xl">
+          clamp() is sized from the live figure, which is eleven characters
+          ("310,849,102") — at 9vw it clears a 360px phone with room, and it
+          stops at 7rem so it never outgrows the column on a wide screen. */}
+      <div className="border-y border-border py-12 text-center sm:py-16">
+        <Rise className="display-num text-[clamp(2.25rem,9vw,7rem)] leading-none text-primary">
           {live ? (
             <LiveViews initial={anchor} perSecond={perSecond} />
           ) : (
             SITE_STATS.viewsDelivered
           )}
-        </p>
-        {/* "Impressions", not "views", and the number underneath is unchanged:
-            plays read off each live post. A play is what the rest of the
-            industry prices as an impression, so this names the same thing in
-            the buyer's own vocabulary. Nothing is multiplied — see the note at
-            the top of impressions.tsx, which is the one that must stay true. */}
-        <p className="mt-2.5 text-xs leading-tight text-muted-foreground">
-          impressions delivered for clients
+        </Rise>
+        <p className="mt-4 text-base font-medium text-muted-foreground sm:mt-5 sm:text-lg">
+          views delivered for brands
         </p>
       </div>
-
-      <p className="mt-3 text-center text-xs text-muted-foreground/70">
-        {!live
-          ? `Across every campaign to date, as of ${AS_OF}.`
-          : ticking
-            ? "Read from our live reporting, not written by hand. The figure climbs at our measured 30-day delivery rate between reads, then corrects to the logged number."
-            : "Read from our live reporting, not written by hand. The same rows each client sees on their own report."}
-      </p>
     </section>
   );
 }

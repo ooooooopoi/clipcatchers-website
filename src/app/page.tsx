@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ArrowRight, Ban, Gauge, Phone, ReceiptText, ShieldCheck } from "lucide-react";
 import { Clients } from "@/components/marketing/clients";
 import { ClipsWall } from "@/components/marketing/clips-wall";
+import { RevealHeading } from "@/components/marketing/reveal";
+import { SmoothScroll } from "@/components/marketing/smooth-scroll";
 import { OrganizationSchema } from "@/components/marketing/organization-schema";
 import { Proof } from "@/components/marketing/proof";
 import { SiteFooter } from "@/components/marketing/site-footer";
@@ -60,28 +62,15 @@ export const metadata: Metadata = {
 // which is a dead end for them, and it was the live behaviour because the
 // invite was never configured.
 
-/** The four objections that otherwise decide it before anyone asks. */
+/**
+ * The four objections that otherwise decide it before anyone asks. Titles
+ * only: the explanations live on /pricing and /how-it-works.
+ */
 const GUARANTEES = [
-  {
-    icon: Ban,
-    title: "No retainer",
-    body: "Nothing up front, no minimum term. You fund a budget and it draws down against delivery.",
-  },
-  {
-    icon: Gauge,
-    title: "You can't overspend",
-    body: "Set a total and a per-post cap. The campaign closes itself the moment the budget is met.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Nothing is self-reported",
-    body: "Views are read off the live post every hour and logged per clip, with a timestamp.",
-  },
-  {
-    icon: ReceiptText,
-    title: "You see every clip",
-    body: "Not a summary. The actual list, with a link to each post and what it earned.",
-  },
+  { icon: Ban, title: "No retainer" },
+  { icon: Gauge, title: "You can't overspend" },
+  { icon: ShieldCheck, title: "Nothing is self-reported" },
+  { icon: ReceiptText, title: "You see every clip" },
 ] as const;
 
 const FAQ = [
@@ -145,8 +134,8 @@ export default async function HomePage() {
   return (
     // overflow-x-clip, not overflow-hidden: `hidden` makes this a scroll
     // container, which silently stops the sticky header from sticking.
-    <div className="relative min-h-screen overflow-x-clip">
-
+    <div className="marketing relative min-h-screen overflow-x-clip">
+      <SmoothScroll />
       <OrganizationSchema />
       <SiteHeader
         signedIn={Boolean(user)}
@@ -157,11 +146,12 @@ export default async function HomePage() {
       <main>
         {/* Hero */}
         <section className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-16 pt-14 text-center sm:pt-20">
-          <p className="eyebrow text-muted-foreground">
-            Performance-based creator distribution for brands and artists
-          </p>
+          {/* No kicker line above the headline. It was 11px letter-spaced
+              grey — small print at the top of the page, and the tiny label
+              over a big heading is the most familiar template pattern there
+              is. The paragraph under the headline already says what we do.
 
-          {/* No coloured span. On a monochrome page emphasis comes from
+              No coloured span. On a monochrome page emphasis comes from
               weight and size, not hue — tinting three words a slightly
               different shade of near-black reads as a rendering fault rather
               than as emphasis.
@@ -173,16 +163,21 @@ export default async function HomePage() {
               leading is under 1, and that only works because uppercase has no
               descenders to collide.
 
-              The mobile size is set from the fold, not from the desktop step.
-              Uppercase costs lines: this headline sets in three at 72px and in
-              five at 40px on a 375px screen, and measured on an iPhone SE
-              (375x667) that pushed "Book a call" half under the fold at 645px.
-              36px wraps to four, and the tighter mobile margins below take the
-              rest — both buttons now land above 667. Desktop spacing is
-              unchanged, hence the sm: steps. */}
-          <h1 className="display mx-auto mt-6 max-w-4xl text-4xl sm:mt-7 sm:text-6xl lg:text-7xl">
-            Scale your brand through hundreds of creators
-          </h1>
+              The mobile size is set from the screen, not from the desktop
+              step. Uppercase in the wide display face costs lines: at a fixed
+              36px a 390px phone set this in five, with BRAND alone on one.
+              The widest line of the four-line version, BRAND THROUGH, is
+              10.33em, so the size is the width it has divided by that, with a
+              little slack — four lines on anything from 300 up, capped at the
+              old 36px. Tablets had the same fault one step up: a fixed 60px
+              set five lines at 640 and left THROUGH alone at 768. From sm the
+              three-line version is the target, its widest line THROUGH
+              HUNDREDS at 12.84em, capped at the old 60px.
+              The non-breaking space keeps OF on the line with CREATORS rather
+              than left hanging at the end of the one before. */}
+          <RevealHeading className="display mx-auto max-w-5xl text-[clamp(1.5rem,calc((100vw_-_2.5rem)/10.6),2.25rem)] sm:text-[min(3.75rem,calc((100vw_-_2.5rem)/13.1))] lg:text-7xl">
+            Scale your brand through hundreds of&nbsp;creators
+          </RevealHeading>
 
           <p className="mx-auto mt-5 max-w-2xl leading-relaxed text-muted-foreground sm:mt-7 sm:text-lg">
             Launch a TikTok and Instagram campaign, brief a network of verified creators,
@@ -209,16 +204,13 @@ export default async function HomePage() {
             </Button>
           </div>
 
-          <p className="mt-5 text-xs text-muted-foreground">
-            No retainer · No minimum term · You only pay for delivered views
-          </p>
         </section>
 
-        {/* Straight under the hero, before a word of argument. The pitch above
-            is a claim; these are the posts, and a reader can open any one and
-            count the views themselves. Carries no display heading of its own —
-            a second headline this close to the hero's would cost both. Renders
-            nothing until enough clips have a cached thumbnail. */}
+        {/* Renders nothing: WALL_CLIPS is empty. The belt showed the
+            network's video posts, and those are almost all relationship-meme
+            captions over stock footage — on a page selling to brands that read
+            as the product's ceiling, not its proof. It comes back by itself if
+            clips worth showing are added to lib/wall-clips.ts. */}
         <ClipsWall />
 
         {/* The single "40.7M views delivered so far" line used to close the
@@ -241,90 +233,26 @@ export default async function HomePage() {
         <Ticker />
 
         {/* The four risk answers, before anything else has to be read. */}
-        <section className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-4 pt-14">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-16 pt-14 sm:pb-20">
+          {/* Four statements, read in one glance. Each had a 16-word
+              paragraph under it in 14px grey — the fine print that makes a page
+              look like it is hiding something. The titles say it; the detail
+              is on /pricing and /how-it-works for anyone who wants it.
+
+              Balanced, because four columns wrap three of them: unbalanced
+              they broke as "NOTHING IS SELF- / REPORTED" and "YOU SEE EVERY /
+              CLIP". */}
+          <ul className="grid gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
             {GUARANTEES.map((item) => (
-              <div
-                key={item.title}
-                className="surface rounded-2xl border border-border bg-card p-5 hover:border-[hsl(var(--border-strong))]"
-              >
-                <item.icon className="h-5 w-5 shrink-0 text-primary-ink" aria-hidden />
-                <h2 className="display-sm mt-4 text-sm">{item.title}</h2>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {item.body}
-                </p>
-              </div>
+              <li key={item.title} className="flex items-center gap-3 border-t border-border pt-5">
+                <item.icon className="h-6 w-6 shrink-0 text-primary" aria-hidden />
+                <h2 className="display-sm text-balance text-base sm:text-lg">{item.title}</h2>
+              </li>
             ))}
-          </div>
+          </ul>
         </section>
 
         <Clients />
-
-        {/* ── One topic, one page ───────────────────────────────────────
-            Seven full sections used to stack here — how it works,
-            comparison, verification, control, industries, pricing and the
-            after-launch timeline. Every one already had (or now has) its
-            own page saying the same thing at proper depth, so the homepage
-            was a second, shallower copy of the whole site that had to be
-            scrolled past to reach the ask.
-
-            What replaces them is a door per topic, not a summary of one —
-            a summary is just the stack growing back. Pricing, control and
-            comparison live on /pricing; the process and verification on
-            /how-it-works; the first-week timeline on /launch; industries
-            on /use-cases. The homepage keeps what only it can do: the
-            proof (clips, ticker, clients) and the ask. */}
-        <section className="relative z-10 mx-auto w-full max-w-6xl px-5 py-16 sm:py-20">
-          <h2 className="display text-center text-2xl sm:text-4xl">
-            THE DETAIL, WHERE IT BELONGS
-          </h2>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              {
-                href: "/how-it-works",
-                title: "How it works",
-                body: "Brief to payout in six stages, including how every clip is checked and views are read off the live posts.",
-              },
-              {
-                href: "/pricing",
-                title: "Pricing",
-                body: `$${RATE_PER_THOUSAND.toFixed(2)} per 1,000 delivered views, and the controls that stop a budget running away.`,
-              },
-              {
-                href: "/results",
-                title: "Results",
-                body: "Every campaign we've run, with the delivered views behind each one.",
-              },
-              {
-                href: "/use-cases",
-                title: "Use cases",
-                body: "Music, apps, brands, creators: what clipping looks like for each.",
-              },
-              {
-                href: "/for-creators",
-                title: "For creators",
-                body: "Clip content you'd post anyway and earn per 1,000 views.",
-              },
-              {
-                href: "/launch",
-                title: "Launch a campaign",
-                body: "The brief form, and what the first week looks like after you press send.",
-              },
-            ].map((t) => (
-              <Link
-                key={t.href}
-                href={t.href}
-                className="surface group rounded-2xl border border-border bg-card p-6 transition-colors hover:border-primary/40"
-              >
-                <h3 className="display-sm flex items-center justify-between text-base">
-                  {t.title}
-                  <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t.body}</p>
-              </Link>
-            ))}
-          </div>
-        </section>
 
         {/* For creators — deliberately one panel, deliberately late. They're
             the supply side and they arrive through Discord anyway; the top of
@@ -336,30 +264,11 @@ export default async function HomePage() {
           <Card className="surface overflow-hidden border-border p-7 sm:p-9">
             <div className="flex flex-wrap items-center justify-between gap-6">
               <div className="max-w-xl">
-                <p className="eyebrow text-muted-foreground/70">
-                  For creators
-                </p>
-                <h2 className="display mt-3 text-2xl sm:text-3xl">
+                <h2 className="display text-2xl sm:text-3xl">
                   Get paid for the views you already generate
                 </h2>
-                <p className="mt-3.5 text-sm leading-relaxed text-muted-foreground">
-                  Clip content you&apos;d happily post anyway and earn per 1,000 views.
-                  Verify your account, pick a live campaign, submit the link. Paid out by
-                  PayPal or USDT. No follower minimum, no exclusivity.
-                </p>
-                {/* The one thing the public site can say to a clipper who is
-                    already signed up. Their page is behind a signed link that
-                    only the bot can mint — it's derived from their Discord id,
-                    so there is nothing to link to from here that would work
-                    for more than one person. Naming the command is the whole
-                    of what this side can usefully do. */}
-                <p className="mt-3 text-sm text-muted-foreground">
-                  Already clipping?{" "}
-                  <code className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
-                    /my-clips
-                  </code>{" "}
-                  in Discord opens your page: everything you&apos;ve submitted and what
-                  you&apos;re owed.
+                <p className="mt-3.5 text-base text-muted-foreground">
+                  Clip content you&apos;d post anyway. Get paid per 1,000 views.
                 </p>
               </div>
               <Button asChild variant="outline" size="lg">
@@ -382,8 +291,7 @@ export default async function HomePage() {
           className="relative z-10 mx-auto w-full max-w-3xl scroll-mt-24 px-5 pb-20"
         >
           <div className="text-center">
-            <p className="eyebrow text-primary-ink">FAQ</p>
-            <h2 className="display mt-3 text-3xl sm:text-5xl">
+            <h2 className="display text-3xl sm:text-5xl">
               Questions worth asking
             </h2>
           </div>
@@ -427,11 +335,8 @@ export default async function HomePage() {
               <h2 className="display mx-auto max-w-2xl text-3xl sm:text-5xl">
                 Start with one campaign
               </h2>
-              <p className="mx-auto mt-5 max-w-xl leading-relaxed text-muted-foreground">
-                Tell us what you&apos;re promoting and roughly what you&apos;d spend, and
-                we&apos;ll come back with what it should realistically deliver, drawn
-                from campaigns we&apos;ve run, not a projection. If it isn&apos;t a fit,
-                we&apos;ll tell you that instead.
+              <p className="mx-auto mt-5 max-w-md text-lg text-muted-foreground">
+                Tell us what you&apos;re promoting. We&apos;ll tell you what it should deliver.
               </p>
               {/* Two buttons, then a link. Three buttons abreast is a reader
                   being asked to rank three things at the exact moment they had
@@ -452,12 +357,6 @@ export default async function HomePage() {
                   </Link>
                 </Button>
               </div>
-              {/* Countable, checkable claims rather than "no obligation" —
-                  the form really does require two fields, and a reader who
-                  believes that is a reader who starts filling it in. */}
-              <p className="mt-5 text-xs text-muted-foreground">
-                Two required fields · No card at any point · Reply within one working day
-              </p>
               {caseStudyHref && (
                 <p className="mt-4 text-sm">
                   <Link
@@ -481,10 +380,8 @@ export default async function HomePage() {
                 { value: "24 hrs", label: "typical time to first clips" },
               ].map((stat) => (
                 <div key={stat.label} className="px-5 py-6 text-center">
-                  <p className="font-mono text-xl font-semibold tracking-tight text-primary-ink">
-                    {stat.value}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">{stat.label}</p>
+                  <p className="display-num text-3xl text-primary sm:text-4xl">{stat.value}</p>
+                  <p className="mt-1.5 text-sm text-muted-foreground">{stat.label}</p>
                 </div>
               ))}
             </div>

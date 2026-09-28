@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Phone } from "lucide-react";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SiteHeader } from "@/components/marketing/site-header";
+import { SmoothScroll } from "@/components/marketing/smooth-scroll";
 import { Button } from "@/components/ui/button";
 import { getSessionUser } from "@/lib/auth-helpers";
 import { cn } from "@/lib/utils";
@@ -44,8 +45,8 @@ export async function PageShell({
   return (
     // overflow-x-clip, not overflow-hidden: `hidden` makes this a scroll
     // container, which silently stops the sticky header from sticking.
-    <div className="relative min-h-screen overflow-x-clip">
-
+    <div className="marketing relative min-h-screen overflow-x-clip">
+      <SmoothScroll />
       <SiteHeader
         signedIn={Boolean(user)}
         isClipper={Boolean(user?.discordId)}
