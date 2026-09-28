@@ -99,7 +99,7 @@ export default async function OpengraphImage() {
             }}
           >
             Launch TikTok and Instagram campaigns and pay only for views that actually
-            landed — not an influencer retainer.
+            landed, not an influencer retainer.
           </div>
         </div>
 

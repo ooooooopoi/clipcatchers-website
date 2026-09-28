@@ -88,7 +88,7 @@ export default async function CaseStudyPage(
         </h1>
         <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
           {study.campaigns.length} campaign{study.campaigns.length === 1 ? "" : "s"} run
-          with us. Every figure below is read from the same reporting the client sees —
+          with us. Every figure below is read from the same reporting the client sees,
           not written up afterwards.
         </p>
 
@@ -163,7 +163,7 @@ export default async function CaseStudyPage(
             </p>
             <p className="mt-3 leading-relaxed text-muted-foreground">
               And the posts are still up. Paid impressions stop the moment the spend
-              does; these clips keep earning views nobody paid for — so the real cost
+              does; these clips keep earning views nobody paid for, so the real cost
               per thousand falls over time rather than holding.
             </p>
           </div>

@@ -95,7 +95,7 @@ export function SiteFooter() {
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Performance-based creator distribution for brands. Pay for views that
-              actually landed — ${RATE_PER_THOUSAND.toFixed(2)} per 1,000, no retainer.
+              actually landed: ${RATE_PER_THOUSAND.toFixed(2)} per 1,000, no retainer.
             </p>
             <Link
               href="/launch"
@@ -167,7 +167,7 @@ export function SiteFooter() {
               {...DISCORD_LINK_PROPS}
               className="transition-colors hover:text-foreground"
             >
-              Creators — join on Discord
+              Creators: join on Discord
             </a>
             <Link href="/legal/privacy" className="transition-colors hover:text-foreground">
               Privacy

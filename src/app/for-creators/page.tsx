@@ -38,7 +38,7 @@ const STEPS = [
   {
     icon: Send,
     title: "Pick a campaign and post",
-    body: "Live campaigns list what to make and what the rules are. Cut it your way, post it from a verified account, and submit the link — in Discord, or on your own page on this site.",
+    body: "Live campaigns list what to make and what the rules are. Cut it your way, post it from a verified account, and submit the link in Discord or on your own page on this site.",
   },
   {
     icon: Wallet,
@@ -84,12 +84,10 @@ export default function ForCreatorsPage() {
           {STEPS.map((s, i) => (
             <div
               key={s.title}
-              className="surface reveal rounded-2xl border border-border bg-card p-6"
+              className="surface rounded-2xl border border-border bg-card p-6"
             >
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-background">
-                  <s.icon className="h-4 w-4 text-primary-ink" />
-                </span>
+                <s.icon className="h-5 w-5 shrink-0 text-primary-ink" aria-hidden />
                 <span className="font-mono text-xs text-muted-foreground/60">
                   {String(i + 1).padStart(2, "0")}
                 </span>
@@ -112,13 +110,13 @@ export default function ForCreatorsPage() {
 
       {/* The straight talk. */}
       <section className="relative z-10 mx-auto w-full max-w-3xl px-5 pb-16">
-        <div className="surface reveal rounded-2xl border border-border bg-card p-6 sm:p-8">
+        <div className="surface rounded-2xl border border-border bg-card p-6 sm:p-8">
           <h2 className="display text-xl">Read this before you post</h2>
           <ul className="mt-4 space-y-3 text-sm leading-relaxed text-muted-foreground">
             <li>
               <span className="text-foreground">Rejected clips earn nothing.</span> If a
-              clip breaks the campaign&apos;s brief — wrong sound, missing footage, wording
-              that was ruled out — it&apos;s rejected. The time you spent on it is yours to
+              clip breaks the campaign&apos;s brief (wrong sound, missing footage, wording
+              that was ruled out), it&apos;s rejected. The time you spent on it is yours to
               lose, which is why the brief is worth reading first.
             </li>
             <li>
@@ -153,10 +151,10 @@ export default function ForCreatorsPage() {
             cannot do — setting a payout address, registering an account,
             withdrawing — so it is the better door for a returning clipper
             regardless. */}
-        <div className="surface reveal rounded-2xl border border-border bg-card p-6 text-center sm:p-8">
+        <div className="surface rounded-2xl border border-border bg-card p-6 text-center sm:p-8">
           <h2 className="display text-lg">Already clipping with us?</h2>
           <p className="mx-auto mt-2.5 max-w-md text-sm leading-relaxed text-muted-foreground">
-            Sign in and go straight to your page — every clip you&apos;ve submitted, what each
+            Sign in and go straight to your page: every clip you&apos;ve submitted, what each
             one is worth, what you&apos;re owed, and a button to withdraw it.
           </p>
 

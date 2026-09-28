@@ -129,7 +129,7 @@ export function QuoteForm({
           <Check className="h-5 w-5 text-background" />
         </span>
         <h2 className="display mt-5 text-2xl">
-          {call ? "Call requested" : "Got it — thank you"}
+          {call ? "Call requested" : "Got it, thank you"}
         </h2>
         <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
           {call
@@ -191,14 +191,14 @@ export function QuoteForm({
             key="contact"
             label="Phone, Discord or Telegram"
             name="contact"
-            placeholder="Optional — however you prefer to talk"
+            placeholder="Optional: however you prefer to talk"
           />
         ) : (
           <TextField
             key="releaseDate"
             label="Launch or release date"
             name="releaseDate"
-            placeholder="Optional — or 'already live'"
+            placeholder="Optional, or 'already live'"
           />
         )}
       </div>
@@ -258,7 +258,7 @@ export function QuoteForm({
           <TextField
             label="Link to what you're promoting"
             name="link"
-            placeholder="Optional — a track, trailer, app store page, site"
+            placeholder="Optional: a track, trailer, app store page, site"
           />
         </div>
       )}
@@ -273,7 +273,7 @@ export function QuoteForm({
           rows={call ? 3 : 4}
           placeholder={
             call
-              ? "Optional — anything you'd like us to have looked at before we speak."
+              ? "Optional: anything you'd like us to have looked at before we speak."
               : "What you're promoting, what you want it to do, anything we should know."
           }
           className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none transition-colors placeholder:text-muted-foreground hover:border-[hsl(var(--border-strong))] focus-visible:border-foreground focus-visible:ring-2 focus-visible:ring-ring"

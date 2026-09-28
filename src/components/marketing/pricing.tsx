@@ -57,7 +57,7 @@ export function Pricing() {
         </p>
       </div>
 
-      <div className="surface reveal mx-auto mt-12 max-w-5xl overflow-hidden rounded-2xl border border-gold/25 bg-card">
+      <div className="surface mx-auto mt-12 max-w-5xl overflow-hidden rounded-2xl border border-gold/25 bg-card">
         <div className="grid lg:grid-cols-[1.15fr_1fr]">
           {/* Calculator */}
           <div className="border-b border-border p-7 sm:p-9 lg:border-b-0 lg:border-r">
@@ -130,7 +130,7 @@ export function Pricing() {
                   <span className="font-mono text-foreground">
                     ${Math.round(paidSocial).toLocaleString()}
                   </span>
-                  {" — and the posts wouldn't stay up afterwards."}
+                  {", and the posts wouldn't stay up afterwards."}
                 </p>
               )}
             </div>
@@ -163,7 +163,7 @@ export function Pricing() {
                 <p className="font-medium">You can&apos;t overspend</p>
                 <p className="mt-1 leading-relaxed text-muted-foreground">
                   The campaign closes itself the moment the budget is met. There is no
-                  overage line on an invoice, because there is no invoice — you fund the
+                  overage line on an invoice, because there is no invoice. You fund the
                   budget and it draws down.
                 </p>
               </div>

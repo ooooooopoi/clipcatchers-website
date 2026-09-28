@@ -8,7 +8,7 @@ import { RATE_PER_THOUSAND } from "@/lib/pricing";
 
 const TITLE = "Pricing";
 const SOCIAL_TITLE = "Pricing — Clip Catchers";
-const DESCRIPTION = `$${RATE_PER_THOUSAND.toFixed(2)} per 1,000 delivered views. No retainer, no minimum term, no setup fee — you set a budget and the campaign closes itself when it's met.`;
+const DESCRIPTION = `$${RATE_PER_THOUSAND.toFixed(2)} per 1,000 delivered views. No retainer, no minimum term, no setup fee. You set a budget and the campaign closes itself when it's met.`;
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -61,12 +61,12 @@ export default function PricingPage() {
           <p className="eyebrow text-primary-ink">Worked through</p>
           <h2 className="display mt-3 text-3xl sm:text-4xl">What a budget buys</h2>
           <p className="mt-4 text-muted-foreground">
-            One division, done for you. These are ceilings — the most a budget can
+            One division, done for you. These are ceilings: the most a budget can
             deliver at our rate, not a forecast of what yours will.
           </p>
         </div>
 
-        <div className="surface reveal mt-10 overflow-hidden rounded-2xl border border-border bg-card">
+        <div className="surface mt-10 overflow-hidden rounded-2xl border border-border bg-card">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left">
@@ -116,7 +116,7 @@ export default function PricingPage() {
 
       <section className="relative z-10 mx-auto w-full max-w-3xl px-5 pb-8 text-center">
         <p className="text-sm text-muted-foreground">
-          Every figure here is the same one your report shows —{" "}
+          Every figure here is the same one your report shows. See{" "}
           <Link
             href="/verification"
             className="text-primary-ink underline-offset-4 hover:underline"

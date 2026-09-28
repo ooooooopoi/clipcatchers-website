@@ -21,7 +21,7 @@ const CONTROLS = [
     label: "Total budget",
     setting: "The most this campaign can ever cost you.",
     body:
-      "Spend is recomputed from the live posts as they earn, and the campaign closes itself the moment it reaches the number — checked more often the closer it gets, so it lands on the line rather than past it.",
+      "Spend is recomputed from the live posts as they earn, and the campaign closes itself the moment it reaches the number. It's checked more often the closer it gets, so it lands on the line rather than past it.",
     stops: "an open-ended spend",
   },
   {
@@ -56,7 +56,7 @@ export function Control() {
           </h2>
           <p className="mt-4 leading-relaxed text-muted-foreground">
             Three numbers, set before anything goes live. Each one caps a different way
-            a campaign could cost more than you meant it to — and none of them need
+            a campaign could cost more than you meant it to, and none of them need
             watching once they&apos;re set.
           </p>
           <p className="mt-4 leading-relaxed text-muted-foreground">
@@ -66,18 +66,13 @@ export function Control() {
           </p>
         </div>
 
-        <ol className="space-y-4">
-          {CONTROLS.map((control, i) => (
+        <ul className="space-y-4">
+          {CONTROLS.map((control) => (
             <li
               key={control.label}
-              className="surface reveal rounded-2xl border border-border bg-card p-6 sm:p-7"
+              className="surface rounded-2xl border border-border bg-card p-6 sm:p-7"
             >
-              <div className="flex items-baseline gap-3">
-                <span className="font-mono text-xs text-muted-foreground/60">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <h3 className="text-lg font-semibold tracking-tight">{control.label}</h3>
-              </div>
+              <h3 className="text-lg font-semibold tracking-tight">{control.label}</h3>
               <p className="mt-2 text-sm font-medium">{control.setting}</p>
               <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
                 {control.body}
@@ -89,7 +84,7 @@ export function Control() {
               </p>
             </li>
           ))}
-        </ol>
+        </ul>
       </div>
     </section>
   );

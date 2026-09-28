@@ -55,7 +55,7 @@ const STAGES = [
     icon: FileText,
     title: "You write the brief",
     clock: "About 5 minutes",
-    body: "You set a total budget, pick TikTok or Instagram, and say what creators should make. Upload whatever footage you already have — the track, the trailer, the screen recording, the product shots. The brief is where you set the rules: required footage, the hook, a sound or hashtag to use, anything you don't want said, and a minimum view count before a clip is worth anything.",
+    body: "You set a total budget, pick TikTok or Instagram, and say what creators should make. Upload whatever footage you already have: the track, the trailer, the screen recording, the product shots. The brief is where you set the rules: required footage, the hook, a sound or hashtag to use, anything you don't want said, and a minimum view count before a clip is worth anything.",
     you: "Budget, footage, rules",
     us: "Nothing yet",
     out: "A campaign brief creators can claim",
@@ -64,7 +64,7 @@ const STAGES = [
     icon: BadgeCheck,
     title: "We review it before it goes near a creator",
     clock: "Within one working day",
-    body: "We read the brief and tell you whether it will work. If the assets are thin, or the rules contradict each other, or the category needs wording we can't enforce, you hear that now rather than after the budget is spent. This is also where we say if it isn't a fit at all — a campaign we don't think will deliver is worse for us than one we never ran.",
+    body: "We read the brief and tell you whether it will work. If the assets are thin, or the rules contradict each other, or the category needs wording we can't enforce, you hear that now rather than after the budget is spent. This is also where we say if it isn't a fit at all. A campaign we don't think will deliver is worse for us than one we never ran.",
     you: "Answer any questions",
     us: "Review, push back, approve",
     out: "A live campaign, or an honest no",
@@ -73,8 +73,8 @@ const STAGES = [
     icon: Users,
     title: "The network claims it",
     clock: "Posting usually within 24 hours",
-    body: "Your campaign goes out to a network of creators who have each proved they own the accounts they post from — a code in the bio, checked against the live profile, before a single clip of theirs can earn. They cut your footage themselves, post it to their own audience, and submit the link back to us.",
-    you: "Nothing — this runs itself",
+    body: "Your campaign goes out to a network of creators who have each proved they own the accounts they post from: a code in the bio, checked against the live profile, before a single clip of theirs can earn. They cut your footage themselves, post it to their own audience, and submit the link back to us.",
+    you: "Nothing: it runs itself",
     us: "Brief the network, answer creators, moderate",
     out: "Dozens to hundreds of live posts",
   },
@@ -82,7 +82,7 @@ const STAGES = [
     icon: ShieldCheck,
     title: "Every clip is checked",
     clock: "Before it counts, then continuously",
-    body: "A submitted clip lands as pending and earns nothing. We confirm the post is live, that it came from an account that creator actually owns, and that it follows your brief. Clips that break the brief are rejected and earn nothing. Clips showing the engagement pattern bought views leave behind — a view count climbing without the comments, shares and saves that normally come with it — are rejected too.",
+    body: "A submitted clip lands as pending and earns nothing. We confirm the post is live, that it came from an account that creator actually owns, and that it follows your brief. Clips that break the brief are rejected and earn nothing. Clips showing the engagement pattern bought views leave behind (a view count climbing without the comments, shares and saves that normally come with it) are rejected too.",
     you: "Nothing, unless you want to review",
     us: "Verify ownership, enforce the brief, reject",
     out: "A list of approved clips, each traceable to a post",
@@ -100,7 +100,7 @@ const STAGES = [
     icon: Receipt,
     title: "You pay for what landed",
     clock: "Against delivery",
-    body: `Billing is ${`$${RATE_PER_THOUSAND.toFixed(2)}`} per 1,000 delivered views, drawn down from the budget you funded. Not per clip, not per creator, not a retainer. Unspent budget is never charged. The campaign closes itself the moment the total is met, so overspending isn't something you have to watch for — it isn't possible.`,
+    body: `Billing is ${`$${RATE_PER_THOUSAND.toFixed(2)}`} per 1,000 delivered views, drawn down from the budget you funded. Not per clip, not per creator, not a retainer. Unspent budget is never charged. The campaign closes itself the moment the total is met, so overspending isn't something you have to watch for. It isn't possible.`,
     you: "Nothing to reconcile",
     us: "Bill against delivery, close the campaign",
     out: "A spend figure that matches a list of videos",
@@ -127,7 +127,7 @@ const GUARANTEES = [
   {
     icon: Clapperboard,
     title: "You see every clip",
-    body: "Not a summary — the actual list, with a link to each post and what it earned.",
+    body: "Not a summary. The actual list, with a link to each post and what it earned.",
   },
 ] as const;
 
@@ -143,7 +143,7 @@ const GUARANTEES = [
 const TRADES = [
   {
     q: "You don't approve each post individually",
-    a: "You set the rules and we enforce them, but you don't sign off every video before it goes up. That's the trade that makes hundreds of clips possible in a week — per-post approval turns a network into an agency, and an agency into a retainer.",
+    a: "You set the rules and we enforce them, but you don't sign off every video before it goes up. That's the trade that makes hundreds of clips possible in a week. Per-post approval turns a network into an agency, and an agency into a retainer.",
   },
   {
     q: "Creators aren't reading your script",
@@ -151,11 +151,11 @@ const TRADES = [
   },
   {
     q: "We can measure views, not your funnel",
-    a: "We read what the platform reports on each post. Installs, signups and sales live in your analytics, not ours — so if one of those is the number you're judging this on, say so at the brief stage and we'll set it up to be measurable rather than argue about it afterwards.",
+    a: "We read what the platform reports on each post. Installs, signups and sales live in your analytics, not ours. If one of those is the number you're judging this on, say so at the brief stage and we'll set it up to be measurable rather than argue about it afterwards.",
   },
   {
     q: "Weak assets stay weak at volume",
-    a: "Distribution moves reach, not appeal. If the hook doesn't hold a scroll, more clips is a more expensive way to find that out — we'd rather say so before the budget goes in than take it and report the result.",
+    a: "Distribution moves reach, not appeal. If the hook doesn't hold a scroll, more clips is a more expensive way to find that out. We'd rather say so before the budget goes in than take it and report the result.",
   },
 ] as const;
 
@@ -184,7 +184,7 @@ export default async function HowItWorksPage() {
           {STAGES.map((stage, i) => (
             <li
               key={stage.title}
-              className="surface reveal rounded-2xl border border-border bg-card p-6 sm:p-8"
+              className="surface rounded-2xl border border-border bg-card p-6 sm:p-8"
             >
               <div className="flex flex-wrap items-center gap-4">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-primary/25 bg-background font-mono text-lg font-semibold text-primary-ink">
@@ -229,11 +229,9 @@ export default async function HowItWorksPage() {
           {GUARANTEES.map((item) => (
             <div
               key={item.title}
-              className="surface lift reveal rounded-2xl border border-border bg-card p-5 hover:border-[hsl(var(--border-strong))]"
+              className="surface rounded-2xl border border-border bg-card p-5 hover:border-[hsl(var(--border-strong))]"
             >
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background">
-                <item.icon className="h-4 w-4 text-primary-ink" />
-              </span>
+              <item.icon className="h-5 w-5 shrink-0 text-primary-ink" aria-hidden />
               <h3 className="display-sm mt-4 text-sm">{item.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
             </div>
@@ -256,7 +254,7 @@ export default async function HowItWorksPage() {
           {TRADES.map((t) => (
             <div
               key={t.q}
-              className="surface reveal rounded-xl border border-border bg-card px-5 py-4"
+              className="surface rounded-xl border border-border bg-card px-5 py-4"
             >
               <h3 className="display-sm text-sm">{t.q}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t.a}</p>

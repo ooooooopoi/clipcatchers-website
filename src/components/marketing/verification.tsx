@@ -39,7 +39,7 @@ const CHAIN = [
     step: "Integrity",
     title: "Bought views are found and rejected",
     body:
-      "Clips are checked for the pattern purchased views leave — a count that climbs without the comments, shares and saves that normally come with it. Failed clips earn nothing.",
+      "Clips are checked for the pattern purchased views leave: a count that climbs without the comments, shares and saves that normally come with it. Failed clips earn nothing.",
   },
 ] as const;
 
@@ -67,7 +67,7 @@ export function Verification() {
           {CHAIN.map((link, i) => (
             <div
               key={link.step}
-              className="surface lift reveal relative rounded-2xl border border-border bg-card p-6 hover:border-[hsl(var(--border-strong))]"
+              className="surface relative rounded-2xl border border-border bg-card p-6 hover:border-[hsl(var(--border-strong))]"
             >
               {/* The arrow between cards. Hidden on the last one, and hidden
                   entirely below lg where the cards stack in pairs and a
@@ -79,9 +79,7 @@ export function Verification() {
                 />
               )}
               <div className="flex items-center gap-2.5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background">
-                  <link.icon className="h-4 w-4 text-primary-ink" />
-                </span>
+                <link.icon className="h-5 w-5 shrink-0 text-primary-ink" aria-hidden />
                 <span className="font-mono text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                   {i + 1} · {link.step}
                 </span>
@@ -92,7 +90,7 @@ export function Verification() {
           ))}
         </div>
 
-        <div className="surface reveal mx-auto mt-6 max-w-3xl rounded-2xl border border-border bg-card p-6 sm:p-8">
+        <div className="surface mx-auto mt-6 max-w-3xl rounded-2xl border border-border bg-card p-6 sm:p-8">
           <h3 className="text-sm font-semibold">And what we don&apos;t claim</h3>
           <ul className="mt-4 grid gap-3 text-sm leading-relaxed text-muted-foreground sm:grid-cols-2">
             <li>
@@ -103,7 +101,7 @@ export function Verification() {
             <li>
               <span className="text-foreground">We can&apos;t attribute your sales.</span> We
               can tell you exactly which post earned which views. Tying that to a signup or a
-              stream is your analytics, not ours — bring a UTM or a landing page and
+              stream is your analytics, not ours. Bring a UTM or a landing page and
               we&apos;ll point creators at it.
             </li>
           </ul>

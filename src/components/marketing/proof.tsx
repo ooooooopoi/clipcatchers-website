@@ -47,7 +47,7 @@ export function Proof({ stats }: { stats: PublicStats }) {
           up locally: "198,505,055" is 190px at the 30px mobile size against
           240px of usable width at 320, and 304px at the 48px size from sm up.
           Both clear, with the mobile case the closer of the two. */}
-      <div className="surface reveal rounded-2xl border border-border bg-card px-5 py-10 text-center">
+      <div className="surface rounded-2xl border border-border bg-card px-5 py-10 text-center">
         <p className="font-mono text-3xl font-semibold tracking-tight text-primary-ink sm:text-5xl">
           {live ? (
             <LiveViews initial={anchor} perSecond={perSecond} />
@@ -70,7 +70,7 @@ export function Proof({ stats }: { stats: PublicStats }) {
           ? `Across every campaign to date, as of ${AS_OF}.`
           : ticking
             ? "Read from our live reporting, not written by hand. The figure climbs at our measured 30-day delivery rate between reads, then corrects to the logged number."
-            : "Read from our live reporting, not written by hand — the same rows each client sees on their own report."}
+            : "Read from our live reporting, not written by hand. The same rows each client sees on their own report."}
       </p>
     </section>
   );

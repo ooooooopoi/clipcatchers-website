@@ -1,4 +1,5 @@
 import {
+  AppWindow,
   Coins,
   Dices,
   Gamepad2,
@@ -6,7 +7,6 @@ import {
   Music,
   ShoppingBag,
   Smartphone,
-  Sparkles,
 } from "lucide-react";
 
 /**
@@ -65,7 +65,7 @@ const INDUSTRIES = [
     goal: "Reach and social proof at the top of the funnel",
   },
   {
-    icon: Sparkles,
+    icon: AppWindow,
     name: "Startups & SaaS",
     brief: "Product walkthroughs and founder-story cuts",
     goal: "Category awareness without a content team",
@@ -86,7 +86,7 @@ export function Industries() {
           What a campaign looks like in your category
         </h2>
         <p className="mt-4 text-muted-foreground">
-          The mechanism is the same everywhere — a budget, a brief and a network. What
+          The mechanism is the same everywhere: a budget, a brief and a network. What
           changes is the footage you hand over and what you want it to do.
         </p>
       </div>
@@ -95,11 +95,9 @@ export function Industries() {
         {INDUSTRIES.map((industry) => (
           <div
             key={industry.name}
-            className="surface lift reveal group rounded-2xl border border-border bg-card p-5 hover:border-primary/25"
+            className="surface group rounded-2xl border border-border bg-card p-5 hover:border-primary/25"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-background transition-colors group-hover:border-primary/30">
-              <industry.icon className="h-4 w-4 text-primary-ink" />
-            </span>
+            <industry.icon className="h-5 w-5 shrink-0 text-primary-ink" aria-hidden />
             <h3 className="mt-4 text-sm font-semibold">{industry.name}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {industry.brief}
@@ -115,8 +113,8 @@ export function Industries() {
         Not on the list?{" "}
         <a href="/launch" className="text-primary-ink underline-offset-4 hover:underline">
           Tell us what you&apos;re promoting
-        </a>{" "}
-        — the model doesn&apos;t care what the category is.
+        </a>
+        . The model doesn&apos;t care what the category is.
       </p>
     </section>
   );

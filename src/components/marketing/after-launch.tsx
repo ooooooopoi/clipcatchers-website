@@ -32,7 +32,7 @@ const STEPS = [
     when: "About 5 minutes",
     title: "You brief it, we approve it",
     body:
-      "Your footage, the hook, hashtags or sound, anything you don't want said — plus a total budget and a per-post cap. We check the brief over and push it live to the network.",
+      "Your footage, the hook, hashtags or sound, anything you don't want said, plus a total budget and a per-post cap. We check the brief over and push it live to the network.",
   },
   {
     // Same claim as the "Posting within 24 hours" marker in How it works, and
@@ -40,7 +40,7 @@ const STEPS = [
     when: "Within 24 hours",
     title: "Creators start posting",
     body:
-      "Verified clippers claim the brief, cut your content and post from accounts they've proven they own. Clips that break the brief are rejected and earn nothing. What you don't do is approve each post — that's the trade that makes the volume possible.",
+      "Verified clippers claim the brief, cut your content and post from accounts they've proven they own. Clips that break the brief are rejected and earn nothing. What you don't do is approve each post. That's the trade that makes the volume possible.",
   },
   {
     when: "Every hour after that",
@@ -52,7 +52,7 @@ const STEPS = [
     when: "When the budget's met",
     title: "It closes itself",
     body:
-      "The campaign stops the moment the budget is spent, so there's no overage to argue about — and budget that never delivered is never charged.",
+      "The campaign stops the moment the budget is spent, so there's no overage to argue about, and budget that never delivered is never charged.",
   },
 ] as const;
 
@@ -99,7 +99,7 @@ export function AfterLaunch() {
               // 12rem, not less: at 10rem four of the six markers wrapped to a
               // second line, which turns a column meant to be scanned into six
               // ragged blocks.
-              className="reveal relative grid grid-cols-[2.25rem_1fr] sm:grid-cols-[12rem_2.25rem_1fr]"
+              className="relative grid grid-cols-[2.25rem_1fr] sm:grid-cols-[12rem_2.25rem_1fr]"
             >
               {/* Desktop only. Below sm the same string renders inline above
                   the title, where there's no column to put it in. */}
@@ -140,7 +140,7 @@ export function AfterLaunch() {
           {NO_STRINGS.map((item) => (
             <div
               key={item.title}
-              className="surface lift reveal rounded-2xl border border-border bg-card p-5 hover:border-[hsl(var(--border-strong))]"
+              className="surface rounded-2xl border border-border bg-card p-5 hover:border-[hsl(var(--border-strong))]"
             >
               <h3 className="text-sm font-semibold">{item.title}</h3>
               <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">

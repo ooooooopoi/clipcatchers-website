@@ -62,7 +62,7 @@ export default async function UseCasePage({
           decides whether this is a project or a purchase. */}
       <section className="relative z-10 mx-auto w-full max-w-4xl px-5 pb-16">
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="surface reveal rounded-2xl border border-border bg-card p-6">
+          <div className="surface rounded-2xl border border-border bg-card p-6">
             <h2 className="display text-xl">What you hand over</h2>
             <ul className="mt-4 space-y-2.5">
               {c.assets.map((a) => (
@@ -74,7 +74,7 @@ export default async function UseCasePage({
             </ul>
           </div>
 
-          <div className="surface reveal rounded-2xl border border-border bg-card p-6">
+          <div className="surface rounded-2xl border border-border bg-card p-6">
             <h2 className="display text-xl">What the brief locks down</h2>
             <ul className="mt-4 space-y-2.5">
               {c.rules.map((r) => (
@@ -88,7 +88,7 @@ export default async function UseCasePage({
               ))}
             </ul>
             <p className="mt-4 border-t border-border pt-4 text-xs leading-relaxed text-muted-foreground/80">
-              Clips that break these are rejected and earn nothing — the creator carries
+              Clips that break these are rejected and earn nothing. The creator carries
               that cost, not you.
             </p>
           </div>
@@ -107,15 +107,12 @@ export default async function UseCasePage({
         </div>
 
         <div className="mt-10 grid gap-4 md:grid-cols-3">
-          {c.angles.map((a, i) => (
+          {c.angles.map((a) => (
             <div
               key={a.title}
-              className="surface reveal rounded-2xl border border-border bg-card p-6"
+              className="surface rounded-2xl border border-border bg-card p-6"
             >
-              <span className="font-mono text-xs text-muted-foreground/60">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <h3 className="display-sm mt-3 text-base">{a.title}</h3>
+              <h3 className="display-sm text-base">{a.title}</h3>
               <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">{a.body}</p>
             </div>
           ))}
@@ -125,7 +122,7 @@ export default async function UseCasePage({
       {/* The caveat. One per category and it has to be a real one — see the
           note in lib/use-cases.ts. */}
       <section className="relative z-10 mx-auto w-full max-w-3xl px-5 pb-16">
-        <div className="surface reveal rounded-2xl border border-warning/30 bg-warning/[0.06] p-6">
+        <div className="surface rounded-2xl border border-warning/30 bg-warning/[0.06] p-6">
           <div className="flex gap-4">
             <TriangleAlert className="mt-0.5 size-5 shrink-0 text-warning" />
             <div>
@@ -153,7 +150,7 @@ export default async function UseCasePage({
             <Link
               key={o.slug}
               href={`/use-cases/${o.slug}`}
-              className="surface lift group flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-5 py-4 hover:border-[hsl(var(--border-strong))]"
+              className="surface group flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-5 py-4 hover:border-[hsl(var(--border-strong))]"
             >
               <span className="display-sm text-sm">{o.name}</span>
               <ArrowRight className="size-3.5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />

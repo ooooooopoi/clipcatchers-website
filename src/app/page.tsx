@@ -7,7 +7,6 @@ import { OrganizationSchema } from "@/components/marketing/organization-schema";
 import { Proof } from "@/components/marketing/proof";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SiteHeader } from "@/components/marketing/site-header";
-import { StarField } from "@/components/marketing/star-field";
 import { Ticker } from "@/components/marketing/ticker";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -81,7 +80,7 @@ const GUARANTEES = [
   {
     icon: ReceiptText,
     title: "You see every clip",
-    body: "Not a summary — the actual list, with a link to each post and what it earned.",
+    body: "Not a summary. The actual list, with a link to each post and what it earned.",
   },
 ] as const;
 
@@ -92,7 +91,7 @@ const FAQ = [
   },
   {
     q: "What stops someone buying views?",
-    a: "Creators verify ownership of an account before a single clip counts, and clips are checked for the engagement pattern bought views leave behind — view counts that move without the comments, shares and saves that normally come with them. Clips that fail are rejected and earn nothing.",
+    a: "Creators verify ownership of an account before a single clip counts, and clips are checked for the engagement pattern bought views leave behind: view counts that move without the comments, shares and saves that normally come with them. Clips that fail are rejected and earn nothing.",
   },
   {
     q: "What does it cost?",
@@ -100,7 +99,7 @@ const FAQ = [
   },
   {
     q: "Can I control what creators make?",
-    a: "Yes. Your brief sets the rules — required footage, the hook, hashtags or sound, anything you don't want said, and a minimum view threshold before a clip counts. Clips that break the brief are rejected and earn nothing. What you don't do is approve each post individually; that's the trade that makes volume possible.",
+    a: "Yes. Your brief sets the rules: required footage, the hook, hashtags or sound, anything you don't want said, and a minimum view threshold before a clip counts. Clips that break the brief are rejected and earn nothing. What you don't do is approve each post individually; that's the trade that makes volume possible.",
   },
   {
     q: "What happens if performance is weak?",
@@ -116,7 +115,7 @@ const FAQ = [
   },
   {
     q: "How do I report this to my team?",
-    a: "Every campaign has a private share link that opens the live report with no account required — send it to a manager, a label or a client. The full per-clip breakdown exports for anyone who needs it in a spreadsheet or a deck.",
+    a: "Every campaign has a private share link that opens the live report with no account required. Send it to a manager, a label or a client. The full per-clip breakdown exports for anyone who needs it in a spreadsheet or a deck.",
   },
 ];
 
@@ -147,14 +146,6 @@ export default async function HomePage() {
     // overflow-x-clip, not overflow-hidden: `hidden` makes this a scroll
     // container, which silently stops the sticky header from sticking.
     <div className="relative min-h-screen overflow-x-clip">
-      {/* The starfield, and nothing else. There used to be a tinted glow
-          behind the hero as well; once the accent went from orange to
-          near-black it stopped reading as warmth and started reading as a grey
-          smudge across the top of a white page — a monochrome scheme has no
-          colour to bloom, so the honest version is to drop it and let the page
-          be white. Taller than the old 560px because it fades on a mask
-          instead of stopping at an edge; see star-field.tsx. */}
-      <StarField className="h-[760px]" />
 
       <OrganizationSchema />
       <SiteHeader
@@ -166,10 +157,9 @@ export default async function HomePage() {
       <main>
         {/* Hero */}
         <section className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-16 pt-14 text-center sm:pt-20">
-          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs text-muted-foreground shadow-[0_1px_2px_hsl(var(--foreground)/0.04)]">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+          <p className="eyebrow text-muted-foreground">
             Performance-based creator distribution for brands and artists
-          </span>
+          </p>
 
           {/* No coloured span. On a monochrome page emphasis comes from
               weight and size, not hue — tinting three words a slightly
@@ -196,7 +186,7 @@ export default async function HomePage() {
 
           <p className="mx-auto mt-5 max-w-2xl leading-relaxed text-muted-foreground sm:mt-7 sm:text-lg">
             Launch a TikTok and Instagram campaign, brief a network of verified creators,
-            and pay only for views that actually landed — not an influencer retainer.
+            and pay only for views that actually landed, not an influencer retainer.
           </p>
 
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3 sm:mt-9">
@@ -256,11 +246,9 @@ export default async function HomePage() {
             {GUARANTEES.map((item) => (
               <div
                 key={item.title}
-                className="surface lift reveal rounded-2xl border border-border bg-card p-5 hover:border-[hsl(var(--border-strong))]"
+                className="surface rounded-2xl border border-border bg-card p-5 hover:border-[hsl(var(--border-strong))]"
               >
-                <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background">
-                  <item.icon className="h-4 w-4 text-primary-ink" />
-                </span>
+                <item.icon className="h-5 w-5 shrink-0 text-primary-ink" aria-hidden />
                 <h2 className="display-sm mt-4 text-sm">{item.title}</h2>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   {item.body}
@@ -295,7 +283,7 @@ export default async function HomePage() {
               {
                 href: "/how-it-works",
                 title: "How it works",
-                body: "Brief to payout in six stages — including how every clip is checked and views are read off the live posts.",
+                body: "Brief to payout in six stages, including how every clip is checked and views are read off the live posts.",
               },
               {
                 href: "/pricing",
@@ -310,7 +298,7 @@ export default async function HomePage() {
               {
                 href: "/use-cases",
                 title: "Use cases",
-                body: "Music, apps, brands, creators — what clipping looks like for each.",
+                body: "Music, apps, brands, creators: what clipping looks like for each.",
               },
               {
                 href: "/for-creators",
@@ -345,7 +333,7 @@ export default async function HomePage() {
           id="creators"
           className="relative z-10 mx-auto w-full max-w-6xl scroll-mt-24 px-5 pb-20"
         >
-          <Card className="surface reveal overflow-hidden border-border p-7 sm:p-9">
+          <Card className="surface overflow-hidden border-border p-7 sm:p-9">
             <div className="flex flex-wrap items-center justify-between gap-6">
               <div className="max-w-xl">
                 <p className="eyebrow text-muted-foreground/70">
@@ -356,7 +344,7 @@ export default async function HomePage() {
                 </h2>
                 <p className="mt-3.5 text-sm leading-relaxed text-muted-foreground">
                   Clip content you&apos;d happily post anyway and earn per 1,000 views.
-                  Verify your account, pick a live campaign, submit the link — paid out by
+                  Verify your account, pick a live campaign, submit the link. Paid out by
                   PayPal or USDT. No follower minimum, no exclusivity.
                 </p>
                 {/* The one thing the public site can say to a clipper who is
@@ -370,7 +358,7 @@ export default async function HomePage() {
                   <code className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
                     /my-clips
                   </code>{" "}
-                  in Discord opens your page — everything you&apos;ve submitted and what
+                  in Discord opens your page: everything you&apos;ve submitted and what
                   you&apos;re owed.
                 </p>
               </div>
@@ -404,7 +392,7 @@ export default async function HomePage() {
             {FAQ.map((item) => (
               <details
                 key={item.q}
-                className="surface group reveal rounded-xl border border-border bg-card px-5 py-4 open:border-primary/25"
+                className="surface group rounded-xl border border-border bg-card px-5 py-4 open:border-primary/25"
               >
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium [&::-webkit-details-marker]:hidden">
                   {item.q}
@@ -434,14 +422,14 @@ export default async function HomePage() {
             named client, which is the one thing we can offer that a deck
             can't. */}
         <section className="relative z-10 mx-auto w-full max-w-4xl px-5 pb-24">
-          <div className="surface reveal overflow-hidden rounded-3xl border border-border bg-card">
+          <div className="surface overflow-hidden rounded-3xl border border-border bg-card">
             <div className="px-6 py-14 text-center sm:px-12">
               <h2 className="display mx-auto max-w-2xl text-3xl sm:text-5xl">
                 Start with one campaign
               </h2>
               <p className="mx-auto mt-5 max-w-xl leading-relaxed text-muted-foreground">
                 Tell us what you&apos;re promoting and roughly what you&apos;d spend, and
-                we&apos;ll come back with what it should realistically deliver — drawn
+                we&apos;ll come back with what it should realistically deliver, drawn
                 from campaigns we&apos;ve run, not a projection. If it isn&apos;t a fit,
                 we&apos;ll tell you that instead.
               </p>

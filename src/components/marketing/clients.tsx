@@ -94,7 +94,7 @@ export function Clients() {
           <Link
             key={client.name}
             href={`/case-studies/${slugify(client.name)}`}
-            className="surface lift reveal group flex items-center gap-4 rounded-2xl border border-border bg-card px-6 py-4 hover:border-primary/25"
+            className="surface group flex items-center gap-4 rounded-2xl border border-border bg-card px-6 py-4 hover:border-primary/25"
           >
             {logo ? (
               <Image
@@ -124,7 +124,7 @@ export function Clients() {
             otherwise assume the opposite of. */}
         <p className="w-full text-center text-xs leading-relaxed text-muted-foreground/70">
           Most of our clients prefer not to be named. Their campaigns still show real
-          figures under Results — we&apos;ll walk you through any of them on a call.
+          figures under Results. We&apos;ll walk you through any of them on a call.
         </p>
       </div>
     </section>

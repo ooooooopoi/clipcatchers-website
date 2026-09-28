@@ -3,7 +3,6 @@ import Link from "next/link";
 import { ArrowRight, Phone } from "lucide-react";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SiteHeader } from "@/components/marketing/site-header";
-import { StarField } from "@/components/marketing/star-field";
 import { Button } from "@/components/ui/button";
 import { getSessionUser } from "@/lib/auth-helpers";
 import { cn } from "@/lib/utils";
@@ -46,10 +45,6 @@ export async function PageShell({
     // overflow-x-clip, not overflow-hidden: `hidden` makes this a scroll
     // container, which silently stops the sticky header from sticking.
     <div className="relative min-h-screen overflow-x-clip">
-      {/* Shorter than the homepage's 760px. These pages open on a heading
-          rather than a full hero, so a field sized for the homepage would
-          still be drawing at the point the body copy starts. */}
-      <StarField className="h-[520px]" />
 
       <SiteHeader
         signedIn={Boolean(user)}
@@ -93,13 +88,13 @@ export async function PageShell({
 export function ClosingCta() {
   return (
     <section className="relative z-10 mx-auto w-full max-w-4xl px-5 pb-24 pt-6">
-      <div className="surface reveal overflow-hidden rounded-3xl border border-border bg-card px-6 py-14 text-center sm:px-12">
+      <div className="surface overflow-hidden rounded-3xl border border-border bg-card px-6 py-14 text-center sm:px-12">
         <h2 className="display mx-auto max-w-2xl text-3xl sm:text-4xl">
           Start with one campaign
         </h2>
         <p className="mx-auto mt-4 max-w-xl leading-relaxed text-muted-foreground">
           Tell us what you&apos;re promoting and roughly what you&apos;d spend, and
-          we&apos;ll come back with what it should realistically deliver — drawn from
+          we&apos;ll come back with what it should realistically deliver, drawn from
           campaigns we&apos;ve run, not a projection. If it isn&apos;t a fit, we&apos;ll
           tell you that instead.
         </p>

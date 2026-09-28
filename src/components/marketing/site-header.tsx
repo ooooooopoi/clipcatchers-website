@@ -81,8 +81,8 @@ export function SiteHeader({
         className={cn(
           "mx-auto flex w-full max-w-6xl items-center gap-3 rounded-[1.75rem] px-3 py-3 transition-[background-color,border-color,box-shadow] duration-200 sm:gap-4 sm:px-4",
           scrolled
-            ? "border border-border bg-background/85 shadow-[0_8px_30px_-12px_hsl(var(--foreground)/0.18)] backdrop-blur-xl supports-[backdrop-filter]:bg-background/75"
-            : "border border-border/60 bg-card/70 backdrop-blur-md",
+            ? "border border-border bg-background shadow-[0_8px_30px_-12px_hsl(var(--foreground)/0.18)]"
+            : "border border-border bg-background",
         )}
       >
         {/* Mark and name together. The tile was dropped once for overflowing

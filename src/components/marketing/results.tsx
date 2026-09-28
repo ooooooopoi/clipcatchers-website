@@ -55,7 +55,7 @@ export async function Results() {
 
       {/* The total. Deliberately not rounded up — a number ending in .7 is one
           somebody counted. */}
-      <div className="surface reveal mx-auto mt-12 max-w-2xl rounded-2xl border border-border bg-card px-6 py-12 text-center">
+      <div className="surface mx-auto mt-12 max-w-2xl rounded-2xl border border-border bg-card px-6 py-12 text-center">
         <p className="font-mono text-6xl font-semibold tracking-tight text-primary-ink sm:text-7xl">
           {totalViews}
         </p>
@@ -70,7 +70,7 @@ export async function Results() {
       {/* Per client. This is the part that answers "has this worked for
           someone like me" — a total can't. */}
       {rows.length > 0 && (
-        <div className="surface reveal mx-auto mt-10 max-w-4xl overflow-hidden rounded-2xl border border-border bg-card">
+        <div className="surface mx-auto mt-10 max-w-4xl overflow-hidden rounded-2xl border border-border bg-card">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-4">
             <p className="text-sm font-semibold">Delivery by client</p>
             {/* Views only. There was a CPM column here, and the number in it
@@ -122,7 +122,7 @@ export async function Results() {
           {stats.clients.some((c) => !c.named) && (
             <p className="border-t border-border bg-muted/40 px-6 py-3.5 text-xs leading-relaxed text-muted-foreground">
               Clients are named only where they&apos;ve agreed to it. The rest show their
-              real figures without the name — we&apos;ll walk you through any of them, with
+              real figures without the name. We&apos;ll walk you through any of them, with
               the per-clip report, on a call.
             </p>
           )}

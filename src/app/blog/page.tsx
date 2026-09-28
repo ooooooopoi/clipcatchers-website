@@ -8,7 +8,7 @@ import { sortedPosts } from "@/lib/blog";
 
 const TITLE = "Blog";
 const DESCRIPTION =
-  "Notes on running creator campaigns — verification, pricing, and what the numbers on a campaign report actually mean.";
+  "Notes on running creator campaigns: verification, pricing, and what the numbers on a campaign report actually mean.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -48,7 +48,7 @@ export default async function BlogIndex() {
           NOTES FROM RUNNING CAMPAIGNS
         </h1>
         <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          What we have learned paying for delivery rather than promises — how views get
+          What we have learned paying for delivery rather than promises: how views get
           checked, where budgets leak, and what to ask anyone who sends you a campaign
           report.
         </p>

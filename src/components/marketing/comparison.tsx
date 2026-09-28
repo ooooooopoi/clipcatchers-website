@@ -29,7 +29,7 @@ const ROWS = [
   {
     question: "Money up front",
     them: "Retainer, often monthly",
-    us: "None — billed against delivery",
+    us: "None: billed against delivery",
   },
   {
     question: "How many posts",
@@ -80,7 +80,7 @@ export function Comparison() {
         </p>
       </div>
 
-      <div className="surface reveal mt-12 overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="surface mt-12 overflow-hidden rounded-2xl border border-border bg-card">
         {/* Column headers. Ours carries a hairline of brand colour along the
             top — enough to mark the column without tinting the whole panel. */}
         <div className="grid grid-cols-[1fr_1fr] border-b border-border sm:grid-cols-[minmax(0,1.1fr)_1fr_1fr]">
@@ -137,7 +137,7 @@ export function Comparison() {
       {/* The cost line, stated once and conservatively. The Meta figure is the
           bottom of the range on purpose — a number a prospect can beat inside
           their own ad account is worse than publishing no number at all. */}
-      <div className="surface reveal mt-5 flex flex-wrap items-center justify-center gap-x-10 gap-y-6 rounded-2xl border border-border bg-card px-6 py-8 text-center">
+      <div className="surface mt-5 flex flex-wrap items-center justify-center gap-x-10 gap-y-6 rounded-2xl border border-border bg-card px-6 py-8 text-center">
         <div>
           <p className="font-mono text-3xl font-semibold tracking-tight text-muted-foreground">
             ${metaCostPerMillion.toLocaleString()}

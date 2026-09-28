@@ -5,7 +5,6 @@ import { ArrowLeft } from "lucide-react";
 import { BrandMark } from "@/components/brand";
 import { AfterLaunch } from "@/components/marketing/after-launch";
 import { LaunchPanel } from "@/components/launch-panel";
-import { StarField } from "@/components/marketing/star-field";
 import { RATE_PER_THOUSAND } from "@/lib/pricing";
 import { parseQuotePrefill } from "@/lib/quote-options";
 import { bookingUrl } from "@/lib/booking";
@@ -98,16 +97,6 @@ export default async function QuotePage({
 
   return (
     <div className="relative min-h-screen overflow-x-clip">
-      {/* Same starfield as the homepage — this is the page that button leads to,
-          and the two surfaces reading differently made the handoff feel like
-          leaving the site.
-
-          The tinted glow that sat here is gone for the reason the homepage
-          dropped its own: --primary is near-black in the light theme, so
-          `bg-primary/10 blur-[150px]` isn't warmth, it's a grey smudge across
-          the top of a white page. That decision was made on the homepage and
-          never carried over here. */}
-      <StarField className="h-[600px]" />
 
       <header className="relative z-10 mx-auto flex w-full max-w-3xl items-center justify-between gap-4 px-5 py-5">
         <Link href="/" className="flex items-center gap-2.5">
@@ -131,7 +120,7 @@ export default async function QuotePage({
               moment someone opened the call tab. */}
           <h1 className="display text-4xl sm:text-6xl">Start a campaign</h1>
           <p className="mx-auto mt-5 max-w-xl leading-relaxed text-muted-foreground">
-            Send a brief or book fifteen minutes — either way you get what it would cost
+            Send a brief or book fifteen minutes. Either way you get what it would cost
             and what it should realistically deliver, drawn from campaigns we&apos;ve
             actually run rather than a projection.
           </p>

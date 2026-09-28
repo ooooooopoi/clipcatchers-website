@@ -134,54 +134,6 @@
     background-size: 56px 56px;
   }
 
-  /* The marketing pages get a starfield.
-
-     Drawn in --foreground rather than a fixed colour, so it inverts with the
-     theme: dark points on the white page, and genuinely light points on dark
-     when the theme is flipped. Density thins down the page on a mask, so the
-     hero has the most of it and the argument below has none. */
-  /* Two masks, intersected.
-
-     The vertical one thins the field down the page, so the hero carries it
-     and the argument below is left alone.
-
-     The elliptical one punches a soft hole through the middle, because the
-     lines were being drawn straight across the headline. A 1px line at 0.3
-     alpha doesn't make display type illegible, but it does put moving
-     geometry behind the one sentence the page needs read, and the eye
-     follows movement. Clearing the centre keeps the effect at the edges where
-     there is nothing to compete with. */
-  .starfield {
-    mask-image:
-      linear-gradient(to bottom, black 0%, black 55%, transparent 100%),
-      radial-gradient(ellipse 42% 34% at 50% 44%, transparent 35%, black 100%);
-    mask-composite: intersect;
-    -webkit-mask-image:
-      linear-gradient(to bottom, black 0%, black 55%, transparent 100%),
-      radial-gradient(ellipse 42% 34% at 50% 44%, transparent 35%, black 100%);
-    -webkit-mask-composite: source-in;
-  }
-
-  /* The hole is a percentage of the container, but the text isn't — copy fills
-     nearly the full width of a phone and only the middle of a desktop. At 42%
-     the cleared area was 157px against a 340px column, so the mesh came back
-     over the subhead and the buttons. Wider and taller below sm. */
-  @media (max-width: 639px) {
-    .starfield {
-      mask-image:
-        linear-gradient(to bottom, black 0%, black 55%, transparent 100%),
-        radial-gradient(ellipse 72% 40% at 50% 46%, transparent 40%, black 100%);
-      -webkit-mask-image:
-        linear-gradient(to bottom, black 0%, black 55%, transparent 100%),
-        radial-gradient(ellipse 72% 40% at 50% 46%, transparent 40%, black 100%);
-    }
-  }
-
-  /* The points and the lines between them are painted on a canvas, so there
-     is no per-star rule here any more — see star-field.tsx. Only the mask
-     above stays, because it fades the whole canvas out down the page and
-     that is cheaper as a mask than as alpha applied per point per frame. */
-
   /* One definition for the wordmark, because it is set in two places — the
      marketing header and BrandWordmark — and they had drifted to different
      weights and tracking.
@@ -296,10 +248,6 @@
     }
   }
 
-  .glow {
-    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.16), 0 12px 40px -12px hsl(var(--primary) / 0.35);
-  }
-
   /* Cards on a white page need more than a hairline to read as surfaces. A
      near-invisible top-down sheen plus a soft shadow does it without becoming
      the drop-shadow-heavy look of a 2015 template. */
@@ -312,48 +260,6 @@
     box-shadow:
       0 1px 2px hsl(var(--foreground) / 0.04),
       0 8px 24px -16px hsl(var(--foreground) / 0.2);
-  }
-
-  .lift {
-    transition:
-      transform 0.2s ease,
-      box-shadow 0.2s ease,
-      border-color 0.2s ease;
-  }
-
-  .lift:hover {
-    transform: translateY(-2px);
-    box-shadow:
-      0 1px 2px hsl(var(--foreground) / 0.05),
-      0 16px 40px -20px hsl(var(--foreground) / 0.28);
-  }
-
-  /* Entrance on scroll, driven by the compositor rather than a scroll
-     listener. Content is visible by default and only animates where the
-     browser supports it, so an unsupporting browser shows the page instead of
-     a blank column — the usual failure mode of JS reveal libraries. */
-  @keyframes reveal-up {
-    from {
-      opacity: 0;
-      transform: translateY(18px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  @supports (animation-timeline: view()) {
-    @media (prefers-reduced-motion: no-preference) {
-      .reveal {
-        animation: reveal-up linear both;
-        animation-timeline: view();
-        /* Finishes once the element is 60% into the viewport. Running it to
-           `cover` instead leaves anything near the fold sitting at zero
-           opacity, which looks like the page failed to load. */
-        animation-range: entry 0% entry 60%;
-      }
-    }
   }
 
   .scrollbar-thin {

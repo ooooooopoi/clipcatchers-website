@@ -85,7 +85,7 @@ export function ImpressionCounter({
 
   return (
     <div className={cn("text-center", className)}>
-      <div className="surface reveal rounded-2xl border border-border bg-card px-5 py-10">
+      <div className="surface rounded-2xl border border-border bg-card px-5 py-10">
         <p
           className={cn(
             "font-mono font-semibold tracking-tight text-primary-ink",
@@ -106,7 +106,7 @@ export function ImpressionCounter({
           ? `Across every campaign to date, as of ${AS_OF}.`
           : ticking
             ? "Read from our live reporting, not written by hand. The figure climbs at our measured 30-day delivery rate between reads, then corrects to the logged number."
-            : "Read from our live reporting, not written by hand — the same rows each client sees on their own report."}
+            : "Read from our live reporting, not written by hand. The same rows each client sees on their own report."}
       </p>
     </div>
   );

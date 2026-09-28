@@ -49,11 +49,11 @@ const CHECKS = [
   },
   {
     q: "Bought views leave a pattern, and we look for it",
-    a: "Purchased views climb without the comments, shares and saves that normally come with them. Clips showing that shape are flagged and rejected, and a rejected clip earns nothing — the cost of that lands on the creator, which is what makes it a deterrent rather than a policy.",
+    a: "Purchased views climb without the comments, shares and saves that normally come with them. Clips showing that shape are flagged and rejected, and a rejected clip earns nothing. The cost of that lands on the creator, which is what makes it a deterrent rather than a policy.",
   },
   {
     q: "The brief is enforced, not just attached",
-    a: "Rules you set — required footage, a sound, wording that must or must not appear — are checked on review. Clips that break them are rejected. That is the same mechanism that keeps a regulated category inside its own rules.",
+    a: "Rules you set (required footage, a sound, wording that must or must not appear) are checked on review. Clips that break them are rejected. That is the same mechanism that keeps a regulated category inside its own rules.",
   },
   {
     q: "You can audit any of it",
@@ -84,7 +84,7 @@ export default async function VerificationPage() {
           {CHECKS.map((c, i) => (
             <li
               key={c.q}
-              className="surface reveal rounded-2xl border border-border bg-card p-6"
+              className="surface rounded-2xl border border-border bg-card p-6"
             >
               <div className="flex gap-4">
                 <span className="font-mono text-sm text-muted-foreground/60">
