@@ -90,10 +90,16 @@ export function SiteHeader({
             390px, where the wordmark needs every pixel of the row, and drawn
             everywhere both fit. The line was 360 until it was measured: tile,
             name and the Start/menu pair need 336px, and at 360 the bar has
-            304, so the menu button ran 5px off the screen. */}
-        <Link href="/" className="flex shrink-0 items-center gap-2.5">
-          <BrandMark onDark className="hidden h-8 w-8 min-[390px]:block sm:h-9 sm:w-9" />
-          <span className="wordmark whitespace-nowrap text-base min-[360px]:text-lg sm:text-2xl">
+            304, so the menu button ran 5px off the screen.
+
+            And if the row still runs out of room (a phone zoomed for
+            accessibility, larger text), the name is what gives way: it
+            truncates, while the buttons on the right can't shrink. Before,
+            the buttons were pushed out instead and the menu button was cut
+            in half by the edge of the screen. */}
+        <Link href="/" className="flex min-w-0 items-center gap-2 sm:gap-2.5">
+          <BrandMark onDark className="hidden h-8 w-8 shrink-0 min-[390px]:block sm:h-9 sm:w-9" />
+          <span className="wordmark truncate text-[14px] min-[360px]:text-[18px] sm:text-2xl">
             Clip Catchers
           </span>
         </Link>
@@ -118,7 +124,7 @@ export function SiteHeader({
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2 sm:gap-3">
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
           {/* No "Book a call" in the bar. It sat here at xl and up and is the
               reason the nav wrapped: with it the bar needs 1325px, more than
               the capsule has at any width. It is the second button in the
@@ -151,32 +157,39 @@ export function SiteHeader({
                 pills with a gap between them; as a single shape with a seam
                 down the middle they read as one thing. `overflow-hidden` is
                 what lets two square-cornered children sit inside one fully
-                rounded parent. */}
+                rounded parent.
+
+                The menu half is filled (bg-secondary), not page-coloured. On
+                the black site a black half disappeared into the black bar,
+                and the menu button read as half a button. */}
             <div
               className={cn(
                 "flex h-11 shrink-0 items-center overflow-hidden rounded-full sm:h-14",
                 signedIn
-                  ? "border border-border bg-background"
-                  : "border border-[hsl(var(--border-strong))] bg-background text-foreground shadow-[0_1px_2px_hsl(var(--shadow)/0.06),0_4px_12px_-6px_hsl(var(--shadow)/0.18)]",
+                  ? "border border-border bg-secondary"
+                  : "border border-[hsl(var(--border-strong))] bg-secondary text-foreground shadow-[0_1px_2px_hsl(var(--shadow)/0.06),0_4px_12px_-6px_hsl(var(--shadow)/0.18)]",
               )}
             >
               {!signedIn && (
                 <>
                   <Link
                     href="/launch"
-                    className="flex h-full items-center gap-2 whitespace-nowrap bg-cta px-3 text-[15px] font-medium text-cta-foreground transition-colors hover:bg-cta/90 min-[360px]:px-4 sm:px-7"
+                    className="hidden h-full items-center gap-2 whitespace-nowrap bg-cta px-3 text-[15px] font-medium text-cta-foreground transition-colors hover:bg-cta/90 min-[320px]:flex sm:px-7"
                   >
                     {/* Two labels, one per width. "Start a campaign" doesn't
                         fit a 375px bar once the wordmark is beside it, and
                         "Start" survives losing the rest of the sentence in a
                         way the old "Launch" — a verb with no object — didn't.
                         The full label returns at lg, where it and the creator
-                        sign-in take 706px of the 942 the bar has. */}
+                        sign-in take 706px of the 942 the bar has. Below 320px
+                        of page width (a phone zoomed for accessibility) the
+                        Start half goes altogether, so the name keeps its
+                        room: the menu leads with "Start a campaign" anyway. */}
                     <span className="lg:hidden">Start</span>
                     <span className="hidden lg:inline">Start a campaign</span>
                     <ArrowRight className="size-4 shrink-0" />
                   </Link>
-                  <span aria-hidden className="h-full w-px bg-border" />
+                  <span aria-hidden className="hidden h-full w-px bg-border min-[320px]:block" />
                 </>
               )}
 

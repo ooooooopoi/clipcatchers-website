@@ -172,14 +172,21 @@ export default async function HomePage() {
               with one word alone on a line. Each step targets a layout and
               divides the width it has by that layout's widest line, measured
               in the face:
-                phones and tablets — GET YOUR BRAND / INTO MILLIONS / OF FEEDS,
-                  widest 10.29em (/10.8 leaves room for a desktop scrollbar),
-                  capped at 36px, then 60px from sm
+                phones — GET YOUR / BRAND INTO / MILLIONS / OF FEEDS, widest
+                  7.19em (/7.37), capped at 52px. Four short lines rather
+                  than three long ones, because the three-line set came out
+                  at 32px on a 390px phone and the paragraph under it, four
+                  lines of body copy, was the bigger block on the screen.
+                  From about 575 up, GET YOUR BRAND fits at the cap and it
+                  sets in three, which is also fine.
+                tablets — GET YOUR BRAND / INTO MILLIONS / OF FEEDS, widest
+                  10.29em (/10.8 leaves room for a desktop scrollbar),
+                  capped at 60px
                 lg and up — GET YOUR BRAND INTO / MILLIONS OF FEEDS, widest
                   13.32em (/13.66), capped at 72px
               The non-breaking space keeps OF with FEEDS; without it the
-              phone layout ends its second line on OF. */}
-          <RevealHeading className="display mx-auto max-w-5xl text-[clamp(1.5rem,calc((100vw_-_2.5rem)/10.8),2.25rem)] sm:text-[min(3.75rem,calc((100vw_-_2.5rem)/10.8))] lg:text-[min(4.5rem,calc((100vw_-_2.5rem)/13.66))]">
+              phone layout can end a line on OF. */}
+          <RevealHeading className="display mx-auto max-w-5xl text-[clamp(1.5rem,calc((100vw_-_2.5rem)/7.37),3.25rem)] sm:text-[min(3.75rem,calc((100vw_-_2.5rem)/10.8))] lg:text-[min(4.5rem,calc((100vw_-_2.5rem)/13.66))]">
             Get your brand into millions of&nbsp;feeds
           </RevealHeading>
 
