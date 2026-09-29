@@ -152,7 +152,7 @@ export default async function BlogPostPage({
               <Link href="/verification">How verification works</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link href="/launch">Start a campaign</Link>
+              <Link href="/launch">Get started</Link>
             </Button>
           </div>
         </div>

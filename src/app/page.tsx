@@ -200,7 +200,7 @@ export default async function HomePage() {
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3 sm:mt-9">
             <Button asChild size="lg" className="h-12 px-7">
               <Link href="/launch">
-                Start a campaign
+                Get started
                 <ArrowRight />
               </Link>
             </Button>
@@ -359,7 +359,7 @@ export default async function HomePage() {
               <div className="mt-8 flex flex-wrap justify-center gap-3">
                 <Button asChild size="lg" className="h-12 px-7">
                   <Link href="/launch">
-                    Start a campaign
+                    Get started
                     <ArrowRight />
                   </Link>
                 </Button>

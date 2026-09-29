@@ -102,7 +102,7 @@ export function ClosingCta() {
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Button asChild size="lg" className="h-12 px-7">
             <Link href="/launch">
-              Start a campaign
+              Get started
               <ArrowRight />
             </Link>
           </Button>

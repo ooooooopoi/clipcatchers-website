@@ -101,7 +101,7 @@ export function SiteFooter() {
               href="/launch"
               className="mt-4 inline-block text-sm text-primary-ink underline-offset-4 hover:underline"
             >
-              Start a campaign →
+              Get started →
             </Link>
           </div>
 

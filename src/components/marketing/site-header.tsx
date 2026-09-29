@@ -85,12 +85,15 @@ export function SiteHeader({
             : "border border-border bg-background",
         )}
       >
-        {/* Mark and name together. The tile was dropped once for overflowing
-            this bar at 320px, so it returns on a condition: hidden below
-            390px, where the wordmark needs every pixel of the row, and drawn
-            everywhere both fit. The line was 360 until it was measured: tile,
-            name and the Start/menu pair need 336px, and at 360 the bar has
-            304, so the menu button ran 5px off the screen.
+        {/* Mark and name together, sized to what the row holds. On a phone
+            the row is the name, a 12px gap and the Get started / menu pill
+            (151px), and the bar has its width less 58. Measured, that gives:
+              below 360   name at 14px   (the pill appears from 340)
+              360-374     name at 16px
+              375 and up  name at 18px
+              420 and up  the logo tile as well
+            With "Start" instead of "Get started" the tile fitted from 390;
+            the longer label cost it the 390-419 phones.
 
             And if the row still runs out of room (a phone zoomed for
             accessibility, larger text), the name is what gives way: it
@@ -98,8 +101,8 @@ export function SiteHeader({
             the buttons were pushed out instead and the menu button was cut
             in half by the edge of the screen. */}
         <Link href="/" className="flex min-w-0 items-center gap-2 sm:gap-2.5">
-          <BrandMark onDark className="hidden h-8 w-8 shrink-0 min-[390px]:block sm:h-9 sm:w-9" />
-          <span className="wordmark truncate text-[14px] min-[360px]:text-[18px] sm:text-2xl">
+          <BrandMark onDark className="hidden h-8 w-8 shrink-0 min-[420px]:block sm:h-9 sm:w-9" />
+          <span className="wordmark truncate text-[14px] min-[360px]:text-[16px] min-[375px]:text-[18px] sm:text-2xl">
             Clip Catchers
           </span>
         </Link>
@@ -174,22 +177,19 @@ export function SiteHeader({
                 <>
                   <Link
                     href="/launch"
-                    className="hidden h-full items-center gap-2 whitespace-nowrap bg-cta px-3 text-[15px] font-medium text-cta-foreground transition-colors hover:bg-cta/90 min-[320px]:flex sm:px-7"
+                    className="hidden h-full items-center gap-2 whitespace-nowrap bg-cta px-3 text-[15px] font-medium text-cta-foreground transition-colors hover:bg-cta/90 min-[340px]:flex sm:px-7"
                   >
-                    {/* Two labels, one per width. "Start a campaign" doesn't
-                        fit a 375px bar once the wordmark is beside it, and
-                        "Start" survives losing the rest of the sentence in a
-                        way the old "Launch" — a verb with no object — didn't.
-                        The full label returns at lg, where it and the creator
-                        sign-in take 706px of the 942 the bar has. Below 320px
-                        of page width (a phone zoomed for accessibility) the
-                        Start half goes altogether, so the name keeps its
-                        room: the menu leads with "Start a campaign" anyway. */}
-                    <span className="lg:hidden">Start</span>
-                    <span className="hidden lg:inline">Start a campaign</span>
-                    <ArrowRight className="size-4 shrink-0" />
+                    {/* "Get started", the site's one call to action, at every
+                        width (it replaced "Start" on phones and "Start a
+                        campaign" from lg). It's 80px of text; the arrow waits
+                        for 640, where there's room for it. Below 340px of page
+                        width (a phone zoomed for accessibility) the whole half
+                        goes and the name keeps its room: the menu leads with
+                        "Get started" anyway. */}
+                    Get started
+                    <ArrowRight className="hidden size-4 shrink-0 sm:block" />
                   </Link>
-                  <span aria-hidden className="hidden h-full w-px bg-border min-[320px]:block" />
+                  <span aria-hidden className="hidden h-full w-px bg-border min-[340px]:block" />
                 </>
               )}
 
@@ -270,7 +270,7 @@ export function SiteHeader({
                 <SheetClose asChild>
                   <Button asChild className="h-10 w-full">
                     <Link href="/launch">
-                      Start a campaign
+                      Get started
                       <ArrowRight />
                     </Link>
                   </Button>
