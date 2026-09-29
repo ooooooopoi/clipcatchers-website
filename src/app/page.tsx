@@ -163,20 +163,21 @@ export default async function HomePage() {
               leading is under 1, and that only works because uppercase has no
               descenders to collide.
 
-              The mobile size is set from the screen, not from the desktop
-              step. Uppercase in the wide display face costs lines: at a fixed
-              36px a 390px phone set this in five, with BRAND alone on one.
-              The widest line of the four-line version, BRAND THROUGH, is
-              10.33em, so the size is the width it has divided by that, with a
-              little slack — four lines on anything from 300 up, capped at the
-              old 36px. Tablets had the same fault one step up: a fixed 60px
-              set five lines at 640 and left THROUGH alone at 768. From sm the
-              three-line version is the target, its widest line THROUGH
-              HUNDREDS at 12.84em, capped at the old 60px.
-              The non-breaking space keeps OF on the line with CREATORS rather
-              than left hanging at the end of the one before. */}
-          <RevealHeading className="display mx-auto max-w-5xl text-[clamp(1.5rem,calc((100vw_-_2.5rem)/10.6),2.25rem)] sm:text-[min(3.75rem,calc((100vw_-_2.5rem)/13.1))] lg:text-7xl">
-            Scale your brand through hundreds of&nbsp;creators
+              The size is set from the screen, because uppercase in the wide
+              display face costs lines and a fixed size strands words: the
+              previous headline set in five lines at 36px on a 390px phone,
+              with one word alone on a line. Each step targets a layout and
+              divides the width it has by that layout's widest line, measured
+              in the face:
+                phones and tablets — GET YOUR BRAND / INTO MILLIONS / OF FEEDS,
+                  widest 10.29em (/10.8 leaves room for a desktop scrollbar),
+                  capped at 36px, then 60px from sm
+                lg and up — GET YOUR BRAND INTO / MILLIONS OF FEEDS, widest
+                  13.32em (/13.66), capped at 72px
+              The non-breaking space keeps OF with FEEDS; without it the
+              phone layout ends its second line on OF. */}
+          <RevealHeading className="display mx-auto max-w-5xl text-[clamp(1.5rem,calc((100vw_-_2.5rem)/10.8),2.25rem)] sm:text-[min(3.75rem,calc((100vw_-_2.5rem)/10.8))] lg:text-[min(4.5rem,calc((100vw_-_2.5rem)/13.66))]">
+            Get your brand into millions of&nbsp;feeds
           </RevealHeading>
 
           <p className="mx-auto mt-5 max-w-2xl leading-relaxed text-muted-foreground sm:mt-7 sm:text-lg">

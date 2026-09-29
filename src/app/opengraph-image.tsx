@@ -85,7 +85,7 @@ export default async function OpengraphImage() {
               flexWrap: "wrap",
             }}
           >
-            Scale your brand through&nbsp;<span style={{ color: INK }}>hundreds of creators</span>
+            Get your brand into&nbsp;<span style={{ color: INK }}>millions of feeds</span>
           </div>
 
           <div
