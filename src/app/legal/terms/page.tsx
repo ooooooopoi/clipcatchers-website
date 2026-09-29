@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { RATE_PER_THOUSAND } from "@/lib/pricing";
 
 /**
  * ⚠ NOT LEGAL ADVICE, AND NOT REVIEWED BY A LAWYER.
@@ -24,7 +23,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/legal/terms" },
 };
 
-const UPDATED = "August 2026";
+const UPDATED = "September 2026";
 
 export default function TermsPage() {
   return (
@@ -48,8 +47,8 @@ export default function TermsPage() {
       <h2>What you pay</h2>
       <ul>
         <li>
-          ${RATE_PER_THOUSAND.toFixed(2)} per 1,000 delivered views, unless we&apos;ve
-          agreed a different rate with you in writing.
+          Per delivered view, at the rate we agree with you in writing for your
+          campaign (your quote).
         </li>
         <li>No retainer, no minimum term, no setup fee.</li>
         <li>

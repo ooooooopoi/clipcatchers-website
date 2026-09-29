@@ -6,7 +6,7 @@ import { BrandMark } from "@/components/brand";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { Button } from "@/components/ui/button";
 import { formatCompact } from "@/lib/format";
-import { PAID_SOCIAL_CPM, RATE_PER_THOUSAND } from "@/lib/pricing";
+import { PAID_SOCIAL_CPM } from "@/lib/pricing";
 import { getCaseStudy } from "@/lib/public-stats";
 import { PUBLIC_VIEWPORT } from "@/lib/public-theme";
 
@@ -55,14 +55,13 @@ export default async function CaseStudyPage(
   // be a way to read out a client who never agreed to be named.
   if (!study) notFound();
 
-  // What this delivery would have cost bought as ads, against our list rate.
-  // Deliberately not against what this client actually spent: reported spend
+  // What this delivery would have cost bought as ads. It used to be set
+  // against our list rate too; that went with the published rate on
+  // 2026-09-30. Never against what this client actually spent: reported spend
   // is our clipper cost until client_budget is set on a campaign, so printing
   // it here would publish the margin. See the note on ClientRow in
   // lib/public-stats.ts.
   const paidSocial = (study.totalViews / 1000) * PAID_SOCIAL_CPM.meta;
-  const atListRate = (study.totalViews / 1000) * RATE_PER_THOUSAND;
-  const saved = Math.max(paidSocial - atListRate, 0);
 
   return (
     <div className="theme-black page-light relative min-h-screen bg-background text-foreground">
@@ -146,7 +145,7 @@ export default async function CaseStudyPage(
           </ul>
         </div>
 
-        {saved > 0 && (
+        {paidSocial > 0 && (
           <div className="surface mt-6 rounded-2xl border border-border bg-card p-6 sm:p-8">
             <h2 className="text-lg font-semibold tracking-tight">
               What the same reach costs as paid social
@@ -157,12 +156,7 @@ export default async function CaseStudyPage(
               <span className="font-mono text-foreground">
                 ${Math.round(paidSocial).toLocaleString()}
               </span>
-              . At our rate of ${RATE_PER_THOUSAND.toFixed(2)} per 1,000, the same
-              delivery comes to{" "}
-              <span className="font-mono text-foreground">
-                ${Math.round(atListRate).toLocaleString()}
-              </span>
-              .
+              . Here it was billed per delivered view, with nothing up front.
             </p>
             <p className="mt-3 leading-relaxed text-muted-foreground">
               And the posts are still up. Paid impressions stop the moment the spend

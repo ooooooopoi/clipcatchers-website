@@ -46,7 +46,7 @@ export const NAV_GROUPS: NavGroup[] = [
       {
         href: "/pricing",
         label: "Pricing",
-        blurb: "One rate, no retainer, and a ceiling you set",
+        blurb: "Pay per view, no retainer, and a ceiling you set",
       },
       {
         href: "/verification",

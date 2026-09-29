@@ -1,5 +1,4 @@
 import { Check, Minus } from "lucide-react";
-import { PAID_SOCIAL_CPM, RATE_PER_THOUSAND } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 
 /**
@@ -59,9 +58,6 @@ const ROWS = [
 ] as const;
 
 export function Comparison() {
-  const ourCostPerMillion = (1_000_000 / 1000) * RATE_PER_THOUSAND;
-  const metaCostPerMillion = (1_000_000 / 1000) * PAID_SOCIAL_CPM.meta;
-
   return (
     <section
       id="comparison"
@@ -134,31 +130,9 @@ export function Comparison() {
         </dl>
       </div>
 
-      {/* The cost line, stated once and conservatively. The Meta figure is the
-          bottom of the range on purpose — a number a prospect can beat inside
-          their own ad account is worse than publishing no number at all. */}
-      <div className="surface mt-5 flex flex-wrap items-center justify-center gap-x-10 gap-y-6 rounded-2xl border border-border bg-card px-6 py-8 text-center">
-        <div>
-          <p className="font-mono text-3xl font-semibold tracking-tight text-muted-foreground">
-            ${metaCostPerMillion.toLocaleString()}
-          </p>
-          <p className="mt-1.5 text-xs text-muted-foreground">
-            1M views as Meta ads, at a ${PAID_SOCIAL_CPM.meta.toFixed(2)} CPM
-          </p>
-        </div>
-        <span aria-hidden className="hidden h-10 w-px bg-border sm:block" />
-        <div>
-          <p className="font-mono text-3xl font-semibold tracking-tight text-primary-ink">
-            ${ourCostPerMillion.toLocaleString()}
-          </p>
-          <p className="mt-1.5 text-xs text-muted-foreground">
-            1M views here, at ${RATE_PER_THOUSAND.toFixed(2)} per 1,000
-          </p>
-        </div>
-        <p className="w-full text-xs leading-relaxed text-muted-foreground/80">
-          And the posts stay up after the spend stops. Paid impressions don&apos;t.
-        </p>
-      </div>
+      {/* A cost line stood here: 1M views as Meta ads against 1M views at our
+          $0.50 per 1,000. It went on 2026-09-30 with the published rate; the
+          table above makes the case without a number. */}
     </section>
   );
 }
