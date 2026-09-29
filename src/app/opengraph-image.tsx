@@ -99,10 +99,13 @@ export default async function OpengraphImage() {
               lineHeight: 1.4,
               maxWidth: 880,
               display: "flex",
+              flexDirection: "column",
             }}
           >
-            Launch TikTok and Instagram campaigns and pay only for views that actually
-            landed, not an influencer retainer.
+            {/* Broken by hand: the image renderer can't balance a wrap, and
+                left to itself it stranded "and Shorts." on a line alone. */}
+            <span>Hundreds of creators posting about your brand</span>
+            <span>on TikTok, Reels and Shorts.</span>
           </div>
         </div>
 

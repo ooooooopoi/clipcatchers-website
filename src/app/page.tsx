@@ -190,9 +190,11 @@ export default async function HomePage() {
             Get your brand into millions of&nbsp;feeds
           </RevealHeading>
 
-          <p className="mx-auto mt-5 max-w-2xl leading-relaxed text-muted-foreground sm:mt-7 sm:text-lg">
-            Launch a TikTok and Instagram campaign, brief a network of verified creators,
-            and pay only for views that actually landed, not an influencer retainer.
+          {/* The owner's line (2026-09-30), replacing a 26-word sentence that
+              ran four lines on a phone. text-balance so its two lines on a
+              phone come out even rather than leaving "Shorts." alone. */}
+          <p className="mx-auto mt-5 max-w-2xl text-balance leading-relaxed text-muted-foreground sm:mt-7 sm:text-lg">
+            Hundreds of creators posting about your brand on TikTok, Reels and Shorts.
           </p>
 
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3 sm:mt-9">
