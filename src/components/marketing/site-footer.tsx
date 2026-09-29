@@ -53,7 +53,6 @@ const COLUMNS = [
     heading: "Account",
     links: [
       { label: "Start a campaign", href: "/launch" },
-      { label: "Book a call", href: "/launch?mode=call" },
       { label: "For creators", href: "/for-creators" },
       // No "Client sign in", and no "create an account".
       //

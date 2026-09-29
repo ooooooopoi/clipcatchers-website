@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { ArrowRight, Phone } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SiteHeader } from "@/components/marketing/site-header";
 import { SmoothScroll } from "@/components/marketing/smooth-scroll";
@@ -104,12 +104,6 @@ export function ClosingCta() {
             <Link href="/launch">
               Get started
               <ArrowRight />
-            </Link>
-          </Button>
-          <Button asChild size="lg" variant="outline" className="h-12 px-7">
-            <Link href="/launch?mode=call">
-              <Phone />
-              Book a call
             </Link>
           </Button>
         </div>

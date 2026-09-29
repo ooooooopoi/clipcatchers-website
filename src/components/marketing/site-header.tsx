@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Menu, Phone } from "lucide-react";
+import { ArrowRight, Menu } from "lucide-react";
 import { BrandMark } from "@/components/brand";
 import { DiscordButton } from "@/components/discord-button";
 import { NavMenu } from "@/components/marketing/nav-menu";
@@ -128,12 +128,6 @@ export function SiteHeader({
         </nav>
 
         <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
-          {/* No "Book a call" in the bar. It sat here at xl and up and is the
-              reason the nav wrapped: with it the bar needs 1325px, more than
-              the capsule has at any width. It is the second button in the
-              hero, in the closing panel and in the sheet, and the nav links
-              are in none of those, so it is the one that gave way. */}
-
           {/* Creators, at lg and up. A clipper arriving here is the one visitor
               who definitely wants to sign in — it is the route to their own
               money — which is why this is offered where "Client sign in"
@@ -194,7 +188,7 @@ export function SiteHeader({
               )}
 
               {/* Shown at every width. Below 1360 it is the only route to the
-                  nav; above it, it still owns booking, legal and the creator
+                  nav; above it, it still owns legal and the creator
                   link, which are not in the bar. */}
               <SheetTrigger asChild>
                 <button
@@ -275,16 +269,6 @@ export function SiteHeader({
                     </Link>
                   </Button>
                 </SheetClose>
-                {!signedIn && (
-                  <SheetClose asChild>
-                    <Button asChild variant="outline" className="h-10 w-full">
-                      <Link href="/launch?mode=call">
-                        <Phone />
-                        Book a call
-                      </Link>
-                    </Button>
-                  </SheetClose>
-                )}
                 {/* Only for people already signed in. The signed-out half of
                     this was "Client sign in", and it has gone from every
                     public surface: it is the wrong ask for someone who has

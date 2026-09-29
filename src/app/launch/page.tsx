@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { BrandMark } from "@/components/brand";
 import { AfterLaunch } from "@/components/marketing/after-launch";
@@ -8,7 +7,6 @@ import { LaunchPanel } from "@/components/launch-panel";
 import { SmoothScroll } from "@/components/marketing/smooth-scroll";
 import { RATE_PER_THOUSAND } from "@/lib/pricing";
 import { parseQuotePrefill } from "@/lib/quote-options";
-import { bookingUrl } from "@/lib/booking";
 import { SITE_STATS } from "@/lib/site-stats";
 import { PUBLIC_VIEWPORT } from "@/lib/public-theme";
 
@@ -47,12 +45,12 @@ const REASSURANCE = [
 ];
 
 /**
- * `?mode=call` opens straight on the booking tab.
+ * Where "Get started" goes: the brief.
  *
- * It exists so "Book a call" can be its own link — in the header, in the
- * footer, in a DM — rather than a thing you can only reach by landing here and
- * then noticing a switch. Anything other than "call" falls through to the
- * brief, so a mangled or truncated URL shows the form rather than an error.
+ * `?mode=call` used to open a booking tab or redirect to the scheduler. Booking
+ * was taken off the site on 2026-09-30, and the parameter is now ignored, so
+ * every link already sent with it (DMs, bookmarks, the bot) lands on the brief
+ * instead of an error.
  *
  * ── Prefilled offers ────────────────────────────────────────────────────
  * `?category=music&budget=1500&artist=Some+Label` opens the brief with those
@@ -62,7 +60,7 @@ const REASSURANCE = [
  *
  * Everything is validated against the form's own option lists in
  * lib/quote-options: an unrecognised value leaves the field unanswered rather
- * than inventing an option, exactly as `mode` already does.
+ * than inventing an option.
  *
  * searchParams is a promise in Next 15, and reading it opts this page into
  * dynamic rendering. That's the cost of the deep link and it's a fair one:
@@ -72,32 +70,13 @@ export default async function QuotePage({
   searchParams,
 }: {
   searchParams: Promise<{
-    mode?: string;
     category?: string;
     budget?: string;
     artist?: string;
   }>;
 }) {
-  const { mode, category, budget, artist } = await searchParams;
-  const initialMode = mode === "call" ? "call" : "brief";
+  const { category, budget, artist } = await searchParams;
   const prefill = parseQuotePrefill({ category, budget, artist });
-
-  // ── "Book a call" goes to the calendar, not to a form about the calendar ──
-  // Six places link here with ?mode=call — header, footer, homepage twice,
-  // page shell, and DMs. Redirecting the route rather than editing the links
-  // means one decision, and every link already sent still lands in the right
-  // place.
-  //
-  // The questions move into the scheduler's own booking form, where they are
-  // answered by someone who has already picked a time. Asking them here
-  // first put a nine-field gate in front of the thing they clicked, and the
-  // reply still had to negotiate a slot afterwards.
-  //
-  // Automatic fallback: with no NEXT_PUBLIC_BOOKING_URL this is skipped and
-  // the request-a-time form serves as before, so unsetting the variable
-  // restores the old behaviour without a deploy.
-  const booking = bookingUrl();
-  if (initialMode === "call" && booking) redirect(booking);
 
   return (
     <div className="marketing theme-black page-light relative min-h-screen overflow-x-clip bg-background text-foreground">
@@ -119,15 +98,11 @@ export default async function QuotePage({
 
       <main className="relative z-10 mx-auto w-full max-w-3xl px-5 pb-24 pt-6">
         <div className="text-center">
-          {/* Neutral between the two tabs on purpose. The heading used to be
-              "Tell us what you're promoting", which is only one of the two
-              things this page now offers and would read as a wrong label the
-              moment someone opened the call tab. */}
           <h1 className="display text-4xl sm:text-6xl">Start a campaign</h1>
           <p className="mx-auto mt-5 max-w-xl leading-relaxed text-muted-foreground">
-            Send a brief or book fifteen minutes. Either way you get what it would cost
-            and what it should realistically deliver, drawn from campaigns we&apos;ve
-            actually run rather than a projection.
+            Send a brief and get back what it would cost and what it should
+            realistically deliver, drawn from campaigns we&apos;ve actually run rather
+            than a projection.
           </p>
         </div>
 
@@ -141,7 +116,7 @@ export default async function QuotePage({
         </div>
 
         <div className="mt-10">
-          <LaunchPanel initialMode={initialMode} prefill={prefill} />
+          <LaunchPanel prefill={prefill} />
         </div>
 
         {/* What the first week looks like, directly under the form it

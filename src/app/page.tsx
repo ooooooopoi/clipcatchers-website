@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Ban, Gauge, Phone, ReceiptText, ShieldCheck } from "lucide-react";
+import { ArrowRight, Ban, Gauge, ReceiptText, ShieldCheck } from "lucide-react";
 import { Clients } from "@/components/marketing/clients";
 import { ClipsWall } from "@/components/marketing/clips-wall";
 import { RevealHeading } from "@/components/marketing/reveal";
@@ -204,17 +204,8 @@ export default async function HomePage() {
                 <ArrowRight />
               </Link>
             </Button>
-            {/* Straight to the booking tab. The hero's second action used to
-                be "See how it works", which is a request to keep reading —
-                fine, but the page already scrolls and the anchor is in the
-                header. This is the one someone who is already interested
-                wants, and it was previously three pages away. */}
-            <Button asChild size="lg" variant="outline" className="h-12 px-7">
-              <Link href="/launch?mode=call">
-                <Phone />
-                Book a call
-              </Link>
-            </Button>
+            {/* One action. "Book a call" stood beside it until 2026-09-30,
+                when the owner took booking off the site. */}
           </div>
 
         </section>
@@ -361,12 +352,6 @@ export default async function HomePage() {
                   <Link href="/launch">
                     Get started
                     <ArrowRight />
-                  </Link>
-                </Button>
-                <Button asChild size="lg" variant="outline" className="h-12 px-7">
-                  <Link href="/launch?mode=call">
-                    <Phone />
-                    Book a call
                   </Link>
                 </Button>
               </div>
