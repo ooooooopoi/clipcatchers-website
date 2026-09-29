@@ -2,6 +2,9 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { BrandMark } from "@/components/brand";
 import { SiteFooter } from "@/components/marketing/site-footer";
+import { PUBLIC_VIEWPORT } from "@/lib/public-theme";
+
+export const viewport = PUBLIC_VIEWPORT;
 
 /**
  * Shared chrome for the legal pages.
@@ -13,11 +16,11 @@ import { SiteFooter } from "@/components/marketing/site-footer";
  */
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative min-h-screen">
+    <div className="theme-black page-light relative min-h-screen bg-background text-foreground">
       <header className="border-b border-border">
         <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-4 px-5 py-5">
           <Link href="/" className="flex items-center gap-2.5">
-            <BrandMark className="h-8 w-8" />
+            <BrandMark onDark className="h-8 w-8" />
             <span className="text-sm font-semibold tracking-tight">Clip Catchers</span>
           </Link>
           <Link

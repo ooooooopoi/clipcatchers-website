@@ -4,6 +4,9 @@ import { ArrowRight } from "lucide-react";
 import { Industries } from "@/components/marketing/industries";
 import { PageShell } from "@/components/marketing/page-shell";
 import { USE_CASES } from "@/lib/use-cases";
+import { PUBLIC_VIEWPORT } from "@/lib/public-theme";
+
+export const viewport = PUBLIC_VIEWPORT;
 
 const TITLE = "Use cases";
 const SOCIAL_TITLE = "Use cases — Clip Catchers";

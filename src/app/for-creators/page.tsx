@@ -6,6 +6,9 @@ import { PageShell } from "@/components/marketing/page-shell";
 import { Button } from "@/components/ui/button";
 import { CREATOR_HREF, DISCORD_LINK_PROPS } from "@/lib/discord";
 import { RATE_PER_THOUSAND } from "@/lib/pricing";
+import { PUBLIC_VIEWPORT } from "@/lib/public-theme";
+
+export const viewport = PUBLIC_VIEWPORT;
 
 const TITLE = "For creators";
 const SOCIAL_TITLE = "Get paid to clip — Clip Catchers";

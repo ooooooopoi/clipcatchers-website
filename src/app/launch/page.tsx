@@ -10,6 +10,9 @@ import { RATE_PER_THOUSAND } from "@/lib/pricing";
 import { parseQuotePrefill } from "@/lib/quote-options";
 import { bookingUrl } from "@/lib/booking";
 import { SITE_STATS } from "@/lib/site-stats";
+import { PUBLIC_VIEWPORT } from "@/lib/public-theme";
+
+export const viewport = PUBLIC_VIEWPORT;
 
 // Two forms on purpose. The <title> goes through the root layout's
 // "%s · Clip Catchers" template, so it must not carry the brand itself or it
@@ -97,12 +100,12 @@ export default async function QuotePage({
   if (initialMode === "call" && booking) redirect(booking);
 
   return (
-    <div className="marketing relative min-h-screen overflow-x-clip">
+    <div className="marketing theme-black page-light relative min-h-screen overflow-x-clip bg-background text-foreground">
       <SmoothScroll />
 
       <header className="relative z-10 mx-auto flex w-full max-w-3xl items-center justify-between gap-4 px-5 py-5">
         <Link href="/" className="flex items-center gap-2.5">
-          <BrandMark className="h-7 w-7" />
+          <BrandMark onDark className="h-7 w-7" />
           <span className="text-sm font-semibold tracking-tight">Clip Catchers</span>
         </Link>
         <Link

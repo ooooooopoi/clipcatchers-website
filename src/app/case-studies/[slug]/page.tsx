@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button";
 import { formatCompact } from "@/lib/format";
 import { PAID_SOCIAL_CPM, RATE_PER_THOUSAND } from "@/lib/pricing";
 import { getCaseStudy } from "@/lib/public-stats";
+import { PUBLIC_VIEWPORT } from "@/lib/public-theme";
+
+export const viewport = PUBLIC_VIEWPORT;
 
 /**
  * One client's campaigns, every figure read from the database.
@@ -62,11 +65,11 @@ export default async function CaseStudyPage(
   const saved = Math.max(paidSocial - atListRate, 0);
 
   return (
-    <div className="relative min-h-screen">
+    <div className="theme-black page-light relative min-h-screen bg-background text-foreground">
       <header className="border-b border-border">
         <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-4 px-5 py-5">
           <Link href="/" className="flex items-center gap-2.5">
-            <BrandMark className="h-8 w-8" />
+            <BrandMark onDark className="h-8 w-8" />
             <span className="text-sm font-semibold tracking-tight">Clip Catchers</span>
           </Link>
           <Link

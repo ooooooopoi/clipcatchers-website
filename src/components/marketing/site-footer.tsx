@@ -90,7 +90,7 @@ export function SiteFooter() {
               ragged lines. */}
           <div className="col-span-2 sm:col-span-1">
             <Link href="/" className="flex items-center gap-2.5">
-              <BrandMark className="h-8 w-8" />
+              <BrandMark onDark className="h-8 w-8" />
               <span className="text-sm font-semibold tracking-tight">Clip Catchers</span>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">

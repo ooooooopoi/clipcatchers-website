@@ -4,6 +4,9 @@ import { ImpressionCounter } from "@/components/marketing/impressions";
 import { PageShell } from "@/components/marketing/page-shell";
 import { Results } from "@/components/marketing/results";
 import { getPublicStats } from "@/lib/public-stats";
+import { PUBLIC_VIEWPORT } from "@/lib/public-theme";
+
+export const viewport = PUBLIC_VIEWPORT;
 
 const TITLE = "Results";
 const SOCIAL_TITLE = "Results — Clip Catchers";

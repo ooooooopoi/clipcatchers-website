@@ -127,7 +127,7 @@ export function NavMenu({ group }: { group: NavGroup }) {
       >
         <div
           className={cn(
-            "surface rounded-2xl border border-border bg-popover p-2 shadow-[0_12px_40px_-12px_hsl(var(--foreground)/0.25)]",
+            "surface rounded-2xl border border-border bg-popover p-2 shadow-[0_12px_40px_-12px_hsl(var(--shadow)/0.25)]",
             // Eight categories in one column is a menu that runs off the
             // bottom of a laptop screen. Four and under stays single.
             group.links.length > 4 ? "grid w-[34rem] grid-cols-2 gap-1" : "w-72 space-y-1",

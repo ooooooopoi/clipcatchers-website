@@ -5,6 +5,9 @@ import { SiteFooter } from "@/components/marketing/site-footer";
 import { SiteHeader } from "@/components/marketing/site-header";
 import { getSessionUser } from "@/lib/auth-helpers";
 import { sortedPosts } from "@/lib/blog";
+import { PUBLIC_VIEWPORT } from "@/lib/public-theme";
+
+export const viewport = PUBLIC_VIEWPORT;
 
 const TITLE = "Blog";
 const DESCRIPTION =
@@ -35,7 +38,7 @@ export default async function BlogIndex() {
   const posts = sortedPosts();
 
   return (
-    <div className="relative min-h-screen">
+    <div className="theme-black page-light relative min-h-screen bg-background text-foreground">
       <SiteHeader
         signedIn={Boolean(user)}
         isClipper={Boolean(user?.discordId)}

@@ -18,6 +18,9 @@ import { formatCompact } from "@/lib/format";
 import { RATE_PER_THOUSAND } from "@/lib/pricing";
 import { NAMED_CLIENTS, getPublicStats, slugify } from "@/lib/public-stats";
 import { SITE_STATS } from "@/lib/site-stats";
+import { PUBLIC_VIEWPORT } from "@/lib/public-theme";
+
+export const viewport = PUBLIC_VIEWPORT;
 
 const TITLE = "Clip Catchers — Performance-based creator distribution for brands";
 const DESCRIPTION =
@@ -134,7 +137,7 @@ export default async function HomePage() {
   return (
     // overflow-x-clip, not overflow-hidden: `hidden` makes this a scroll
     // container, which silently stops the sticky header from sticking.
-    <div className="marketing relative min-h-screen overflow-x-clip">
+    <div className="marketing theme-black page-light relative min-h-screen overflow-x-clip bg-background text-foreground">
       <SmoothScroll />
       <OrganizationSchema />
       <SiteHeader
@@ -331,7 +334,7 @@ export default async function HomePage() {
             named client, which is the one thing we can offer that a deck
             can't. */}
         <section className="relative z-10 mx-auto w-full max-w-4xl px-5 pb-24">
-          <div className="surface overflow-hidden rounded-3xl border border-border bg-card">
+          <div className="surface panel-light overflow-hidden rounded-3xl border border-border bg-card">
             <div className="px-6 py-14 text-center sm:px-12">
               <h2 className="display mx-auto max-w-2xl text-3xl sm:text-5xl">
                 Start with one campaign

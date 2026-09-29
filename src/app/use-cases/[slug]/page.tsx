@@ -6,6 +6,9 @@ import { ImpressionCounter } from "@/components/marketing/impressions";
 import { PageShell } from "@/components/marketing/page-shell";
 import { getPublicStats } from "@/lib/public-stats";
 import { USE_CASES, useCaseBySlug } from "@/lib/use-cases";
+import { PUBLIC_VIEWPORT } from "@/lib/public-theme";
+
+export const viewport = PUBLIC_VIEWPORT;
 
 /**
  * One category, in enough depth to answer "what would creators post about us?"

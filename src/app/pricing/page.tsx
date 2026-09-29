@@ -5,6 +5,9 @@ import { Control } from "@/components/marketing/control";
 import { PageShell } from "@/components/marketing/page-shell";
 import { Pricing } from "@/components/marketing/pricing";
 import { RATE_PER_THOUSAND } from "@/lib/pricing";
+import { PUBLIC_VIEWPORT } from "@/lib/public-theme";
+
+export const viewport = PUBLIC_VIEWPORT;
 
 const TITLE = "Pricing";
 const SOCIAL_TITLE = "Pricing — Clip Catchers";

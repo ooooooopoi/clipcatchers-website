@@ -81,7 +81,7 @@ export function SiteHeader({
         className={cn(
           "mx-auto flex w-full max-w-6xl items-center gap-3 rounded-[1.75rem] px-3 py-3 transition-[background-color,border-color,box-shadow] duration-200 sm:gap-4 sm:px-4 xl:max-w-7xl",
           scrolled
-            ? "border border-border bg-background shadow-[0_8px_30px_-12px_hsl(var(--foreground)/0.18)]"
+            ? "border border-border bg-background shadow-[0_8px_30px_-12px_hsl(var(--shadow)/0.18)]"
             : "border border-border bg-background",
         )}
       >
@@ -92,7 +92,7 @@ export function SiteHeader({
             name and the Start/menu pair need 336px, and at 360 the bar has
             304, so the menu button ran 5px off the screen. */}
         <Link href="/" className="flex shrink-0 items-center gap-2.5">
-          <BrandMark className="hidden h-8 w-8 min-[390px]:block sm:h-9 sm:w-9" />
+          <BrandMark onDark className="hidden h-8 w-8 min-[390px]:block sm:h-9 sm:w-9" />
           <span className="wordmark whitespace-nowrap text-base min-[360px]:text-lg sm:text-2xl">
             Clip Catchers
           </span>
@@ -157,7 +157,7 @@ export function SiteHeader({
                 "flex h-11 shrink-0 items-center overflow-hidden rounded-full sm:h-14",
                 signedIn
                   ? "border border-border bg-background"
-                  : "border border-[hsl(var(--border-strong))] bg-background text-foreground shadow-[0_1px_2px_hsl(var(--foreground)/0.06),0_4px_12px_-6px_hsl(var(--foreground)/0.18)]",
+                  : "border border-[hsl(var(--border-strong))] bg-background text-foreground shadow-[0_1px_2px_hsl(var(--shadow)/0.06),0_4px_12px_-6px_hsl(var(--shadow)/0.18)]",
               )}
             >
               {!signedIn && (
@@ -199,13 +199,15 @@ export function SiteHeader({
                 indented while everything below sat flush against the edge.
                 Padding goes on the container and comes back off the header, so
                 one value governs the whole panel. */}
+            {/* theme-black again: the sheet is portalled to <body>, outside
+                the page wrapper that sets the theme for everything else. */}
             <SheetContent
               side="right"
-              className="flex w-[85vw] max-w-sm flex-col gap-0 overflow-y-auto p-5"
+              className="theme-black flex w-[85vw] max-w-sm flex-col gap-0 overflow-y-auto bg-background p-5 text-foreground"
             >
               <SheetHeader className="p-0">
                 <SheetTitle className="flex items-center gap-2 text-base">
-                  <BrandMark className="h-7 w-7" />
+                  <BrandMark onDark className="h-7 w-7" />
                   Clip Catchers
                 </SheetTitle>
               </SheetHeader>

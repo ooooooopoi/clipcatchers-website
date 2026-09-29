@@ -1,16 +1,24 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
-export function BrandMark({ className }: { className?: string }) {
+/**
+ * The logo tile. `onDark` is for the black public site: the same mark cut out
+ * of its white square (logo-mark.png) on a near-black tile, because a white
+ * square on black reads as a sticker. Everywhere else keeps the original
+ * opaque file — with a transparent one, the inset ring that the opaque image
+ * has always covered would start showing on the white dashboard.
+ */
+export function BrandMark({ className, onDark = false }: { className?: string; onDark?: boolean }) {
   return (
     <Image
-      src="/logo.png"
+      src={onDark ? "/logo-mark.png" : "/logo.png"}
       alt="Clip Catchers"
       width={64}
       height={64}
       priority
       className={cn(
-        "h-8 w-8 rounded-lg object-cover ring-1 ring-inset ring-primary/25",
+        "h-8 w-8 rounded-lg object-cover ring-1 ring-inset",
+        onDark ? "bg-card ring-border" : "ring-primary/25",
         className,
       )}
     />

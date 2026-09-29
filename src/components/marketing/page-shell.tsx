@@ -45,7 +45,7 @@ export async function PageShell({
   return (
     // overflow-x-clip, not overflow-hidden: `hidden` makes this a scroll
     // container, which silently stops the sticky header from sticking.
-    <div className="marketing relative min-h-screen overflow-x-clip">
+    <div className="marketing theme-black page-light relative min-h-screen overflow-x-clip bg-background text-foreground">
       <SmoothScroll />
       <SiteHeader
         signedIn={Boolean(user)}

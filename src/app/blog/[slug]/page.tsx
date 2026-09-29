@@ -7,6 +7,9 @@ import { SiteHeader } from "@/components/marketing/site-header";
 import { Button } from "@/components/ui/button";
 import { getSessionUser } from "@/lib/auth-helpers";
 import { POSTS, getPost } from "@/lib/blog";
+import { PUBLIC_VIEWPORT } from "@/lib/public-theme";
+
+export const viewport = PUBLIC_VIEWPORT;
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://clipcatchers.net";
 
@@ -82,7 +85,7 @@ export default async function BlogPostPage({
   };
 
   return (
-    <div className="relative min-h-screen">
+    <div className="theme-black page-light relative min-h-screen bg-background text-foreground">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}

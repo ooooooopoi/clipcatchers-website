@@ -13,20 +13,22 @@ import { SITE_STATS } from "@/lib/site-stats";
  * Generated rather than exported as a PNG so the rate and the totals can't
  * drift from the page: both are imported from the same modules the site reads.
  *
- * White, matching the site. A charcoal card would sit better against Discord's
- * dark theme, but it would be the only place the brand appears on a dark
- * ground and the first impression should look like the page it opens.
+ * Black, matching the site since 2026-09-30: the first impression should look
+ * like the page it opens. The colours are the `theme-black` tokens in
+ * globals.css — logo blue for the rule and tile, the lighter text blue for
+ * the highlighted words and figures. (It was still orange from before the site
+ * went blue.)
  */
 export const runtime = "edge";
 export const alt = "Clip Catchers — performance-based creator distribution for brands";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const ORANGE = "#FC7800";
-const INK = "#A84F00";
-const TEXT = "#0D0F0C";
-const MUTED = "#6B6F68";
-const BORDER = "#E1E3DF";
+const BLUE = "#005AFD";
+const INK = "#66A1FF";
+const TEXT = "#FAFAFA";
+const MUTED = "#9D9FA9";
+const BORDER = "#25272E";
 
 export default async function OpengraphImage() {
   return new ImageResponse(
@@ -38,13 +40,14 @@ export default async function OpengraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "#FFFFFF",
+          backgroundColor: "#000000",
+          backgroundImage:
+            "radial-gradient(900px 460px at 50% -120px, rgba(0, 90, 253, 0.22), rgba(0, 90, 253, 0.06) 45%, transparent 75%)",
           padding: "72px 80px",
           fontFamily: "sans-serif",
         }}
       >
-        {/* A single brand rule along the top, the same gradient the comparison
-            table uses to mark our column. */}
+        {/* A single brand rule along the top, logo blue into the text blue. */}
         <div
           style={{
             position: "absolute",
@@ -52,7 +55,7 @@ export default async function OpengraphImage() {
             left: 0,
             right: 0,
             height: 10,
-            background: `linear-gradient(to right, ${ORANGE}, #FCA800)`,
+            background: `linear-gradient(to right, ${BLUE}, ${INK})`,
           }}
         />
 
@@ -63,7 +66,7 @@ export default async function OpengraphImage() {
                 width: 36,
                 height: 36,
                 borderRadius: 10,
-                background: ORANGE,
+                background: BLUE,
                 display: "flex",
               }}
             />

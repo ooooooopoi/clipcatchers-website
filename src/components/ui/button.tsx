@@ -16,7 +16,7 @@ const buttonVariants = cva(
         // Secondary call to action: still blue, but quieter than the filled
         // primary button.
         ctaOutline:
-          "border border-cta/40 bg-background text-cta-ink shadow-[0_1px_2px_hsl(var(--foreground)/0.04)] hover:border-cta/70 hover:bg-[hsl(var(--cta)/0.06)]",
+          "border border-cta/40 bg-background text-cta-ink shadow-[0_1px_2px_hsl(var(--shadow)/0.04)] hover:border-cta/70 hover:bg-[hsl(var(--cta)/0.06)]",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         // Neutral secondary, for anything that isn't a call to action.

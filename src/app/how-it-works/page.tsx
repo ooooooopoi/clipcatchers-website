@@ -15,6 +15,9 @@ import { ImpressionCounter } from "@/components/marketing/impressions";
 import { PageShell } from "@/components/marketing/page-shell";
 import { RATE_PER_THOUSAND } from "@/lib/pricing";
 import { getPublicStats } from "@/lib/public-stats";
+import { PUBLIC_VIEWPORT } from "@/lib/public-theme";
+
+export const viewport = PUBLIC_VIEWPORT;
 
 const TITLE = "How it works";
 const SOCIAL_TITLE = "How it works — Clip Catchers";
