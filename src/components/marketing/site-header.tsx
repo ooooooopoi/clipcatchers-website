@@ -201,11 +201,11 @@ export function SiteHeader({
                 one value governs the whole panel. */}
             <SheetContent
               side="right"
-              className="flex w-[85vw] max-w-sm flex-col gap-0 overflow-y-auto p-6"
+              className="flex w-[85vw] max-w-sm flex-col gap-0 overflow-y-auto p-5"
             >
               <SheetHeader className="p-0">
-                <SheetTitle className="flex items-center gap-2.5">
-                  <BrandMark className="h-8 w-8" />
+                <SheetTitle className="flex items-center gap-2 text-base">
+                  <BrandMark className="h-7 w-7" />
                   Clip Catchers
                 </SheetTitle>
               </SheetHeader>
@@ -213,13 +213,19 @@ export function SiteHeader({
               {/* The same links as the bar, flattened. A nested accordion in a
                   panel this size is a second thing to open before you can read
                   the first — the groups become headings and every page is one
-                  tap. */}
-              <nav className="mt-8 flex flex-col" aria-label="All pages">
+                  tap.
+
+                  Compact, because it was a scroll: 16px rows with 14px of
+                  padding and a rule under every one ran the panel to about
+                  1,050px, so on a phone the buttons at the bottom were a
+                  scroll away. The groups sit two to a row, since every label
+                  in them is two or three short words. */}
+              <nav className="mt-5 flex flex-col" aria-label="All pages">
                 {NAV_LINKS.map((link) => (
                   <SheetClose asChild key={link.href}>
                     <Link
                       href={link.href}
-                      className="border-b border-border/60 py-3.5 text-base font-medium transition-colors hover:text-cta-ink"
+                      className="py-2 text-[15px] font-medium transition-colors hover:text-cta-ink"
                     >
                       {link.label}
                     </Link>
@@ -227,14 +233,14 @@ export function SiteHeader({
                 ))}
 
                 {NAV_GROUPS.map((group) => (
-                  <div key={group.label} className="mt-6">
+                  <div key={group.label} className="mt-4 border-t border-border/60 pt-4">
                     <p className="eyebrow text-muted-foreground/70">{group.label}</p>
-                    <div className="mt-2 flex flex-col">
+                    <div className="mt-1.5 grid grid-cols-2 gap-x-3">
                       {group.links.map((link) => (
                         <SheetClose asChild key={link.href}>
                           <Link
                             href={link.href}
-                            className="border-b border-border/60 py-3 text-[15px] transition-colors hover:text-cta-ink"
+                            className="py-1.5 text-sm transition-colors hover:text-cta-ink"
                           >
                             {link.label}
                           </Link>
@@ -245,9 +251,9 @@ export function SiteHeader({
                 ))}
               </nav>
 
-              <div className="mt-8 space-y-3">
+              <div className="mt-5 space-y-2">
                 <SheetClose asChild>
-                  <Button asChild size="lg" className="w-full">
+                  <Button asChild className="h-10 w-full">
                     <Link href="/launch">
                       Start a campaign
                       <ArrowRight />
@@ -256,7 +262,7 @@ export function SiteHeader({
                 </SheetClose>
                 {!signedIn && (
                   <SheetClose asChild>
-                    <Button asChild size="lg" variant="outline" className="w-full">
+                    <Button asChild variant="outline" className="h-10 w-full">
                       <Link href="/launch?mode=call">
                         <Phone />
                         Book a call
@@ -275,7 +281,7 @@ export function SiteHeader({
                     bookmarked or in an email. */}
                 {signedIn && (
                   <SheetClose asChild>
-                    <Button asChild size="lg" variant="outline" className="w-full">
+                    <Button asChild variant="outline" className="h-10 w-full">
                       <Link href={isClipper ? "/me" : "/dashboard"}>
                         {isClipper ? "My clips" : "Dashboard"}
                       </Link>
@@ -287,18 +293,10 @@ export function SiteHeader({
                     surface even though the client half doesn't. Somebody who
                     already clips for us and wants their earnings is not being
                     sold to — they are being kept from their own page. Below
-                    lg this panel is the only place it appears. */}
+                    lg this panel is the only place it appears. No 12px line
+                    under it explaining who it is for: the label says so. */}
                 {!signedIn && discordEnabled && (
-                  <div className="border-t border-border pt-3">
-                    <DiscordButton
-                      label="Creator sign in"
-                      className="w-full"
-                      size="lg"
-                    />
-                    <p className="mt-2 text-center text-xs text-muted-foreground">
-                      Already clipping? Go straight to your clips and earnings.
-                    </p>
-                  </div>
+                  <DiscordButton label="Creator sign in" className="h-10 w-full" />
                 )}
               </div>
             </SheetContent>
