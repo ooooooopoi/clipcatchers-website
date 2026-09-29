@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/brand";
 import { DISCORD_INVITE, DISCORD_LINK_PROPS } from "@/lib/discord";
-import { RATE_PER_THOUSAND } from "@/lib/pricing";
 import { USE_CASES } from "@/lib/use-cases";
 
 /**
@@ -93,8 +92,8 @@ export function SiteFooter() {
               <span className="text-sm font-semibold tracking-tight">Clip Catchers</span>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
-              Performance-based creator distribution for brands. Pay for views that
-              actually landed: ${RATE_PER_THOUSAND.toFixed(2)} per 1,000, no retainer.
+              Performance-based creator distribution for brands. Pay per view, only
+              for views that actually landed. No retainer.
             </p>
             <Link
               href="/launch"

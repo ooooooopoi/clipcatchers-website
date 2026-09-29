@@ -5,7 +5,6 @@ import { DiscordButton } from "@/components/discord-button";
 import { PageShell } from "@/components/marketing/page-shell";
 import { Button } from "@/components/ui/button";
 import { CREATOR_HREF, DISCORD_LINK_PROPS } from "@/lib/discord";
-import { RATE_PER_THOUSAND } from "@/lib/pricing";
 import { PUBLIC_VIEWPORT } from "@/lib/public-theme";
 
 export const viewport = PUBLIC_VIEWPORT;
@@ -188,9 +187,9 @@ export default function ForCreatorsPage() {
         </div>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          Brands: it&apos;s{" "}
+          Brands{" "}
           <Link href="/pricing" className="text-primary-ink underline-offset-4 hover:underline">
-            ${RATE_PER_THOUSAND.toFixed(2)} per 1,000 delivered views
+            pay per delivered view
           </Link>{" "}
           on the other side of this.
         </p>

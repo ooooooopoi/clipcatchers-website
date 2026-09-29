@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { ImpressionCounter } from "@/components/marketing/impressions";
 import { PageShell } from "@/components/marketing/page-shell";
-import { RATE_PER_THOUSAND } from "@/lib/pricing";
 import { getPublicStats } from "@/lib/public-stats";
 import { PUBLIC_VIEWPORT } from "@/lib/public-theme";
 
@@ -103,7 +102,7 @@ const STAGES = [
     icon: Receipt,
     title: "You pay for what landed",
     clock: "Against delivery",
-    body: `Billing is ${`$${RATE_PER_THOUSAND.toFixed(2)}`} per 1,000 delivered views, drawn down from the budget you funded. Not per clip, not per creator, not a retainer. Unspent budget is never charged. The campaign closes itself the moment the total is met, so overspending isn't something you have to watch for. It isn't possible.`,
+    body: `Billing is per delivered view, drawn down from the budget you funded. Not per clip, not per creator, not a retainer. Unspent budget is never charged. The campaign closes itself the moment the total is met, so overspending isn't something you have to watch for. It isn't possible.`,
     you: "Nothing to reconcile",
     us: "Bill against delivery, close the campaign",
     out: "A spend figure that matches a list of videos",

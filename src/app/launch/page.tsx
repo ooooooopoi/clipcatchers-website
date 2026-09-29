@@ -5,7 +5,6 @@ import { BrandMark } from "@/components/brand";
 import { AfterLaunch } from "@/components/marketing/after-launch";
 import { LaunchPanel } from "@/components/launch-panel";
 import { SmoothScroll } from "@/components/marketing/smooth-scroll";
-import { RATE_PER_THOUSAND } from "@/lib/pricing";
 import { parseQuotePrefill } from "@/lib/quote-options";
 import { SITE_STATS } from "@/lib/site-stats";
 import { PUBLIC_VIEWPORT } from "@/lib/public-theme";
@@ -39,7 +38,7 @@ export const metadata: Metadata = {
 // Read from the same modules the homepage uses. These were typed in by hand
 // and had already drifted — the homepage said 40.7M here and 40M+ there.
 const REASSURANCE = [
-  [`$${RATE_PER_THOUSAND.toFixed(2)}`, "per 1,000 delivered views"],
+  ["Per view", "pay only for delivered views"],
   ["1 day", "typical reply time"],
   [SITE_STATS.viewsDelivered, "views delivered so far"],
 ];

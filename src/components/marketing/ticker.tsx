@@ -1,4 +1,3 @@
-import { RATE_PER_THOUSAND } from "@/lib/pricing";
 
 /**
  * The terms of the offer, running edge to edge under the hero.
@@ -28,7 +27,7 @@ import { RATE_PER_THOUSAND } from "@/lib/pricing";
  * one without the other and the band visibly snaps every cycle.
  */
 const TERMS = [
-  `$${RATE_PER_THOUSAND.toFixed(2)} per 1,000 views`,
+  "Pay per view",
   "No minimum term",
   "You only pay for views that landed",
   "TikTok + Instagram",

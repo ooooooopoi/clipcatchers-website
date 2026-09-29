@@ -1,5 +1,4 @@
 import { ImageResponse } from "next/og";
-import { RATE_PER_THOUSAND } from "@/lib/pricing";
 import { SITE_STATS } from "@/lib/site-stats";
 
 /**
@@ -119,7 +118,7 @@ export default async function OpengraphImage() {
           }}
         >
           {[
-            [`$${RATE_PER_THOUSAND.toFixed(2)}`, "per 1,000 views"],
+            ["Pay per view", "no retainer"],
             [SITE_STATS.viewsDelivered, "views delivered"],
             [SITE_STATS.clipsPublished, "clips published"],
             [SITE_STATS.creatorsPaid, "creators paid"],

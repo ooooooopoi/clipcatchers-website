@@ -15,7 +15,6 @@ import { Card } from "@/components/ui/card";
 import { getSessionUser } from "@/lib/auth-helpers";
 import { CREATOR_HREF, DISCORD_LINK_PROPS } from "@/lib/discord";
 import { formatCompact } from "@/lib/format";
-import { RATE_PER_THOUSAND } from "@/lib/pricing";
 import { NAMED_CLIENTS, getPublicStats, slugify } from "@/lib/public-stats";
 import { SITE_STATS } from "@/lib/site-stats";
 import { PUBLIC_VIEWPORT } from "@/lib/public-theme";
@@ -87,7 +86,7 @@ const FAQ = [
   },
   {
     q: "What does it cost?",
-    a: `$${RATE_PER_THOUSAND.toFixed(2)} per 1,000 delivered views. No retainer, no minimum term, no setup fee. You set the total budget and the campaign closes itself the moment it's spent, so you can't overspend. The same reach bought as paid social typically runs four to six times that, and won't tell you which post earned it.`,
+    a: "You pay per view: billing runs against views that actually landed, at the rate in your quote. No retainer, no minimum term, no setup fee. You set the total budget and the campaign closes itself the moment it's spent, so you can't overspend. The same reach bought as paid social typically costs four to six times as much, and won't tell you which post earned it.",
   },
   {
     q: "Can I control what creators make?",
@@ -172,21 +171,18 @@ export default async function HomePage() {
               with one word alone on a line. Each step targets a layout and
               divides the width it has by that layout's widest line, measured
               in the face:
-                phones — GET YOUR / BRAND INTO / MILLIONS / OF FEEDS, widest
-                  7.19em (/7.37), capped at 52px. Four short lines rather
-                  than three long ones, because the three-line set came out
-                  at 32px on a 390px phone and the paragraph under it, four
-                  lines of body copy, was the bigger block on the screen.
-                  From about 575 up, GET YOUR BRAND fits at the cap and it
-                  sets in three, which is also fine.
-                tablets — GET YOUR BRAND / INTO MILLIONS / OF FEEDS, widest
-                  10.29em (/10.8 leaves room for a desktop scrollbar),
-                  capped at 60px
+                phones and tablets — GET YOUR BRAND / INTO MILLIONS /
+                  OF FEEDS, widest 10.29em (/10.8 leaves room for a desktop
+                  scrollbar), capped at 60px. The owner asked for three lines
+                  on a phone (2026-09-30). A four-line stack at up to 52px
+                  was tried when the line under it was a four-line paragraph;
+                  with that line down to two, three lines at ~32px still
+                  outweigh it.
                 lg and up — GET YOUR BRAND INTO / MILLIONS OF FEEDS, widest
                   13.32em (/13.66), capped at 72px
               The non-breaking space keeps OF with FEEDS; without it the
-              phone layout can end a line on OF. */}
-          <RevealHeading className="display mx-auto max-w-5xl text-[clamp(1.5rem,calc((100vw_-_2.5rem)/7.37),3.25rem)] sm:text-[min(3.75rem,calc((100vw_-_2.5rem)/10.8))] lg:text-[min(4.5rem,calc((100vw_-_2.5rem)/13.66))]">
+              second line can end on OF. */}
+          <RevealHeading className="display mx-auto max-w-5xl text-[clamp(1.5rem,calc((100vw_-_2.5rem)/10.8),3.75rem)] lg:text-[min(4.5rem,calc((100vw_-_2.5rem)/13.66))]">
             Get your brand into millions of&nbsp;feeds
           </RevealHeading>
 
@@ -373,7 +369,9 @@ export default async function HomePage() {
                 where the decision is actually made. */}
             <div className="grid divide-y divide-border border-t border-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
               {[
-                { value: `$${RATE_PER_THOUSAND.toFixed(2)}`, label: "per 1,000 delivered views" },
+                // "Per view", not "Pay per view": at 36px the full phrase is
+                // wider than a third of the panel on desktop.
+                { value: "Per view", label: "you only pay for delivered views" },
                 { value: totalViews, label: "views delivered for brands" },
                 { value: "24 hrs", label: "typical time to first clips" },
               ].map((stat) => (
