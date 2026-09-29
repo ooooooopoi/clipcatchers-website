@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { BrandMark } from "@/components/brand";
 import { AfterLaunch } from "@/components/marketing/after-launch";
-import { LaunchPanel } from "@/components/launch-panel";
+import { GetStartedForm } from "@/components/get-started-form";
 import { SmoothScroll } from "@/components/marketing/smooth-scroll";
 import { parseQuotePrefill } from "@/lib/quote-options";
 import { SITE_STATS } from "@/lib/site-stats";
@@ -38,18 +38,16 @@ export const metadata: Metadata = {
 // Read from the same modules the homepage uses. These were typed in by hand
 // and had already drifted — the homepage said 40.7M here and 40M+ there.
 const REASSURANCE = [
+  ["15 min", "call, at a time you pick"],
   ["Per view", "pay only for delivered views"],
-  ["1 day", "typical reply time"],
   [SITE_STATS.viewsDelivered, "views delivered so far"],
 ];
 
 /**
- * Where "Get started" goes: the brief.
- *
- * `?mode=call` used to open a booking tab or redirect to the scheduler. Booking
- * was taken off the site on 2026-09-30, and the parameter is now ignored, so
- * every link already sent with it (DMs, bookmarks, the bot) lands on the brief
- * instead of an error.
+ * Where "Get started" goes: a name and a brand, then the Calendly calendar
+ * (see GetStartedForm). The "Book a call" buttons went on 2026-09-30 and the
+ * call became the Get started flow itself, so `?mode=call` is ignored: every
+ * link already sent with it lands here, which is where it wanted to go.
  *
  * ── Prefilled offers ────────────────────────────────────────────────────
  * `?category=music&budget=1500&artist=Some+Label` opens the brief with those
@@ -99,9 +97,9 @@ export default async function QuotePage({
         <div className="text-center">
           <h1 className="display text-4xl sm:text-6xl">Start a campaign</h1>
           <p className="mx-auto mt-5 max-w-xl leading-relaxed text-muted-foreground">
-            Send a brief and get back what it would cost and what it should
-            realistically deliver, drawn from campaigns we&apos;ve actually run rather
-            than a projection.
+            Your name and your brand, then pick a time for a 15-minute call. You&apos;ll
+            come away knowing what a campaign would cost and what it should
+            realistically deliver, drawn from campaigns we&apos;ve actually run.
           </p>
         </div>
 
@@ -115,7 +113,7 @@ export default async function QuotePage({
         </div>
 
         <div className="mt-10">
-          <LaunchPanel prefill={prefill} />
+          <GetStartedForm prefill={prefill} />
         </div>
 
         {/* What the first week looks like, directly under the form it

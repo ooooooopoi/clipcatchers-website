@@ -18,13 +18,13 @@
 const STEPS = [
   {
     when: "Right away",
-    title: "You send the form",
+    title: "You book a call",
     body:
-      "A name, an email, and whatever you can tell us about what you're promoting. No card, no call to book, nothing charged. Nothing goes live until you've seen a number and said yes to it.",
+      "Your name, your brand, and a time that suits you. No card, nothing charged. Nothing goes live until you've heard a number and said yes to it.",
   },
   {
-    when: "Within 1 working day",
-    title: "We come back with a number",
+    when: "On the call",
+    title: "We give you a number",
     body:
       "What your budget should realistically deliver, drawn from campaigns we've actually run rather than a projection. If we don't think it will work for what you're promoting, we'll say so instead of selling you a campaign.",
   },
@@ -87,7 +87,7 @@ export function AfterLaunch() {
             What happens after I launch?
           </h2>
           <p className="mt-4 text-muted-foreground">
-            From sending the form to the campaign closing itself. Two of these six steps
+            From booking the call to the campaign closing itself. Two of these six steps
             need anything from you.
           </p>
         </div>

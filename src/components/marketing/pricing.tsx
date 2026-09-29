@@ -91,10 +91,10 @@ export function Pricing() {
                     href="/launch"
                     className="text-primary-ink underline-offset-4 hover:underline"
                   >
-                    Tell us what you&apos;re promoting
-                  </Link>{" "}
-                  and roughly what you&apos;d spend, and we come back within a day with
-                  a rate and what it should deliver.
+                    Book a 15-minute call
+                  </Link>
+                  , tell us what you&apos;re promoting and roughly what you&apos;d
+                  spend, and we&apos;ll give you a rate and what it should deliver.
                 </p>
               </div>
             </div>

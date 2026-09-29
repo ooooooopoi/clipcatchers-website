@@ -94,10 +94,10 @@ export function ClosingCta() {
           Start with one campaign
         </h2>
         <p className="mx-auto mt-4 max-w-xl leading-relaxed text-muted-foreground">
-          Tell us what you&apos;re promoting and roughly what you&apos;d spend, and
-          we&apos;ll come back with what it should realistically deliver, drawn from
-          campaigns we&apos;ve run, not a projection. If it isn&apos;t a fit, we&apos;ll
-          tell you that instead.
+          Book a 15-minute call, tell us what you&apos;re promoting and roughly what
+          you&apos;d spend, and we&apos;ll tell you what it should realistically deliver,
+          drawn from campaigns we&apos;ve run, not a projection. If it isn&apos;t a fit,
+          we&apos;ll tell you that instead.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Button asChild size="lg" className="h-12 px-7">
@@ -107,9 +107,6 @@ export function ClosingCta() {
             </Link>
           </Button>
         </div>
-        <p className="mt-5 text-xs text-muted-foreground">
-          Two required fields · No card at any point · Reply within one working day
-        </p>
       </div>
     </section>
   );
