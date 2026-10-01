@@ -473,3 +473,41 @@ export function fetchClipperAccounts(userId: string) {
     `/api/users/${encodeURIComponent(userId)}/accounts`,
   );
 }
+
+/** One creator who joined through a clipper's personal link. */
+export type ClipperReferral = {
+  /** Discord id. A string, because snowflakes lose digits as JSON numbers. */
+  id: string;
+  /** Discord display name, else "@handle", else null when the bot can't see them. */
+  name: string | null;
+  /** Unix seconds. */
+  joined_at: number;
+  /** Unix seconds. Clips this creator posts before then earn the referrer a share. */
+  window_ends: number;
+  active: boolean;
+  /** What this creator has earned the referrer so far, in dollars. */
+  earned: number;
+};
+
+/**
+ * A clipper's referral link and what it has earned them. The terms are read
+ * from the bot (referrals.py) rather than written here, so the page and the
+ * rule that pays can't disagree.
+ */
+export type ClipperReferrals = {
+  /** Their personal invite link, or null when the bot couldn't make one. */
+  link: string | null;
+  /** Why there's no link, in the bot's words. Null when there is one. */
+  problem: string | null;
+  share_percent: number;
+  window_days: number;
+  /** Unix seconds. Joins before this don't count. */
+  program_start: number;
+  earned: number;
+  referrals: ClipperReferral[];
+};
+
+/** Their referral link and referrals. The bot makes the link on first ask. */
+export function fetchClipperReferrals(userId: string) {
+  return call<ClipperReferrals>(`/api/users/${encodeURIComponent(userId)}/referrals`);
+}

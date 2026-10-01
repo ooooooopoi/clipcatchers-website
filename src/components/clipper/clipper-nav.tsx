@@ -17,13 +17,12 @@ import {
  * The clipper dashboard's left rail.
  *
  * ── Why some entries are dead on purpose ─────────────────────────────────
- * Marketplace, Progress and Referrals are marked SOON and are not links.
- * Everything else is backed by an endpoint that already works. A nav item
- * that opens an empty page is worse than one that says it isn't ready yet:
- * the first looks broken and gets reported, the second sets an expectation.
- * Referrals in particular has real data behind it in the bot — invite_joins
- * and invite_campaigns — but nothing exposes it over HTTP, so it stays SOON
- * until that exists rather than shipping a page that invents numbers.
+ * Progress is marked SOON and is not a link. Everything else is backed by an
+ * endpoint that already works. A nav item that opens an empty page is worse
+ * than one that says it isn't ready yet: the first looks broken and gets
+ * reported, the second sets an expectation. Referrals sat here as SOON until
+ * the bot served /api/users/<id>/referrals, rather than ship a page that
+ * invented numbers.
  */
 const SECTIONS = [
   { href: "", label: "Dashboard", icon: LayoutDashboard },
@@ -35,7 +34,7 @@ const SECTIONS = [
   { href: "/accounts", label: "Accounts", icon: UserRound },
   { href: "/earnings", label: "Earnings", icon: DollarSign },
   { href: "/progress", label: "Progress", icon: Trophy, soon: true },
-  { href: "/referrals", label: "Referrals", icon: Users, soon: true },
+  { href: "/referrals", label: "Referrals", icon: Users },
   { href: "/help", label: "Help", icon: CircleHelp },
 ] as const;
 
