@@ -2,12 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
+import { AddAccountForm, IssuedCode, type IssuedAccount } from "@/components/clipper/add-account-form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import type { ClipperAccount } from "@/lib/bot";
 
 /**
@@ -35,38 +33,11 @@ export function AccountManager({
 }) {
   const isOwner = signedInAs === userId;
   const [adding, setAdding] = useState(false);
-  const [platform, setPlatform] = useState(platforms[0] ?? "TikTok");
-  const [handle, setHandle] = useState("");
-  const [busy, setBusy] = useState(false);
   const [removing, setRemoving] = useState<number | null>(null);
   // Shown once, after registering. Kept in state rather than re-fetched
   // because the accounts endpoint deliberately never returns codes.
-  const [issued, setIssued] = useState<{ handle: string; code: string } | null>(null);
+  const [issued, setIssued] = useState<IssuedAccount | null>(null);
   const router = useRouter();
-
-  async function add() {
-    setBusy(true);
-    try {
-      const res = await fetch(`/api/clipper/${userId}/${sig}/accounts`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ platform, handle }),
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        toast.error(body.error ?? "Couldn't register that account.");
-        return;
-      }
-      setIssued({ handle: body.handle, code: body.code });
-      setHandle("");
-      setAdding(false);
-      router.refresh();
-    } catch {
-      toast.error("Couldn't reach the server.");
-    } finally {
-      setBusy(false);
-    }
-  }
 
   async function remove(account: ClipperAccount) {
     // Confirmed in the browser rather than with a second button, because the
@@ -135,87 +106,36 @@ export function AccountManager({
         </ul>
       )}
 
-      {/* The code, once. It is never returned by any read endpoint, so if they
-          navigate away it has to come from /my-accounts in Discord. */}
       {issued && (
-        <div className="surface mt-4 max-w-2xl rounded-2xl border border-primary/30 bg-primary/5 px-5 py-4">
-          <p className="text-sm font-medium">@{issued.handle} added — one step left</p>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Put this code in your bio, then it can be verified:
-          </p>
-          <p className="mt-2 font-mono text-lg font-semibold tracking-wider text-primary-ink">
-            {issued.code}
-          </p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Run <code className="font-mono">/verify</code> in Discord once it&apos;s there. Write
-            this down — this is the only time it&apos;s shown here.
-          </p>
+        <div className="mt-4 max-w-2xl">
+          <IssuedCode account={issued} />
         </div>
       )}
 
       {!isOwner ? (
         <div className="mt-6 max-w-2xl">
-          <p className="text-sm text-muted-foreground">
-            Adding an account gives you a code that proves the profile is yours, so it needs
-            your Discord account rather than just this link.
-          </p>
-          <Button
-            type="button"
-            variant="outline"
-            className="mt-3"
-            onClick={() =>
-              signIn("discord", { callbackUrl: `/clipper/${userId}/${sig}/accounts` })
-            }
-          >
-            Sign in with Discord to add one
-          </Button>
+          <AddAccountForm
+            userId={userId}
+            sig={sig}
+            platforms={platforms}
+            signedInAs={signedInAs}
+            onAdded={setIssued}
+          />
         </div>
       ) : adding ? (
-        <div className="surface mt-6 max-w-2xl space-y-4 rounded-2xl border border-border bg-card p-5">
-          <div>
-            <Label>Platform</Label>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {platforms.map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setPlatform(p)}
-                  className={`rounded-lg border px-3.5 py-2 text-sm transition-colors ${
-                    platform === p
-                      ? "border-primary bg-primary/10 font-medium text-primary-ink"
-                      : "border-border text-muted-foreground hover:bg-accent/50"
-                  }`}
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="handle">Your profile</Label>
-            <Input
-              id="handle"
-              value={handle}
-              spellCheck={false}
-              autoComplete="off"
-              placeholder="@yourname — or paste your profile link"
-              onChange={(e) => setHandle(e.target.value)}
-            />
-            <p className="text-xs text-muted-foreground">
-              Pasting the share link from the app works. A link to a single video doesn&apos;t —
-              it has to be your profile.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" onClick={() => void add()} loading={busy} disabled={!handle.trim()}>
-              Add account
-            </Button>
-            <Button type="button" variant="outline" onClick={() => setAdding(false)}>
-              Cancel
-            </Button>
-          </div>
+        <div className="surface mt-6 max-w-2xl rounded-2xl border border-border bg-card p-5">
+          <AddAccountForm
+            userId={userId}
+            sig={sig}
+            platforms={platforms}
+            signedInAs={signedInAs}
+            onAdded={(account) => {
+              setIssued(account);
+              setAdding(false);
+              router.refresh();
+            }}
+            onCancel={() => setAdding(false)}
+          />
         </div>
       ) : (
         <Button type="button" variant="outline" className="mt-6" onClick={() => setAdding(true)}>

@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Check, ClipboardPaste, Link2, Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
+import { AddAccountForm, IssuedCode, type IssuedAccount } from "@/components/clipper/add-account-form";
 import { Button } from "@/components/ui/button";
 import { ChoiceChips } from "@/components/ui/choice-chips";
 import type { ClipperAccount } from "@/lib/bot";
@@ -94,32 +95,69 @@ export function SubmitClipForm({
     setCanPaste(typeof navigator.clipboard?.readText === "function");
   }, []);
 
-  const onPlatform = accounts.filter((a) => a.platform === platform);
+  // Accounts added from inside this form, usable at once rather than after
+  // the page's data comes back from router.refresh().
+  const [added, setAdded] = useState<ClipperAccount[]>([]);
+  // The bio code for one of them, shown once (no read endpoint returns it).
+  const [issued, setIssued] = useState<IssuedAccount | null>(null);
+  const allAccounts = [...accounts, ...added.filter((a) => !accounts.some((b) => b.id === a.id))];
+  const onPlatform = allAccounts.filter((a) => a.platform === platform);
 
-  // The one thing the website cannot resolve. Registering an account needs the
-  // verification-code exchange, and that only exists in Discord — so say so
-  // rather than letting them fill the form in and be refused at the end.
+  function onAdded(account: IssuedAccount) {
+    setAdded((prev) => [...prev, account]);
+    setIssued(account);
+    setPlatform(account.platform as Platform);
+    setAccountId(String(account.id));
+    startTransition(() => router.refresh());
+  }
+
+  // A clip is filed under the account that posted it, so with none there's
+  // nothing to submit against. Adding one happens right here: this used to
+  // send them to Discord to run /add-account, in the middle of submitting.
   //
-  // Says "added", not "verified". Neither this form nor the bot filters on
-  // accounts.verified — an account that has been registered but not yet
-  // confirmed can submit through here and through Discord alike. Claiming a
-  // verification gate that isn't applied would send someone hunting for a
-  // problem they don't have. What actually decides whether a clip earns is
-  // approval, which is stated in the steps under the button.
-  if (accounts.length === 0) {
+  // "Added", not "verified": neither this form nor the bot filters on
+  // accounts.verified, so a clip can go in the moment the account is added.
+  // Claiming a verification gate that isn't applied would send someone
+  // hunting for a problem they don't have. What decides whether a clip earns
+  // is approval, which the steps under the button state.
+  if (allAccounts.length === 0) {
     return (
-      <Notice tone="warning">
-        You haven&apos;t added a posting account yet. Run <Cmd>/add-account</Cmd> in
-        Discord first — a clip has to be filed under one of your accounts to count.
-      </Notice>
+      <div
+        className={
+          bare ? "" : "surface mt-4 rounded-2xl border border-border bg-card p-5 sm:p-6"
+        }
+      >
+        <p className="text-base font-medium">First, add the account you post from</p>
+        <p className="mt-1.5 text-sm text-muted-foreground">
+          Every clip is filed under the account that posted it. Add it once and you can submit
+          straight away.
+        </p>
+        <div className="mt-5">
+          <AddAccountForm
+            userId={userId}
+            sig={sig}
+            platforms={["TikTok", "Instagram"]}
+            initialPlatform={platform}
+            onAdded={onAdded}
+          />
+        </div>
+      </div>
     );
   }
 
   if (campaigns.length === 0) {
     return (
-      <p className="mt-4 rounded-2xl border border-dashed border-border py-12 text-center text-sm text-muted-foreground">
-        No campaigns are open right now. Your existing clips keep earning.
-      </p>
+      <>
+        {/* A code issued just above would otherwise vanish with the form. */}
+        {issued && (
+          <div className="mt-4">
+            <IssuedCode account={issued} />
+          </div>
+        )}
+        <p className="mt-4 rounded-2xl border border-dashed border-border py-12 text-center text-sm text-muted-foreground">
+          No campaigns are open right now. Your existing clips keep earning.
+        </p>
+      </>
     );
   }
 
@@ -202,6 +240,12 @@ export function SubmitClipForm({
         bare ? "" : "surface mt-4 rounded-2xl border border-border bg-card p-5 sm:p-6"
       }
     >
+      {issued && (
+        <div className="mb-6">
+          <IssuedCode account={issued} />
+        </div>
+      )}
+
       {/* The link comes first now.
           It used to be third, after two dropdowns, which had the form asking
           for the answers a clipper has to think about before the one already
@@ -309,11 +353,22 @@ export function SubmitClipForm({
       </div>
 
       {onPlatform.length === 0 && (
-        <div className="mt-6">
-          <Notice tone="warning">
-            No {platform} account added yet. Run <Cmd>/add-account</Cmd> in Discord, or
-            switch platform above.
-          </Notice>
+        <div className="mt-6 rounded-2xl border border-warning/30 bg-warning/5 p-4 sm:p-5">
+          <p className="text-sm font-medium">No {platform} account added yet</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Add the {platform} profile that posted this clip, then submit. Or switch platform
+            above.
+          </p>
+          <div className="mt-4">
+            {/* Keyed by platform so switching chips starts a fresh form. */}
+            <AddAccountForm
+              key={platform}
+              userId={userId}
+              sig={sig}
+              platforms={[platform]}
+              onAdded={onAdded}
+            />
+          </div>
         </div>
       )}
 
@@ -352,29 +407,5 @@ export function SubmitClipForm({
         )}
       </ol>
     </div>
-  );
-}
-
-function Notice({ tone, children }: { tone: "warning"; children: React.ReactNode }) {
-  return (
-    <p
-      className={cn(
-        "rounded-2xl border p-4 text-sm leading-relaxed",
-        tone === "warning" && "border-warning/30 bg-warning/10 text-warning",
-      )}
-    >
-      {children}
-    </p>
-  );
-}
-
-/** A Discord command, set apart so it reads as something to type. */
-function Cmd({ children }: { children: React.ReactNode }) {
-  return (
-    // No border. `border-current/20` is a Tailwind v4 spelling — on v3 an
-    // opacity modifier needs an <alpha-value> slot in the colour, and
-    // currentColor has none, so it silently emits nothing. A background tint
-    // says the same thing and actually renders.
-    <code className="rounded bg-background/60 px-1.5 py-0.5 font-mono text-xs">{children}</code>
   );
 }
