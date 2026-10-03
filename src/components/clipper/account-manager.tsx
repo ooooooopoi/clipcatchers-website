@@ -4,7 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
-import { AddAccountForm, IssuedCode, type IssuedAccount } from "@/components/clipper/add-account-form";
+import {
+  AddAccountForm,
+  CheckBioButton,
+  IssuedCode,
+  type IssuedAccount,
+} from "@/components/clipper/add-account-form";
 import { Button } from "@/components/ui/button";
 import type { ClipperAccount } from "@/lib/bot";
 
@@ -82,24 +87,42 @@ export function AccountManager({
           {accounts.map((a) => (
             <li
               key={a.id}
-              className="surface flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3.5"
+              className="surface rounded-2xl border border-border bg-card px-4 py-3.5"
             >
-              <span className="rounded-md border border-border px-2 py-0.5 text-xs text-muted-foreground">
-                {a.platform}
-              </span>
-              <span className="min-w-0 flex-1 truncate font-medium">@{a.handle}</span>
-              {isOwner && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  loading={removing === a.id}
-                  onClick={() => void remove(a)}
-                  className="shrink-0 text-muted-foreground hover:text-destructive"
-                  title="Remove this account and its clips"
-                >
-                  {removing !== a.id && <Trash2 className="h-4 w-4" />}
-                </Button>
+              <div className="flex items-center gap-3">
+                <span className="rounded-md border border-border px-2 py-0.5 text-xs text-muted-foreground">
+                  {a.platform}
+                </span>
+                <span className="min-w-0 flex-1 truncate font-medium">@{a.handle}</span>
+                {/* Nothing when an older bot doesn't say. */}
+                {a.verified === true && (
+                  <span className="shrink-0 text-xs font-medium text-success">Verified</span>
+                )}
+                {a.verified === false && (
+                  <span className="shrink-0 text-xs text-warning">Not verified</span>
+                )}
+                {isOwner && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    loading={removing === a.id}
+                    onClick={() => void remove(a)}
+                    className="shrink-0 text-muted-foreground hover:text-destructive"
+                    title="Remove this account and its clips"
+                  >
+                    {removing !== a.id && <Trash2 className="h-4 w-4" />}
+                  </Button>
+                )}
+              </div>
+              {isOwner && a.verified === false && issued?.id !== a.id && (
+                <div className="mt-3 border-t border-border pt-3">
+                  <p className="mb-2 text-xs text-muted-foreground">
+                    Put your code in this account&apos;s bio, then check. Lost the code? Checking
+                    shows it again.
+                  </p>
+                  <CheckBioButton userId={userId} sig={sig} account={a} />
+                </div>
               )}
             </li>
           ))}
@@ -108,7 +131,12 @@ export function AccountManager({
 
       {issued && (
         <div className="mt-4 max-w-2xl">
-          <IssuedCode account={issued} />
+          <IssuedCode
+            account={issued}
+            userId={userId}
+            sig={sig}
+            onVerified={() => setIssued(null)}
+          />
         </div>
       )}
 

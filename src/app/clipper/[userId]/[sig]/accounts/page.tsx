@@ -42,8 +42,8 @@ export default async function AccountsPage({
 
       <p className="mt-8 max-w-2xl text-xs text-muted-foreground/70">
         Adding an account gives you a code to put in your bio, so we can check the profile is
-        yours. Run <code className="font-mono">/verify</code> in Discord once it&apos;s there —
-        or <code className="font-mono">/my-accounts</code> to see the code again.
+        yours. Once it&apos;s there, press Check my bio. Checking also shows the code again if
+        you&apos;ve lost it.
       </p>
     </>
   );

@@ -151,7 +151,7 @@ export function SubmitClipForm({
         {/* A code issued just above would otherwise vanish with the form. */}
         {issued && (
           <div className="mt-4">
-            <IssuedCode account={issued} />
+            <IssuedCode account={issued} userId={userId} sig={sig} onVerified={() => setIssued(null)} />
           </div>
         )}
         <p className="mt-4 rounded-2xl border border-dashed border-border py-12 text-center text-sm text-muted-foreground">
@@ -242,7 +242,7 @@ export function SubmitClipForm({
     >
       {issued && (
         <div className="mb-6">
-          <IssuedCode account={issued} />
+          <IssuedCode account={issued} userId={userId} sig={sig} onVerified={() => setIssued(null)} />
         </div>
       )}
 

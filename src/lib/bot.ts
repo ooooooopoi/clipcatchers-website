@@ -460,7 +460,13 @@ export type ClipperEarnings = {
   engagement_min_views?: number;
 };
 
-export type ClipperAccount = { id: number; platform: string; handle: string };
+export type ClipperAccount = {
+  id: number;
+  platform: string;
+  handle: string;
+  /** Whether the bio code has been found. Optional: an older bot doesn't send it. */
+  verified?: boolean;
+};
 
 /** One clipper's clips and what each is worth. Read-only on the bot's side. */
 export function fetchClipperEarnings(userId: string) {

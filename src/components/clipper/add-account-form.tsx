@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -158,24 +159,108 @@ export function AddAccountForm({
 }
 
 /**
- * The bio code, shown once. No read endpoint ever returns it, so if they
- * navigate away it has to come from /my-accounts in Discord.
+ * The bio code, right after adding, with the button that checks for it.
+ *
+ * No read endpoint returns the code. If they navigate away, Check my bio on
+ * the Accounts page shows it again.
  */
-export function IssuedCode({ account }: { account: IssuedAccount }) {
+export function IssuedCode({
+  account,
+  userId,
+  sig,
+  onVerified,
+}: {
+  account: IssuedAccount;
+  userId: string;
+  sig: string;
+  onVerified?: () => void;
+}) {
   return (
     <div className="surface rounded-2xl border border-primary/30 bg-primary/5 px-5 py-4">
       <p className="text-sm font-medium">@{account.handle} added — one step left</p>
       <p className="mt-1.5 text-sm text-muted-foreground">
-        Put this code in your {account.platform} bio:
+        Put this code in your {account.platform} bio, then check:
       </p>
       <p className="mt-2 select-all font-mono text-lg font-semibold tracking-wider text-primary-ink">
         {account.code}
       </p>
-      <p className="mt-2 text-xs text-muted-foreground">
-        We check your bio for it automatically about two minutes after adding. If it isn&apos;t
-        there by then, run <code className="font-mono">/verify</code> in Discord once it is. Note
-        it down: this is the only time it&apos;s shown here.
+      <div className="mt-3">
+        <CheckBioButton userId={userId} sig={sig} account={account} onVerified={onVerified} />
+      </div>
+      <p className="mt-3 text-xs text-muted-foreground">
+        We also check once by ourselves, about two minutes after adding.
       </p>
+    </div>
+  );
+}
+
+/**
+ * Check my bio: looks for the account's code in its bio and verifies it if
+ * it's there. What /verify-account does in Discord, with the same cooldown.
+ *
+ * "Not there yet" is usually not a mistake: the platforms take about two
+ * minutes to show a bio change, so someone who saved the code and pressed at
+ * once sees this. The message says that first, so the next move is to wait
+ * rather than to re-edit a bio that was already right. It also shows the
+ * code, which is how someone who lost theirs gets it back.
+ */
+export function CheckBioButton({
+  userId,
+  sig,
+  account,
+  onVerified,
+}: {
+  userId: string;
+  sig: string;
+  account: ClipperAccount;
+  onVerified?: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [missing, setMissing] = useState<string | null>(null);
+  const [problem, setProblem] = useState<string | null>(null);
+  const router = useRouter();
+
+  async function check() {
+    setBusy(true);
+    setProblem(null);
+    try {
+      const res = await fetch(`/api/clipper/${userId}/${sig}/accounts/${account.id}/verify`, {
+        method: "POST",
+      });
+      const body = await res.json().catch(() => ({}));
+      if (res.ok && body.verified) {
+        setMissing(null);
+        toast.success(`@${account.handle} is verified.`);
+        onVerified?.();
+        router.refresh();
+        return;
+      }
+      if (res.ok) {
+        setMissing(body.code ?? null);
+        return;
+      }
+      setProblem(body.error ?? "Couldn't check right now.");
+    } catch {
+      setProblem("Couldn't reach the server.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div>
+      <Button type="button" size="sm" variant="outline" loading={busy} onClick={() => void check()}>
+        Check my bio
+      </Button>
+      {missing && (
+        <p className="mt-2 text-xs leading-relaxed text-warning">
+          <span className="select-all font-mono font-semibold">{missing}</span> isn&apos;t showing in
+          your {account.platform} bio yet. If you only just added it, that&apos;s normal: it takes
+          about 2 minutes to show. Wait, then check again. If it&apos;s been longer, check the
+          code is saved and the account is public.
+        </p>
+      )}
+      {problem && <p className="mt-2 text-xs text-warning">{problem}</p>}
     </div>
   );
 }
