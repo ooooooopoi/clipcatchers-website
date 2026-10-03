@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
+import { openPayoutForm } from "@/components/clipper/payout-method-form";
 import { Button } from "@/components/ui/button";
 
 type Result = {
@@ -69,12 +70,16 @@ export function WithdrawButton({
   const isOwner = signedInAs === userId;
   const enough = withdrawable >= minimum;
 
+  // The payout form is on this page, so this opens it rather than sending
+  // them to /set-payout in Discord, as it used to.
   if (!method) {
     return (
-      <p className="mt-4 text-sm text-warning">
-        Set a payout method with <code className="font-mono">/set-payout</code> in Discord
-        before withdrawing.
-      </p>
+      <div className="mt-4">
+        <p className="text-sm text-warning">Add a payout method before withdrawing.</p>
+        <Button type="button" variant="outline" className="mt-3" onClick={() => openPayoutForm()}>
+          Set payout method
+        </Button>
+      </div>
     );
   }
 
@@ -82,11 +87,20 @@ export function WithdrawButton({
   // Saying so beats a button that can only ever refuse.
   if (method.toLowerCase() === "paypal") {
     return (
-      <p className="mt-4 text-sm text-muted-foreground">
-        PayPal payouts go out in a batch an admin sends, so there&apos;s nothing to press —
-        you&apos;re already in the next one. Switch to USDT with{" "}
-        <code className="font-mono">/set-payout</code> to withdraw on demand.
-      </p>
+      <div className="mt-4">
+        <p className="text-sm text-muted-foreground">
+          PayPal payouts go out in a batch an admin sends, so there&apos;s nothing to press —
+          you&apos;re already in the next one. Switch to USDT to withdraw on demand.
+        </p>
+        <Button
+          type="button"
+          variant="outline"
+          className="mt-3"
+          onClick={() => openPayoutForm("USDT")}
+        >
+          Switch to USDT
+        </Button>
+      </div>
     );
   }
 
@@ -180,7 +194,7 @@ export function WithdrawButton({
         body.settled ?? 0
       ).toFixed(2)} is available now — it changed while this page was open. Reload and try again.`,
       nothing: "Nothing settled to withdraw yet.",
-      no_method: "No payout method set. Run /set-payout in Discord.",
+      no_method: "No payout method set. Add one above, then withdraw.",
       paypal: "PayPal payouts go in an admin batch — you're already in the next one.",
       not_configured: `Instant withdrawal isn't switched on yet (${body.reason ?? "not configured"}). Your balance is safe.`,
       blocked: `Couldn't withdraw: ${body.reason ?? "it can't be sent right now"}. Your balance is untouched.`,

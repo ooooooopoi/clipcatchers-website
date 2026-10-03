@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
@@ -8,6 +8,19 @@ import { Check, Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+/** Fired to open the form from a button elsewhere on the page; see openPayoutForm(). */
+const OPEN_EVENT = "clipper:open-payout-form";
+
+/**
+ * Open the payout form and bring it into view, optionally with a method
+ * already chosen. For the buttons that used to say "run /set-payout in
+ * Discord": the form is on the same page, so they open it instead.
+ */
+export function openPayoutForm(method?: "USDT" | "PayPal") {
+  window.dispatchEvent(new CustomEvent(OPEN_EVENT, { detail: { method } }));
+  document.getElementById("payout-method")?.scrollIntoView({ behavior: "smooth", block: "center" });
+}
 
 /**
  * Where a clipper gets paid.
@@ -41,6 +54,16 @@ export function PayoutMethodForm({
   const [address, setAddress] = useState("");
   const [busy, setBusy] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    function open(event: Event) {
+      const wanted = (event as CustomEvent<{ method?: string }>).detail?.method;
+      if (wanted) setChoice(wanted);
+      setEditing(true);
+    }
+    window.addEventListener(OPEN_EVENT, open);
+    return () => window.removeEventListener(OPEN_EVENT, open);
+  }, []);
 
   async function save() {
     setBusy(true);

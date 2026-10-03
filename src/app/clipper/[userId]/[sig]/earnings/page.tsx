@@ -81,7 +81,8 @@ export default async function EarningsPage({
             <div className="surface rounded-3xl bg-card p-7 sm:p-9">
               <p className="text-base text-muted-foreground">Withdraw</p>
 
-              <div className="mt-5">
+              {/* openPayoutForm() scrolls here. */}
+              <div id="payout-method" className="mt-5 scroll-mt-24">
                 <PayoutMethodForm
                   userId={userId}
                   sig={sig}

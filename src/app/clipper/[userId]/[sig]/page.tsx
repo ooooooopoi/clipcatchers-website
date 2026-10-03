@@ -104,7 +104,8 @@ export default async function DashboardPage({
           ) : null}
 
           {/* ── Every clip ─────────────────────────────────────────────────── */}
-          <section className="mt-10">
+          {/* #clips: rejected-clip notices and Help link here. */}
+          <section id="clips" className="mt-10 scroll-mt-24">
             <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
               Your clips{clips.length > 0 ? ` — ${clips.length}` : ""}
             </h2>

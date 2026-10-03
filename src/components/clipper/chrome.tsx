@@ -6,6 +6,7 @@
  * so the difference between a figure that reads as a headline and one that
  * reads as body text is made once, here.
  */
+import { RefreshButton } from "@/components/clipper/refresh-button";
 
 export function PageHeading({
   title,
@@ -31,10 +32,15 @@ export function PageHeading({
  */
 export function BotOffline() {
   return (
-    <p className="mt-8 max-w-2xl rounded-2xl border border-warning/30 bg-warning/10 p-5 text-sm text-warning">
-      Can&apos;t reach the bot right now, so this isn&apos;t loading. Your link is fine — try
-      again in a minute.
-    </p>
+    <div className="mt-8 max-w-2xl rounded-2xl border border-warning/30 bg-warning/10 p-5">
+      <p className="text-sm text-warning">
+        Can&apos;t reach the bot right now, so this isn&apos;t loading. Your link is fine — try
+        again in a minute.
+      </p>
+      <div className="mt-3">
+        <RefreshButton />
+      </div>
+    </div>
   );
 }
 

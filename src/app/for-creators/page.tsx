@@ -35,12 +35,12 @@ const STEPS = [
   {
     icon: BadgeCheck,
     title: "Verify an account",
-    body: "Run /add-account in Discord. You put a code we give you in your bio, we read it off your live profile, and that account is yours. This is what stops somebody else submitting your videos.",
+    body: "Add the profile you post from on your page here. Put the code we give you in your bio and press Check my bio: we read it off your live profile, and that account is yours. This is what stops somebody else submitting your videos.",
   },
   {
     icon: Send,
     title: "Pick a campaign and post",
-    body: "Live campaigns list what to make and what the rules are. Cut it your way, post it from a verified account, and submit the link in Discord or on your own page on this site.",
+    body: "Live campaigns list what to make and what the rules are. Cut it your way, post it from a verified account, and submit the link on your own page here, or in Discord.",
   },
   {
     icon: Wallet,
@@ -180,9 +180,7 @@ export default function ForCreatorsPage() {
           )}
 
           <p className="mt-4 text-xs text-muted-foreground/70">
-            Same Discord account you clip with. Or run{" "}
-            <code className="font-mono">/my-clips</code> in the server for a private link
-            instead.
+            Same Discord account you clip with.
           </p>
         </div>
 

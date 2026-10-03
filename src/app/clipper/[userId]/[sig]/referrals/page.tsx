@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BotOffline, PageHeading, Stat } from "@/components/clipper/chrome";
 import { ReferralLink } from "@/components/clipper/referral-link";
+import { RefreshButton } from "@/components/clipper/refresh-button";
 import { BotUnavailable, fetchClipperReferrals, type ClipperReferrals } from "@/lib/bot";
 import { dollars } from "@/lib/clipper-data";
 import { formatDate, formatNumber } from "@/lib/format";
@@ -64,10 +65,14 @@ export default async function ReferralsPage({
         {data.link ? (
           <ReferralLink url={data.link} />
         ) : (
-          <p className="mt-4 rounded-2xl border border-warning/30 bg-warning/10 p-4 text-sm text-warning">
-            Your link isn&apos;t available right now. {data.problem} Run{" "}
-            <code className="font-mono">/referrals</code> in Discord to try again.
-          </p>
+          <div className="mt-4 rounded-2xl border border-warning/30 bg-warning/10 p-4">
+            <p className="text-sm text-warning">
+              Your link isn&apos;t available right now. {data.problem}
+            </p>
+            <div className="mt-3">
+              <RefreshButton />
+            </div>
+          </div>
         )}
         <p className="mt-5 text-sm text-muted-foreground">
           Send it to creators anywhere. Anyone who joins the Clip Catchers Discord through it
