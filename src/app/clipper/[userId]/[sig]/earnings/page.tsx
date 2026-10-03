@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { BotOffline, PageHeading, Stat } from "@/components/clipper/chrome";
-import { WithdrawPanel, zeroBalanceNote } from "@/components/clipper/withdraw-panel";
+import { PayoutMethodForm } from "@/components/clipper/payout-method-form";
+import { WithdrawButton } from "@/components/clipper/withdraw-button";
 import { formatNumber } from "@/lib/format";
 import { dollars, groupByCampaign, loadClipper } from "@/lib/clipper-data";
 
@@ -39,9 +40,11 @@ export default async function EarningsPage({
   const advance = earnings?.advance ?? 0;
 
   const withdrawable = earnings?.withdrawable ?? 0;
+  const hasPayout = Boolean(earnings?.payout_method);
   // What a single withdrawal can actually take — the transfer refuses an
   // over-ceiling amount outright rather than trimming it.
   const takeNow = earnings?.withdrawable_now ?? withdrawable;
+  const capped = takeNow < withdrawable;
 
   return (
     <>
@@ -66,26 +69,68 @@ export default async function EarningsPage({
               </p>
               {withdrawable === 0 ? (
                 <p className="mt-4 text-sm text-muted-foreground">
-                  {zeroBalanceNote(earnings?.awaiting_release ?? 0, earnings?.running ?? 0)}
+                  {(earnings?.awaiting_release ?? 0) > 0
+                    ? "Opens up once the finished campaign's figures are checked."
+                    : (earnings?.running ?? 0) > 0
+                      ? "Earnings open up once their campaign finishes."
+                      : "Approved clips above the view floor build this up."}
                 </p>
               ) : null}
             </div>
 
             <div className="surface rounded-3xl bg-card p-7 sm:p-9">
               <p className="text-base text-muted-foreground">Withdraw</p>
-              <WithdrawPanel
-                userId={userId}
-                sig={sig}
-                signedInAs={session?.user?.discordId ?? null}
-                withdrawable={withdrawable}
-                takeNow={takeNow}
-                minimum={earnings?.payout_minimum ?? 12}
-                method={earnings?.payout_method ?? ""}
-                masked={earnings?.payout_address ?? ""}
-                feePercent={earnings?.payout_fee_percent ?? 0}
-                gasFromClipper={earnings?.payout_gas_from_clipper ?? false}
-                anchor
-              />
+
+              {/* openPayoutForm() scrolls here. */}
+              <div id="payout-method" className="mt-5 scroll-mt-24">
+                <PayoutMethodForm
+                  userId={userId}
+                  sig={sig}
+                  method={earnings?.payout_method ?? ""}
+                  masked={earnings?.payout_address ?? ""}
+                  signedInAs={session?.user?.discordId ?? null}
+                />
+              </div>
+
+              {/* Said outright rather than inferred from a blank field — not
+                  having one is the single thing that stops money reaching
+                  someone. */}
+              <p className="mt-5 text-sm text-muted-foreground">
+                This payout method is currently:{" "}
+                {hasPayout ? (
+                  <span className="text-success">ready to receive</span>
+                ) : (
+                  <span className="text-warning">not set</span>
+                )}
+              </p>
+
+              {withdrawable > 0 ? (
+                <WithdrawButton
+                  userId={userId}
+                  sig={sig}
+                  withdrawable={takeNow}
+                  minimum={earnings?.payout_minimum ?? 12}
+                  method={earnings?.payout_method ?? ""}
+                  signedInAs={session?.user?.discordId ?? null}
+                  feePercent={earnings?.payout_fee_percent ?? 0}
+                  gasFromClipper={earnings?.payout_gas_from_clipper ?? false}
+                />
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className="mt-5 h-14 w-full cursor-not-allowed rounded-2xl border border-border text-base font-semibold opacity-40"
+                >
+                  Withdraw
+                </button>
+              )}
+
+              {capped ? (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Up to <span className="font-medium text-foreground">{dollars(takeNow)}</span>{" "}
+                  per withdrawal — the rest stays for the next one.
+                </p>
+              ) : null}
             </div>
           </div>
 

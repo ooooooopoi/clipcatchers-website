@@ -15,12 +15,8 @@ export function PageHeading({
   title: string;
   subtitle?: string;
 }) {
-  // Desktop only. On a phone the page opens on buttons instead (MobileActions,
-  // in the layout): the owner asked for them in place of a big written
-  // "Dashboard" (2026-10-03). The title stays for screen readers, and the
-  // highlighted tab already says which page this is.
   return (
-    <div className="sr-only lg:not-sr-only">
+    <div>
       <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
       {subtitle ? (
         <p className="mt-2 max-w-xl text-sm text-muted-foreground">{subtitle}</p>

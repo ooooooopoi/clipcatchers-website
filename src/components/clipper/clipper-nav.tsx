@@ -38,11 +38,22 @@ const SECTIONS = [
   { href: "/help", label: "Help", icon: CircleHelp },
 ] as const;
 
+/**
+ * ── Icons only on a phone ────────────────────────────────────────────────
+ * Below `lg` the rail is a row across the top, and with labels it ran off the
+ * screen after three tabs ("Dashboard", "Explore", "Ads", "Ac…"), so most of
+ * it was out of sight. The owner asked for the tabs to be just their icons
+ * there (2026-10-03): all of them fit in one row, each a 44px button (a
+ * little less on a 320px phone, rather than running off it), and the page's
+ * own heading still says where you are. The label stays as the link's
+ * accessible name. Progress, which isn't a link yet, is left out on a phone:
+ * a greyed icon with no "Soon" beside it would only look broken.
+ */
 export function ClipperNav({ base }: { base: string }) {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-1 overflow-x-auto p-3 lg:flex-col lg:overflow-visible lg:p-4">
+    <nav className="flex justify-between gap-1 p-3 lg:flex-col lg:justify-start lg:overflow-visible lg:p-4">
       {SECTIONS.map(({ href, label, icon: Icon, ...rest }) => {
         const soon = "soon" in rest && rest.soon;
         const target = `${base}${href}`;
@@ -55,7 +66,7 @@ export function ClipperNav({ base }: { base: string }) {
             <span
               key={label}
               aria-disabled="true"
-              className="flex shrink-0 items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground/50"
+              className="hidden shrink-0 items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground/50 lg:flex"
             >
               <Icon className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
               <span className="whitespace-nowrap">{label}</span>
@@ -70,15 +81,16 @@ export function ClipperNav({ base }: { base: string }) {
           <Link
             key={label}
             href={target}
+            aria-label={label}
             aria-current={active ? "page" : undefined}
-            className={`flex shrink-0 items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+            className={`flex h-11 w-11 min-w-0 items-center justify-center gap-3 rounded-lg text-sm transition-colors lg:h-auto lg:w-auto lg:shrink-0 lg:justify-start lg:px-3 lg:py-2.5 ${
               active
                 ? "bg-accent font-medium text-primary-ink"
                 : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
             }`}
           >
-            <Icon className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
-            <span className="whitespace-nowrap">{label}</span>
+            <Icon className="h-5 w-5 shrink-0 lg:h-[18px] lg:w-[18px]" aria-hidden="true" />
+            <span className="hidden whitespace-nowrap lg:inline">{label}</span>
           </Link>
         );
       })}
