@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { auth } from "@/auth";
 import { BrandMark } from "@/components/brand";
 import { ClipperNav } from "@/components/clipper/clipper-nav";
+import { MobileActions } from "@/components/clipper/mobile-actions";
 import { ClipperNotifications } from "@/components/clipper/notifications";
-import { loadClipper } from "@/lib/clipper-data";
+import { isPaidAds, loadClipper } from "@/lib/clipper-data";
 import { buildNotices } from "@/lib/clipper-notifications";
 import { clipperSignatureValid } from "@/lib/share";
+import { PLATFORMS } from "@/lib/validations";
 
 // Private to whoever holds the link, and not something to leave in an index.
 export const metadata: Metadata = {
@@ -49,7 +52,17 @@ export default async function ClipperLayout({
   // bell costs no extra calls to the bot. When the bot is down this returns
   // offline with null earnings and the panel simply has nothing to show, which
   // is the right outcome — the page itself is already saying the bot is down.
-  const notices = buildNotices(await loadClipper(userId, sig));
+  const [data, session] = await Promise.all([loadClipper(userId, sig), auth()]);
+  const notices = buildNotices(data);
+  const earnings = data.earnings;
+
+  // What a clip can be submitted to from the phone's Submit button: live
+  // campaigns, the organic ones first as on Explore, newest first.
+  const live = data.campaigns
+    .filter((c) => c.active)
+    .sort((a, b) => Number(isPaidAds(a)) - Number(isPaidAds(b)) || b.id - a.id)
+    .map((c) => ({ id: c.id, name: c.name }));
+  const withdrawable = earnings?.withdrawable ?? 0;
 
   return (
     <div className="clipper-shell dark min-h-screen bg-background text-foreground">
@@ -70,7 +83,34 @@ export default async function ClipperLayout({
           <ClipperNav base={base} />
         </aside>
 
-        <main className="min-w-0 flex-1 px-5 py-8 sm:px-8 lg:py-10">{children}</main>
+        <main className="min-w-0 flex-1 px-5 pb-8 pt-5 sm:px-8 lg:py-10">
+          {/* Phones only; see MobileActions. Not while the bot is down: every
+              panel would open on empty figures (a $0.00 balance, no
+              campaigns), and the page below already says what's wrong. */}
+          {!data.offline ? (
+            <MobileActions
+              userId={userId}
+              sig={sig}
+              base={base}
+              accounts={data.accounts}
+              campaigns={live}
+              platforms={[...PLATFORMS]}
+              signedInAs={session?.user?.discordId ?? null}
+              wallet={{
+                withdrawable,
+                takeNow: earnings?.withdrawable_now ?? withdrawable,
+                minimum: earnings?.payout_minimum ?? 12,
+                method: earnings?.payout_method ?? "",
+                masked: earnings?.payout_address ?? "",
+                feePercent: earnings?.payout_fee_percent ?? 0,
+                gasFromClipper: earnings?.payout_gas_from_clipper ?? false,
+                awaitingRelease: earnings?.awaiting_release ?? 0,
+                running: earnings?.running ?? 0,
+              }}
+            />
+          ) : null}
+          {children}
+        </main>
       </div>
     </div>
   );

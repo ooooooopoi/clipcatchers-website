@@ -10,7 +10,12 @@ import {
   type ClipperClip,
   type ClipperEarnings,
 } from "@/lib/bot";
+import { compact } from "@/lib/clipper-format";
 import { clipperSignatureValid } from "@/lib/share";
+
+// Defined in clipper-format.ts, which the browser can load; here as well so
+// server pages keep one import for everything clipper.
+export { compact, dollars } from "@/lib/clipper-format";
 
 /**
  * Everything a clipper page needs, fetched once per request.
@@ -68,18 +73,6 @@ export const loadClipper = cache(async function loadClipper(
     return { userId, sig, earnings: null, accounts: [], campaigns: [], offline: true };
   }
 });
-
-/** Money from the bot arrives as dollars, not cents — formatCurrency takes cents. */
-export function dollars(n: number) {
-  return `$${n.toFixed(2)}`;
-}
-
-/** 10000 -> "10K". Rates read as "$1 / 10K views", which is how they're quoted. */
-export function compact(n: number) {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n % 1_000_000 ? 1 : 0)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(n % 1_000 ? 1 : 0)}K`;
-  return String(n);
-}
 
 /** "$10 / 100K views" — the campaign's offer in the form it's quoted in. */
 export function rateLabel(c: Pick<BotCampaign, "rate_amount" | "rate_per_views">) {

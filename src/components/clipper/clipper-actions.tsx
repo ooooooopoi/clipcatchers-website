@@ -28,6 +28,7 @@ export function ClipperActions({
   status,
   paid,
   locked,
+  className = "shrink-0",
 }: {
   userId: string;
   sig: string;
@@ -35,6 +36,8 @@ export function ClipperActions({
   status: string;
   paid: boolean;
   locked: boolean;
+  /** The button's size and place: the phone's clip panel makes it a full-height half. */
+  className?: string;
 }) {
   const [pending, startTransition] = useTransition();
   const [gone, setGone] = useState(false);
@@ -80,7 +83,7 @@ export function ClipperActions({
       size="sm"
       disabled={pending}
       onClick={() => void takeDown()}
-      className="shrink-0"
+      className={className}
       title="Stops this clip earning. This does not pay you out."
     >
       {pending ? "Taking down…" : "Take down"}

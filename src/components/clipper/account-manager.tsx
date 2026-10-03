@@ -140,37 +140,42 @@ export function AccountManager({
         </div>
       )}
 
-      {!isOwner ? (
-        <div className="mt-6 max-w-2xl">
-          <AddAccountForm
-            userId={userId}
-            sig={sig}
-            platforms={platforms}
-            signedInAs={signedInAs}
-            onAdded={setIssued}
-          />
-        </div>
-      ) : adding ? (
-        <div className="surface mt-6 max-w-2xl rounded-2xl border border-border bg-card p-5">
-          <AddAccountForm
-            userId={userId}
-            sig={sig}
-            platforms={platforms}
-            signedInAs={signedInAs}
-            onAdded={(account) => {
-              setIssued(account);
-              setAdding(false);
-              router.refresh();
-            }}
-            onCancel={() => setAdding(false)}
-          />
-        </div>
-      ) : (
-        <Button type="button" variant="outline" className="mt-6" onClick={() => setAdding(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add an account
-        </Button>
-      )}
+      {/* Desktop only. On a phone, Add account is one of the buttons at the
+          top of every page (MobileActions), and a second one under the list
+          would be the same thing twice on one screen. */}
+      <div className="hidden lg:block">
+        {!isOwner ? (
+          <div className="mt-6 max-w-2xl">
+            <AddAccountForm
+              userId={userId}
+              sig={sig}
+              platforms={platforms}
+              signedInAs={signedInAs}
+              onAdded={setIssued}
+            />
+          </div>
+        ) : adding ? (
+          <div className="surface mt-6 max-w-2xl rounded-2xl border border-border bg-card p-5">
+            <AddAccountForm
+              userId={userId}
+              sig={sig}
+              platforms={platforms}
+              signedInAs={signedInAs}
+              onAdded={(account) => {
+                setIssued(account);
+                setAdding(false);
+                router.refresh();
+              }}
+              onCancel={() => setAdding(false)}
+            />
+          </div>
+        ) : (
+          <Button type="button" variant="outline" className="mt-6" onClick={() => setAdding(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add an account
+          </Button>
+        )}
+      </div>
     </>
   );
 }
