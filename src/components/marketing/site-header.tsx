@@ -101,8 +101,10 @@ export function SiteHeader({
             the buttons were pushed out instead and the menu button was cut
             in half by the edge of the screen. */}
         <Link href="/" className="flex min-w-0 items-center gap-2 sm:gap-2.5">
-          <BrandMark onDark className="hidden h-8 w-8 shrink-0 min-[420px]:block sm:h-9 sm:w-9" />
-          <span className="wordmark truncate text-[14px] min-[360px]:text-[16px] min-[375px]:text-[18px] sm:text-2xl">
+          {/* Phones show the logo alone: with Sign in in the bar (2026-10-05)
+              the name no longer fitted and was cut to "CLIP C…". */}
+          <BrandMark onDark className="h-9 w-9 shrink-0" />
+          <span className="wordmark hidden truncate sm:inline sm:text-2xl">
             Clip Catchers
           </span>
         </Link>
