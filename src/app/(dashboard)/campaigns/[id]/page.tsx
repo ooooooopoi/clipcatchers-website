@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { StatusBadge } from "@/components/campaigns/status-badge";
-import { CampaignActions } from "@/components/campaigns/campaign-actions";
 import { AreaTrend } from "@/components/charts/area-trend";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -119,12 +118,6 @@ export default async function CampaignDetailPage({
           </div>
         </div>
 
-        <CampaignActions
-          id={campaign.id}
-          name={campaign.name}
-          status={campaign.status}
-          variant="buttons"
-        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

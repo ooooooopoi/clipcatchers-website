@@ -7,7 +7,6 @@ import type { Campaign } from "@prisma/client";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { StatusBadge } from "@/components/campaigns/status-badge";
-import { CampaignActions } from "@/components/campaigns/campaign-actions";
 import { formatCompact, formatCurrency, formatDate, initials } from "@/lib/format";
 import { REACH_LABEL, REACH_NOTE } from "@/lib/constants";
 
@@ -46,7 +45,6 @@ export function CampaignCard({ campaign, index = 0 }: { campaign: Campaign; inde
             </Link>
           </div>
 
-          <CampaignActions id={campaign.id} name={campaign.name} status={campaign.status} />
         </div>
 
         <div className="mt-4 flex items-center gap-2">
