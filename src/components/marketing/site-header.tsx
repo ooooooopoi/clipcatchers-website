@@ -133,11 +133,25 @@ export function SiteHeader({
               money — which is why this is offered where "Client sign in"
               deliberately is not. Two labels so it survives the narrower bar at
               lg, matching the CTA beside it. */}
+          {/* "Sign in", not "Creator sign in": since 2026-10-05 clients and the
+              team sign in with Discord too, and /me sends each to their own
+              place (team and clients to the dashboard, creators to their
+              clips). The owner couldn't find a login on the site at all. On a
+              phone it's a short text pill; below 390px there isn't room beside
+              the logo and Get started, and it stays in the menu. */}
           {!signedIn && discordEnabled && (
-            <DiscordButton
-              label="Creator sign in"
-              className="hidden h-12 rounded-full px-5 text-[15px] lg:inline-flex"
-            />
+            <>
+              <DiscordButton
+                label="Sign in"
+                className="hidden h-12 rounded-full px-5 text-[15px] lg:inline-flex"
+              />
+              <Link
+                href="/login?discord=1&next=/me"
+                className="hidden h-11 items-center rounded-full border border-[hsl(var(--border-strong))] px-3.5 text-[14px] font-medium text-foreground transition-colors hover:bg-secondary min-[390px]:inline-flex lg:hidden"
+              >
+                Sign in
+              </Link>
+            </>
           )}
 
           {signedIn && (
@@ -295,7 +309,7 @@ export function SiteHeader({
                     lg this panel is the only place it appears. No 12px line
                     under it explaining who it is for: the label says so. */}
                 {!signedIn && discordEnabled && (
-                  <DiscordButton label="Creator sign in" className="h-10 w-full" />
+                  <DiscordButton label="Sign in" className="h-10 w-full" />
                 )}
               </div>
             </SheetContent>
