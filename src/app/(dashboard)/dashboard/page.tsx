@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { DashboardView } from "@/components/dashboard/dashboard-view";
-import { requireUser } from "@/lib/auth-helpers";
+import { campaignScope, requireUser } from "@/lib/auth-helpers";
 import { getDashboardData } from "@/lib/queries";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function DashboardPage() {
   const user = await requireUser();
-  const data = await getDashboardData(user.id);
+  const data = await getDashboardData(user.id, await campaignScope(user));
 
   return <DashboardView data={data} />;
 }

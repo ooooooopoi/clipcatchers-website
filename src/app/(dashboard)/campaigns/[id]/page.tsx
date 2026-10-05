@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { requireUser } from "@/lib/auth-helpers";
+import { campaignScope, requireUser } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import {
   formatBytes,
@@ -54,7 +54,7 @@ export default async function CampaignDetailPage({
   const { id } = await params;
 
   const campaign = await prisma.campaign.findFirst({
-    where: { id, userId: user.id },
+    where: { id, ...(await campaignScope(user)) },
     include: {
       metrics: { orderBy: { date: "asc" } },
       clips: { orderBy: [{ views: "desc" }, { externalId: "desc" }], take: 200 },

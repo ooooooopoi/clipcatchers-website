@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { KeyboardShortcuts } from "@/components/layout/keyboard-shortcuts";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
-import { requireUser } from "@/lib/auth-helpers";
+import { campaignScope, requireUser } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -27,7 +27,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     // query was running on every dashboard page and being thrown away.
     prisma.notification.count({ where: { userId: user.id, read: false } }),
     user.discordId
-      ? prisma.campaign.count({ where: { userId: user.id } })
+      ? campaignScope(user).then((scope) => prisma.campaign.count({ where: scope }))
       : Promise.resolve(1),
   ]);
 

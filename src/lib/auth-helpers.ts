@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
+import type { Prisma } from "@prisma/client";
 import { auth } from "@/auth";
+import { isTeamMember } from "@/lib/bot";
 import { prisma } from "@/lib/prisma";
 
 export type SessionUser = {
@@ -57,4 +59,15 @@ export async function getCurrentUser() {
     where: { id: session.id },
     include: { settings: true },
   });
+}
+
+/**
+ * The campaigns an account sees in the client dashboard: its own, or, for
+ * the team (the bot's admins, signed in with Discord), every campaign
+ * mirrored from the bot, so the team sees what each client sees.
+ * Read-only either way: editing still checks ownership.
+ */
+export async function campaignScope(user: SessionUser): Promise<Prisma.CampaignWhereInput> {
+  if (user.discordId && (await isTeamMember(user.discordId))) return { externalId: { not: null } };
+  return { userId: user.id };
 }

@@ -1,5 +1,5 @@
 import { subDays, startOfDay, format } from "date-fns";
-import type { CampaignStatus } from "@prisma/client";
+import type { CampaignStatus, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export type ActivityItem = {
@@ -11,28 +11,28 @@ export type ActivityItem = {
   href: string;
 };
 
-export async function getDashboardData(userId: string) {
+export async function getDashboardData(userId: string, scope: Prisma.CampaignWhereInput = { userId }) {
   const since = startOfDay(subDays(new Date(), 29));
 
   const [campaigns, statusGroups, totals, metrics, invoices, tickets, files, user] =
     await Promise.all([
       prisma.campaign.findMany({
-        where: { userId },
+        where: scope,
         orderBy: { updatedAt: "desc" },
         take: 5,
       }),
       prisma.campaign.groupBy({
         by: ["status"],
-        where: { userId },
+        where: scope,
         _count: { _all: true },
       }),
       prisma.campaign.aggregate({
-        where: { userId },
+        where: scope,
         _sum: { totalViews: true, estimatedReach: true, spentCents: true, budgetCents: true },
         _count: { _all: true },
       }),
       prisma.campaignMetric.findMany({
-        where: { campaign: { userId }, date: { gte: since } },
+        where: { campaign: scope, date: { gte: since } },
         orderBy: { date: "asc" },
       }),
       prisma.invoice.findMany({
@@ -124,7 +124,7 @@ export async function getDashboardData(userId: string) {
     .slice(0, 7);
 
   const upcoming = await prisma.campaign.findMany({
-    where: { userId, endDate: { gte: new Date() }, status: { in: ["RUNNING", "APPROVED"] } },
+    where: { ...scope, endDate: { gte: new Date() }, status: { in: ["RUNNING", "APPROVED"] } },
     orderBy: { endDate: "asc" },
     take: 4,
   });
@@ -136,7 +136,7 @@ export async function getDashboardData(userId: string) {
   // and would put a campaign that was renamed yesterday ahead of the one that
   // delivered ninety percent of the result.
   const byViews = await prisma.campaign.findMany({
-    where: { userId, totalViews: { gt: 0 } },
+    where: { ...scope, totalViews: { gt: 0 } },
     orderBy: { totalViews: "desc" },
     take: 6,
     select: { id: true, name: true, totalViews: true, status: true },
@@ -161,17 +161,17 @@ export async function getDashboardData(userId: string) {
   };
 }
 
-export async function getAnalyticsData(userId: string, days: number) {
+export async function getAnalyticsData(userId: string, days: number, scope: Prisma.CampaignWhereInput = { userId }) {
   const since = startOfDay(subDays(new Date(), days - 1));
 
   const [metrics, campaigns] = await Promise.all([
     prisma.campaignMetric.findMany({
-      where: { campaign: { userId }, date: { gte: since } },
+      where: { campaign: scope, date: { gte: since } },
       orderBy: { date: "asc" },
       include: { campaign: { select: { id: true, name: true } } },
     }),
     prisma.campaign.findMany({
-      where: { userId },
+      where: scope,
       orderBy: { totalViews: "desc" },
       select: {
         id: true,

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Pagination } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
-import { requireUser } from "@/lib/auth-helpers";
+import { campaignScope, requireUser } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = { title: "Campaigns" };
@@ -37,8 +37,9 @@ export default async function CampaignsPage({
   const status = params.status as CampaignStatus | undefined;
   const query = params.query?.trim();
 
+  const scope = await campaignScope(user);
   const where: Prisma.CampaignWhereInput = {
-    userId: user.id,
+    ...scope,
     ...(status && STATUSES.includes(status) ? { status } : {}),
     ...(query
       ? {
@@ -58,7 +59,7 @@ export default async function CampaignsPage({
       take: PAGE_SIZE,
     }),
     prisma.campaign.count({ where }),
-    prisma.campaign.count({ where: { userId: user.id } }),
+    prisma.campaign.count({ where: scope }),
   ]);
 
   return (

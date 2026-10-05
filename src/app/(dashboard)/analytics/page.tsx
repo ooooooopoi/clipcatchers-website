@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { requireUser } from "@/lib/auth-helpers";
+import { campaignScope, requireUser } from "@/lib/auth-helpers";
 import { getAnalyticsData } from "@/lib/queries";
 import { REACH_LABEL, REACH_NOTE } from "@/lib/constants";
 
@@ -25,7 +25,7 @@ export default async function AnalyticsPage({
   const user = await requireUser();
   const params = await searchParams;
   const range = ["7", "30", "90", "365"].includes(params.range ?? "") ? params.range! : "30";
-  const data = await getAnalyticsData(user.id, Number(range));
+  const data = await getAnalyticsData(user.id, Number(range), await campaignScope(user));
 
   const hasData = data.totals.views > 0 || data.campaigns.length > 0;
 
