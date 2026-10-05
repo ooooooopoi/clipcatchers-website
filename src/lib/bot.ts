@@ -517,3 +517,24 @@ export type ClipperReferrals = {
 export function fetchClipperReferrals(userId: string) {
   return call<ClipperReferrals>(`/api/users/${encodeURIComponent(userId)}/referrals`);
 }
+
+let teamCache: { ids: Set<string>; at: number } | null = null;
+
+/**
+ * Whether a Discord account is on the team: the bot's admins (ADMIN_IDS),
+ * asked of the bot so that list is kept in one place. Cached for a minute.
+ * False when the bot can't be reached: the team view stays shut rather than
+ * opening to everyone.
+ */
+export async function isTeamMember(discordId: string | null | undefined): Promise<boolean> {
+  if (!discordId) return false;
+  if (!teamCache || Date.now() - teamCache.at > 60_000) {
+    try {
+      const body = await call<{ discord_ids: string[] }>("/api/team");
+      teamCache = { ids: new Set(body.discord_ids ?? []), at: Date.now() };
+    } catch {
+      return teamCache?.ids.has(discordId) ?? false;
+    }
+  }
+  return teamCache.ids.has(discordId);
+}

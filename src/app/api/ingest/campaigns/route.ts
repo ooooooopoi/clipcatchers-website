@@ -70,6 +70,8 @@ const campaignSchema = z.object({
   // Optional fields accept null as well as absent: the sender is a service
   // serialising database rows, where an empty column comes through as null.
   ownerEmail: z.union([z.string().email(), z.literal(""), z.null()]).optional(),
+  /** The client's Discord id (a snowflake, as text). Wins over ownerEmail. */
+  ownerDiscordId: z.string().regex(/^\d{0,25}$/).nullish(),
   name: z.string().min(1).max(200),
   brandName: z.string().max(200).nullish(),
   status: z
@@ -181,13 +183,39 @@ export async function POST(request: Request) {
       return systemUserId;
     }
 
+    /**
+     * The account a client's Discord id signs in as, made if they haven't
+     * signed in yet. Sign-in matches on the Discord id before email (auth.ts),
+     * so their first "Sign in with Discord" lands on this row and its
+     * campaigns. The address is a placeholder: Discord's real one isn't known
+     * until then, and the column has to be unique.
+     */
+    async function discordOwner(discordId: string) {
+      const found = await prisma.user.findUnique({ where: { discordId }, select: { id: true } });
+      if (found) return found;
+      return prisma.user.create({
+        data: {
+          email: `discord-${discordId}@clients.clipcatchers.net`,
+          name: "Client",
+          discordId,
+          role: "CLIENT",
+          passwordHash: randomBytes(32).toString("hex"),
+          emailVerified: null,
+        },
+        select: { id: true },
+      });
+    }
+
     for (const item of campaigns) {
       const email = item.ownerEmail?.toLowerCase() ?? "";
-      const owner = email
-        ? await prisma.user.findUnique({ where: { email }, select: { id: true } })
-        : null;
+      const discordId = item.ownerDiscordId ?? "";
+      const owner = discordId
+        ? await discordOwner(discordId)
+        : email
+          ? await prisma.user.findUnique({ where: { email }, select: { id: true } })
+          : null;
 
-      if (email && !owner) unknownOwners.push(email);
+      if (email && !owner && !discordId) unknownOwners.push(email);
       const ownerId = owner?.id ?? (await systemOwner());
       if (!owner) linkOnly += 1;
 
