@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { isTeamMember } from "@/lib/bot";
 import { prisma } from "@/lib/prisma";
 import { clipperSignature } from "@/lib/share";
 
@@ -49,11 +48,8 @@ export default async function MePage() {
     redirect("/dashboard");
   }
 
-  // Where a Discord sign-in belongs: the team (the bot's admins) and clients
-  // to the client dashboard (the team sees every campaign there, as each
-  // client sees it; clients only theirs, assigned with /campaign-client);
-  // everyone else to their clipper page.
-  if (await isTeamMember(discordId)) redirect("/dashboard");
+  // Where a Discord sign-in belongs: a client (anyone with campaigns assigned
+  // with /campaign-client) to the dashboard, everyone else to their clipper page.
   if ((await prisma.campaign.count({ where: { userId: session.user.id } })) > 0) {
     redirect("/dashboard");
   }

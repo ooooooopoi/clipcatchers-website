@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import type { Prisma } from "@prisma/client";
 import { auth } from "@/auth";
-import { isTeamMember } from "@/lib/bot";
 import { prisma } from "@/lib/prisma";
 
 export type SessionUser = {
@@ -62,17 +61,11 @@ export async function getCurrentUser() {
 }
 
 /**
- * The campaigns an account sees in the client dashboard: its own, or, for
- * the team (the bot's admins, signed in with Discord), every campaign that is
- * shared with a client, so the team sees what the clients see.
- * Read-only either way: editing still checks ownership.
+ * The campaigns an account sees in the client dashboard: the ones assigned to
+ * it (/campaign-client). Everyone is a client here, the team included: the
+ * owner asked to be added as a client rather than see a team view
+ * (2026-10-06). The team's own view is the signed /team link.
  */
 export async function campaignScope(user: SessionUser): Promise<Prisma.CampaignWhereInput> {
-  // Only campaigns shared with a client (/campaign-client): the rest belong to
-  // the placeholder account the ingest parks them on and no client sees them.
-  // The owner wanted the client's view, not every campaign (2026-10-05).
-  if (user.discordId && (await isTeamMember(user.discordId))) {
-    return { externalId: { not: null }, user: { email: { not: "shared-reports@clipcatchers.local" } } };
-  }
   return { userId: user.id };
 }
