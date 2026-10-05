@@ -139,7 +139,7 @@ export function SiteHeader({
               team sign in with Discord too, and /me sends each to their own
               place (team and clients to the dashboard, creators to their
               clips). The owner couldn't find a login on the site at all. On a
-              phone it's a short text pill; below 390px there isn't room beside
+              phone it's a short text pill; below 350px there isn't room beside
               the logo and Get started, and it stays in the menu. */}
           {!signedIn && discordEnabled && (
             <>
@@ -149,7 +149,7 @@ export function SiteHeader({
               />
               <Link
                 href="/login?discord=1&next=/me"
-                className="hidden h-11 items-center rounded-full border border-[hsl(var(--border-strong))] px-3.5 text-[14px] font-medium text-foreground transition-colors hover:bg-secondary min-[390px]:inline-flex lg:hidden"
+                className="hidden h-11 items-center rounded-full border border-[hsl(var(--border-strong))] px-3.5 text-[14px] font-medium text-foreground transition-colors hover:bg-secondary min-[350px]:inline-flex lg:hidden"
               >
                 Sign in
               </Link>
