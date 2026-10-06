@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { StatusBadge } from "@/components/campaigns/status-badge";
+import { smoothSeries } from "@/lib/smooth";
 import { AreaTrend } from "@/components/charts/area-trend";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -62,11 +63,19 @@ export default async function CampaignDetailPage({
   });
   if (!campaign) notFound();
 
-  const series = campaign.metrics.map((m) => ({
-    label: format(m.date, "MMM d"),
-    views: m.views,
-    reach: m.reach,
-  }));
+  // Views and reach to date, smoothed: the daily figures sawed between quiet
+  // days and the days that caught up with them.
+  let viewsSoFar = 0;
+  let reachSoFar = 0;
+  const series = smoothSeries(
+    campaign.metrics.map((m) => {
+      viewsSoFar += m.views;
+      reachSoFar += m.reach;
+      return { label: format(m.date, "MMM d"), views: viewsSoFar, reach: reachSoFar };
+    }),
+    ["views", "reach"],
+    5,
+  );
 
   const budgetPct = campaign.budgetCents
     ? Math.min(100, (campaign.spentCents / campaign.budgetCents) * 100)
@@ -147,7 +156,7 @@ export default async function CampaignDetailPage({
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Delivery</CardTitle>
             <CardDescription>
-              Views recorded for this campaign, with modelled reach alongside.
+              Views to date, with modelled reach alongside.
             </CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
@@ -158,6 +167,7 @@ export default async function CampaignDetailPage({
             ) : (
               <AreaTrend
                 data={series}
+                smooth
                 keys={[
                   { key: "views", label: "Views", color: "hsl(var(--primary))" },
                   { key: "reach", label: REACH_LABEL, color: "hsl(199 89% 55%)" },

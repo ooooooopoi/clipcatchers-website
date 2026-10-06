@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { BarChart3, DollarSign, Eye, Gauge, Users } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { RangePicker } from "@/components/analytics/range-picker";
+import { smoothSeries } from "@/lib/smooth";
 import { AreaTrend } from "@/components/charts/area-trend";
 import { BarTrend } from "@/components/charts/bar-trend";
 import { StatCard } from "@/components/dashboard/stat-card";
@@ -87,11 +88,12 @@ export default async function AnalyticsPage({
           <Card className="mt-4">
             <CardHeader className="pb-2">
               <CardTitle className="text-base">Views &amp; modelled reach</CardTitle>
-              <CardDescription>Daily delivery across every active campaign.</CardDescription>
+              <CardDescription>Daily delivery across every active campaign, averaged over five days.</CardDescription>
             </CardHeader>
             <CardContent className="pl-2">
               <AreaTrend
-                data={data.daily}
+                data={smoothSeries(data.daily, ["views", "reach"], 5)}
+                smooth
                 height={300}
                 keys={[
                   { key: "views", label: "Views", color: "hsl(var(--primary))" },
@@ -134,7 +136,8 @@ export default async function AnalyticsPage({
               </CardHeader>
               <CardContent className="pl-2 pt-6">
                 <AreaTrend
-                  data={data.daily}
+                  data={smoothSeries(data.daily, ["cpm"], 5)}
+                  smooth
                   height={260}
                   valueFormat="usd"
                   keys={[{ key: "cpm", label: "CPM", color: "hsl(38 92% 55%)" }]}
