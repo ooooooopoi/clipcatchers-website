@@ -133,6 +133,7 @@ export function GrowthChart({ rows }: { rows: SnapshotRow[] }) {
           data={series}
           keys={[{ key: "views", label: "Cumulative views", color: "hsl(var(--primary))" }]}
           height={260}
+          smooth
         />
       </div>
       <div className="mt-2 border-t border-border pt-4">
@@ -140,6 +141,7 @@ export function GrowthChart({ rows }: { rows: SnapshotRow[] }) {
           data={series}
           keys={[{ key: "spend", label: "Cumulative spend", color: "hsl(var(--warning))" }]}
           height={160}
+          smooth
           valueFormat="usd"
         />
       </div>

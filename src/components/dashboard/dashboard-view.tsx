@@ -113,6 +113,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
         <div className="-ml-2 mt-2">
           <AreaTrend
             data={data.cumulative}
+            smooth
             keys={[
               { key: "views", label: "Views", color: "hsl(var(--foreground))" },
               { key: "reach", label: REACH_LABEL, color: "hsl(var(--primary))" },

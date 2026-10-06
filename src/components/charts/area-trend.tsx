@@ -32,11 +32,20 @@ export function AreaTrend({
   keys,
   height = 280,
   valueFormat = "compact",
+  smooth = false,
 }: {
   data: SeriesPoint[];
   keys: { key: string; label: string; color: string }[];
   height?: number;
   valueFormat?: ValueFormat;
+  /**
+   * A fully smoothed curve, for running totals. "monotone" passes through
+   * every daily point, so a total that grows in uneven daily steps still
+   * shows a corner at each one; "basis" rounds them off. Fine for a curve
+   * that only ever climbs, wrong for daily figures, where it would blur
+   * real peaks — so it's opt-in.
+   */
+  smooth?: boolean;
 }) {
   const format = FORMATTERS[valueFormat];
 
@@ -81,7 +90,7 @@ export function AreaTrend({
         {keys.map(({ key, label, color }) => (
           <Area
             key={key}
-            type="monotone"
+            type={smooth ? "basis" : "monotone"}
             dataKey={key}
             name={label}
             stroke={color}
