@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { isTeamMember } from "@/lib/bot";
-import { clipperSignature, teamSignature } from "@/lib/share";
+import { clipperSignature } from "@/lib/share";
 
 export const metadata: Metadata = {
   title: "Your clips",
@@ -50,12 +50,9 @@ export default async function MePage() {
   }
 
   // Where a Discord sign-in belongs: the team (the bot's admins, ADMIN_IDS)
-  // to the team dashboard; a client (campaigns assigned with
+  // to the dashboard, seeing every campaign (campaignScope); a client (campaigns assigned with
   // /campaign-client) to their dashboard; everyone else to their clipper page.
-  if (await isTeamMember(discordId)) {
-    const team = teamSignature();
-    if (team) redirect(`/team/${team}`);
-  }
+  if (await isTeamMember(discordId)) redirect("/dashboard");
   if ((await prisma.campaign.count({ where: { userId: session.user.id } })) > 0) {
     redirect("/dashboard");
   }
