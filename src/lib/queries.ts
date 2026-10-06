@@ -1,6 +1,7 @@
 import { subDays, startOfDay, format } from "date-fns";
 import type { CampaignStatus, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { smoothSeries } from "@/lib/smooth";
 
 export type ActivityItem = {
   id: string;
@@ -112,7 +113,11 @@ export async function getDashboardData(userId: string, scope: Prisma.CampaignWhe
     }
     last = i;
   });
-  const cumulative = growth.map(({ date, label, views, reach }) => ({ date, label, views, reach }));
+  const cumulative = smoothSeries(
+    growth.map(({ date, label, views, reach }) => ({ date, label, views, reach })),
+    ["views", "reach"],
+    5,
+  );
 
   const half = Math.floor(series.length / 2);
   const recent = series.slice(half).reduce((sum, d) => sum + d.views, 0);

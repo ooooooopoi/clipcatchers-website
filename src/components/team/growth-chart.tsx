@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { AreaTrend, type SeriesPoint } from "@/components/charts/area-trend";
 import { formatCompact } from "@/lib/format";
+import { smoothSeries } from "@/lib/smooth";
 
 type SnapshotRow = {
   day?: unknown;
@@ -97,6 +98,8 @@ export function buildSeries(rows: SnapshotRow[]) {
 
 export function GrowthChart({ rows }: { rows: SnapshotRow[] }) {
   const series = buildSeries(rows);
+  // Drawn smoothed; the figures in the header come from the real series.
+  const drawn = smoothSeries(series, ["views", "spend"], 7);
 
   if (series.length < 2) {
     return (
@@ -130,7 +133,7 @@ export function GrowthChart({ rows }: { rows: SnapshotRow[] }) {
       </div>
       <div className="mt-4">
         <AreaTrend
-          data={series}
+          data={drawn}
           keys={[{ key: "views", label: "Cumulative views", color: "hsl(var(--primary))" }]}
           height={260}
           smooth
@@ -138,7 +141,7 @@ export function GrowthChart({ rows }: { rows: SnapshotRow[] }) {
       </div>
       <div className="mt-2 border-t border-border pt-4">
         <AreaTrend
-          data={series}
+          data={drawn}
           keys={[{ key: "spend", label: "Cumulative spend", color: "hsl(var(--warning))" }]}
           height={160}
           smooth
