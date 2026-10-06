@@ -18,7 +18,13 @@ export type ValueFormat = "compact" | "usd";
 
 const FORMATTERS: Record<ValueFormat, (n: number) => string> = {
   compact: formatCompact,
-  usd: (n) => `$${n.toFixed(2)}`,
+  usd: (n) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+};
+
+/** Axis ticks are short: "$25,000.00" didn't fit the axis and showed as "000.00". */
+const TICKS: Record<ValueFormat, (n: number) => string> = {
+  compact: formatCompact,
+  usd: (n) => `$${formatCompact(n)}`,
 };
 
 export function AreaTrend({
@@ -57,7 +63,7 @@ export function AreaTrend({
           tickLine={false}
           axisLine={false}
           tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
-          tickFormatter={(v) => format(Number(v))}
+          tickFormatter={(v) => TICKS[valueFormat](Number(v))}
           width={56}
         />
         <Tooltip

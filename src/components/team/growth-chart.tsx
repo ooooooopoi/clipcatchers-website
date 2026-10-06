@@ -38,17 +38,53 @@ export function buildSeries(rows: SnapshotRow[]) {
   }
 
   const days = [...byDay.keys()].sort();
-  const carried = new Map<number, { views: number; spend: number }>();
+  const dayNo = (day: string) => Date.parse(`${day}T00:00:00Z`) / 86_400_000;
+
+  // Each campaign's readings, in day order.
+  const points = new Map<number, { at: number; views: number; spend: number }[]>();
+  for (const day of days) {
+    for (const [id, value] of byDay.get(day)!) {
+      if (!points.has(id)) points.set(id, []);
+      points.get(id)!.push({ at: dayNo(day), ...value });
+    }
+  }
+
+  /**
+   * A campaign's total on a day. Between two of its readings it's drawn as a
+   * straight line from one to the next: it was growing on the days it didn't
+   * sync, and holding the last figure flat drew stair steps that never
+   * happened. Before its first reading it hadn't started (0); after its last
+   * it has stopped, so that figure holds.
+   */
+  function valueOn(list: { at: number; views: number; spend: number }[], at: number) {
+    if (at < list[0].at) return { views: 0, spend: 0 };
+    let prev = list[0];
+    for (const next of list) {
+      if (next.at === at) return next;
+      if (next.at > at) {
+        const t = (at - prev.at) / (next.at - prev.at);
+        return {
+          views: prev.views + (next.views - prev.views) * t,
+          spend: prev.spend + (next.spend - prev.spend) * t,
+        };
+      }
+      prev = next;
+    }
+    return prev;
+  }
+
   const series: SeriesPoint[] = [];
 
   for (const day of days) {
-    for (const [id, value] of byDay.get(day)!) carried.set(id, value);
+    const at = dayNo(day);
     let views = 0;
     let spend = 0;
-    for (const value of carried.values()) {
+    for (const list of points.values()) {
+      const value = valueOn(list, at);
       views += value.views;
       spend += value.spend;
     }
+    views = Math.round(views);
     series.push({
       day,
       label: day.slice(5), // MM-DD; the year is the same for every point
