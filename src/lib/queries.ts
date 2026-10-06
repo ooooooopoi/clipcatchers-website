@@ -81,6 +81,39 @@ export async function getDashboardData(userId: string, scope: Prisma.CampaignWhe
     };
   });
 
+  // The chart's line: views and reach to date, climbing. Daily figures drew
+  // a saw: a campaign only reports on days it syncs, so a quiet day read 0
+  // and the next day carried both. A running total, started from what came
+  // before the window, and with silent days drawn straight between their
+  // neighbours, shows the growth that actually happened.
+  const before = await prisma.campaignMetric.aggregate({
+    where: { campaign: scope, date: { lt: since } },
+    _sum: { views: true, reach: true },
+  });
+  let views = before._sum.views ?? 0;
+  let reach = before._sum.reach ?? 0;
+  const growth = series.map((point) => {
+    const seen = byDay.has(point.date);
+    views += Number(point.views);
+    reach += Number(point.reach);
+    return { date: point.date, label: point.label, views, reach, seen };
+  });
+  // Fill silent days between two reported ones with a straight line.
+  let last = -1;
+  growth.forEach((point, i) => {
+    if (!point.seen && i !== 0) return;
+    if (last >= 0 && i - last > 1) {
+      const a = growth[last];
+      for (let k = last + 1; k < i; k++) {
+        const t = (k - last) / (i - last);
+        growth[k].views = Math.round(a.views + (point.views - a.views) * t);
+        growth[k].reach = Math.round(a.reach + (point.reach - a.reach) * t);
+      }
+    }
+    last = i;
+  });
+  const cumulative = growth.map(({ date, label, views, reach }) => ({ date, label, views, reach }));
+
   const half = Math.floor(series.length / 2);
   const recent = series.slice(half).reduce((sum, d) => sum + d.views, 0);
   const previous = series.slice(0, half).reduce((sum, d) => sum + d.views, 0);
@@ -155,6 +188,7 @@ export async function getDashboardData(userId: string, scope: Prisma.CampaignWhe
       budgetCents: totals._sum.budgetCents ?? 0,
     },
     series,
+    cumulative,
     viewsTrend,
     activity,
     upcoming,
