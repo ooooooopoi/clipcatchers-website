@@ -9,8 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { ClipperAccount } from "@/lib/bot";
 
-/** A just-registered account, with the bio code that proves it's theirs. */
-export type IssuedAccount = ClipperAccount & { code: string };
+/**
+ * A just-registered account, with the bio code that proves it's theirs.
+ * `already`: they tried to add one that was already theirs, still unverified.
+ */
+export type IssuedAccount = ClipperAccount & { code: string; already?: boolean };
 
 /**
  * Register a posting account from the website: what /add-account does in
@@ -91,7 +94,13 @@ export function AddAccountForm({
         return;
       }
       setHandle("");
-      onAdded({ id: body.id, platform: body.platform ?? platform, handle: body.handle, code: body.code });
+      onAdded({
+        id: body.id,
+        platform: body.platform ?? platform,
+        handle: body.handle,
+        code: body.code,
+        already: Boolean(body.already),
+      });
     } catch {
       toast.error("Couldn't reach the server.");
     } finally {
@@ -177,7 +186,11 @@ export function IssuedCode({
 }) {
   return (
     <div className="surface rounded-2xl border border-primary/30 bg-primary/5 px-5 py-4">
-      <p className="text-sm font-medium">@{account.handle} added — one step left</p>
+      <p className="text-sm font-medium">
+        {account.already
+          ? `@${account.handle} is already registered to you — one step left`
+          : `@${account.handle} added — one step left`}
+      </p>
       <p className="mt-1.5 text-sm text-muted-foreground">
         Put this code in your {account.platform} bio, then check:
       </p>
@@ -188,7 +201,7 @@ export function IssuedCode({
         <CheckBioButton userId={userId} sig={sig} account={account} onVerified={onVerified} />
       </div>
       <p className="mt-3 text-xs text-muted-foreground">
-        We also check once by ourselves, about two minutes after adding.
+        We also check by ourselves, from about two minutes after adding until a day after.
       </p>
     </div>
   );
