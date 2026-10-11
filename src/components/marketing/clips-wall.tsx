@@ -129,10 +129,10 @@ function Phone({ clip, index }: { clip: WallClip; index: number }) {
             />
           </div>
         </div>
-        <p className="mt-3 text-center font-mono text-sm font-semibold text-primary-ink">
+        <p className="stat-value mt-3 text-center text-sm">
           {formatCompact(clip.views)}
         </p>
-        <p className="text-center text-[11px] uppercase tracking-wider text-muted-foreground">
+        <p className="stat-label text-center">
           views
         </p>
       </div>

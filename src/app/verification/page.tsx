@@ -79,7 +79,9 @@ export default async function VerificationPage() {
       }
     >
       <section className="relative z-10 mx-auto w-full max-w-3xl px-5 pb-16">
-        <ImpressionCounter stats={stats} label="impressions delivered, every one logged per clip" />
+        {/* The label keeps the noun that names the quantity: this card spans
+            the full column, not a ~104px strip cell, so it has room for it. */}
+        <ImpressionCounter stats={stats} label="views delivered, every one logged" />
       </section>
 
       <section className="relative z-10 mx-auto w-full max-w-3xl px-5 pb-20">

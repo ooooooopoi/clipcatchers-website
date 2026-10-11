@@ -188,8 +188,11 @@ export default async function HomePage() {
 
           {/* The owner's line (2026-09-30), replacing a 26-word sentence that
               ran four lines on a phone. text-balance so its two lines on a
-              phone come out even rather than leaving "Shorts." alone. */}
-          <p className="mx-auto mt-5 max-w-2xl text-balance leading-relaxed text-muted-foreground sm:mt-7 sm:text-lg">
+              phone come out even rather than leaving "Shorts." alone.
+              17px at base and mt-4, not 16px/mt-5: under an ~84px three-line
+              uppercase block the old setting read detached — a size and a
+              step closer ties it to the headline while staying muted. */}
+          <p className="mx-auto mt-4 max-w-2xl text-balance text-[1.0625rem] leading-relaxed text-muted-foreground sm:mt-6 sm:text-lg">
             Hundreds of creators posting about your brand on TikTok, Reels and Shorts.
           </p>
 
@@ -288,7 +291,7 @@ export default async function HomePage() {
             keyboard and screen-reader accessible for free. */}
         <section
           id="faq"
-          className="relative z-10 mx-auto w-full max-w-3xl scroll-mt-24 px-5 pb-20"
+          className="seam-light relative z-10 mx-auto w-full max-w-3xl scroll-mt-24 px-5 pb-20"
         >
           <div className="text-center">
             <h2 className="display text-3xl sm:text-5xl">
@@ -371,13 +374,13 @@ export default async function HomePage() {
               {[
                 // "Per view", not "Pay per view": at 36px the full phrase is
                 // wider than a third of the panel on desktop.
-                { value: "Per view", label: "you only pay for delivered views" },
-                { value: totalViews, label: "views delivered for brands" },
-                { value: "24 hrs", label: "typical time to first clips" },
+                { value: "Per view", label: "only pay for views" },
+                { value: totalViews, label: "views delivered" },
+                { value: "24 hrs", label: "to first clips" },
               ].map((stat) => (
                 <div key={stat.label} className="px-5 py-6 text-center">
-                  <p className="display-num text-3xl text-primary sm:text-4xl">{stat.value}</p>
-                  <p className="mt-1.5 text-sm text-muted-foreground">{stat.label}</p>
+                  <p className="stat-value text-3xl sm:text-4xl">{stat.value}</p>
+                  <p className="stat-label">{stat.label}</p>
                 </div>
               ))}
             </div>

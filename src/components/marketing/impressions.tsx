@@ -88,7 +88,7 @@ export function ImpressionCounter({
       <div className="surface rounded-2xl border border-border bg-card px-5 py-10">
         <p
           className={cn(
-            "font-mono font-semibold tracking-tight text-primary-ink",
+            "stat-value",
             size === "lg" ? "text-3xl sm:text-5xl" : "text-2xl sm:text-4xl",
           )}
         >
@@ -98,10 +98,13 @@ export function ImpressionCounter({
             SITE_STATS.viewsDelivered
           )}
         </p>
-        <p className="mt-2.5 text-xs leading-tight text-muted-foreground">{label}</p>
+        {/* No margin utility here: .marketing .stat-label (two classes) beats
+            a single-class Tailwind margin on specificity, so an mt-* at this
+            call site is dead code. The shared 0.375rem is the spacing. */}
+        <p className="stat-label">{label}</p>
       </div>
 
-      <p className="mt-3 text-xs text-muted-foreground/70">
+      <p className="mt-3 text-sm text-muted-foreground/80">
         {!live
           ? `Across every campaign to date, as of ${AS_OF}.`
           : ticking

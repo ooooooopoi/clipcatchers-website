@@ -89,7 +89,7 @@ export async function PageShell({
 export function ClosingCta() {
   return (
     <section className="relative z-10 mx-auto w-full max-w-4xl px-5 pb-24 pt-6">
-      <div className="surface overflow-hidden rounded-3xl border border-border bg-card px-6 py-14 text-center sm:px-12">
+      <div className="surface panel-light overflow-hidden rounded-3xl border border-border bg-card px-6 py-14 text-center sm:px-12">
         <h2 className="display mx-auto max-w-2xl text-3xl sm:text-4xl">
           Start with one campaign
         </h2>

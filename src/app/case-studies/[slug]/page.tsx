@@ -105,10 +105,13 @@ export default async function CaseStudyPage(
             },
           ].map((s) => (
             <div key={s.label} className="px-5 py-7 text-center">
-              <p className="font-mono text-2xl font-semibold tracking-tight text-primary-ink sm:text-3xl">
-                {s.value}
-              </p>
-              <p className="mt-1.5 text-xs text-muted-foreground">{s.label}</p>
+              {/* The shared stat voice (see .stat-value in globals.css): the
+                  closing CTA strip on the homepage links straight here, so
+                  this grid and that strip are seen one click apart and must
+                  not disagree. Labels stay ≤2 words — one 14px line in the
+                  ~127px two-column cells at 375px. */}
+              <p className="stat-value text-2xl sm:text-3xl">{s.value}</p>
+              <p className="stat-label">{s.label}</p>
             </div>
           ))}
         </div>

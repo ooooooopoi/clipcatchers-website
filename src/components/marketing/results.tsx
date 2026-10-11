@@ -54,14 +54,20 @@ export async function Results() {
       </div>
 
       {/* The total. Deliberately not rounded up — a number ending in .7 is one
-          somebody counted. */}
+          somebody counted.
+
+          Sized and voiced exactly like ImpressionCounter lg (30/48px
+          .stat-value), which renders the same figure two sections up on
+          /results: the one place the same number appears twice on one page
+          must not show it in two typefaces at two weights. 30/48 also keeps
+          it a clear step under the PageShell H1 (36px at phone, 60px from
+          sm) — the counter-over-headline inversion the hero fix removed must
+          not reappear on a subpage. */}
       <div className="surface mx-auto mt-12 max-w-2xl rounded-2xl border border-border bg-card px-6 py-12 text-center">
-        <p className="font-mono text-6xl font-semibold tracking-tight text-primary-ink sm:text-7xl">
-          {totalViews}
-        </p>
-        <p className="mt-3 text-sm text-muted-foreground">views delivered for brands</p>
+        <p className="stat-value text-3xl sm:text-5xl">{totalViews}</p>
+        <p className="stat-label">views delivered for brands</p>
       </div>
-      <p className="mt-3 text-center text-xs text-muted-foreground/70">
+      <p className="mt-3 text-center text-sm text-muted-foreground/80">
         {hasLiveRows
           ? `Across ${stats.campaigns} campaign${stats.campaigns === 1 ? "" : "s"}, read live from our reporting.`
           : `Across every campaign to date, as of ${AS_OF}.`}

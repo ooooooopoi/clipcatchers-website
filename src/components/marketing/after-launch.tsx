@@ -76,7 +76,7 @@ export function AfterLaunch() {
   return (
     <section
       id="after-launch"
-      className="relative z-10 scroll-mt-24 border-y border-border bg-muted/30 py-20 sm:py-24"
+      className="seam-light relative z-10 scroll-mt-24 border-y border-border bg-muted/30 py-20 sm:py-24"
     >
       <div className="mx-auto w-full max-w-6xl px-5">
         <div className="mx-auto max-w-2xl text-center">

@@ -39,18 +39,29 @@ export function Proof({ stats }: { stats: PublicStats }) {
   const { live, anchor, perSecond } = anchorImpressions(stats);
 
   return (
-    <section className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-16 pt-2 sm:pb-24">
+    <section className="seam-light relative z-10 mx-auto w-full max-w-6xl px-5 pb-16 pt-2 sm:pb-24">
       {/* The result, as big as the page allows, and nothing under it but
           what it counts. A 26-word note in 12px grey used to sit beneath the
           figure explaining how it was measured; at that size it read as
           small print, and small print under a big number is what makes a
           claim look like it has a catch. The method is on /verification.
 
-          clamp() is sized from the live figure, which is eleven characters
-          ("310,849,102") — at 9vw it clears a 360px phone with room, and it
-          stops at 7rem so it never outgrows the column on a wide screen. */}
+          clamp() is sized against the H1 above it, not against the column:
+          the counter must sit a clear step BELOW the headline at every
+          width, or the proof outweighs the claim it proves. The H1 is
+          clamp(1.5rem,(100vw−2.5rem)/10.8,3.75rem) below lg — 25.9px at
+          320, 31px at 375, reaching its 60px cap at 688 and holding it to
+          1023 — then 72px from lg. The counter's 6vw gives 22.5/46 at
+          375/768 and its 3.375rem cap holds 54px from 900 up. Narrowest
+          gaps: 6px across 900–1023 (54 vs 60) and ~6px at 320 (20 vs
+          25.9). The 1.25rem floor sits under the H1's own 1.5rem floor,
+          so the step survives even below 300px where both clamps bottom
+          out (20 vs 24). The live figure is eleven characters
+          ("625,257,279") — ~140px at the 20px floor in tabular digits, so
+          it clears a 320px phone with room; recheck the cap when it
+          crosses 1B and gains two characters. */}
       <div className="border-y border-border py-12 text-center sm:py-16">
-        <Rise className="display-num text-[clamp(2.25rem,9vw,7rem)] leading-none text-primary">
+        <Rise className="display-num text-[clamp(1.25rem,6vw,3.375rem)] leading-none text-primary">
           {live ? (
             <LiveViews initial={anchor} perSecond={perSecond} />
           ) : (

@@ -274,13 +274,59 @@
     letter-spacing: -0.015em;
   }
 
-  /* Figures: the delivered-views number and the closing stats. tabular-nums
-     because the big one is a live counter — proportional digits would make it
-     shiver sideways every second as they change width. */
+  /* Figures: the delivered-views proof counter under the homepage hero — its
+     only remaining consumer, now that the closing stats use .stat-value below.
+     tabular-nums because it is a live counter — proportional digits would make
+     it shiver sideways every second as they change width. */
   .display-num {
     font-weight: 800;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.02em;
+  }
+
+  /* ── Stat tiles ─────────────────────────────────────────────────────────
+     One voice for every value-over-label pair on the public pages (the
+     closing CTA strip, the /launch reassurance row, the subject-page
+     impression counters, the /results total, the case-study stat grid, the
+     clips-wall captions). Before this there were two: Archivo .display-num
+     on the homepage and JetBrains Mono everywhere else — the same figure in
+     two typefaces depending on the page. Size stays a Tailwind class at the
+     call site because the contexts genuinely differ; everything else lives
+     here so it can't drift. One caveat on that contract: margin utilities at
+     a label call site DON'T work — this rule's two classes outrank a
+     single-class mt-*, so the 0.375rem below is the spacing, not a default.
+
+     The value is --primary, not --primary-ink: the theme defines stats as
+     blue-as-light at 60% (see .theme-black), and at 800 weight it measures
+     5.2:1 on black. tabular-nums is for the live counters (proportional
+     digits shiver as they tick) and does nothing to letters, so word values
+     ("Per view", "24 hrs") share the class safely. Tracking is -0.01em,
+     not .display-num's -0.02em, because these run 14–36px, not 112.
+
+     The label is 14px and never smaller — labels at text-xs were the small
+     print the no-tiny-text rule exists for — and the copy at each call site
+     is kept to 2–4 words, chosen to hold ONE line in its own column: the
+     narrowest is /launch's three-up strip (~104px columns at 375px), which
+     keeps to 2 words; the homepage closing strip stacks below sm, so its
+     4-word label only ever renders in a ≥200px column. A label wrapping to
+     ragged lines under a one-line value is the mismatch the owner flagged. */
+  .marketing .stat-value {
+    font-family: theme("fontFamily.display");
+    font-stretch: 112%;
+    font-variation-settings: "wdth" 112;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    color: hsl(var(--primary));
+  }
+
+  .marketing .stat-label {
+    margin-top: 0.375rem;
+    font-size: 0.875rem;
+    line-height: 1.35;
+    font-weight: 500;
+    color: hsl(var(--muted-foreground));
   }
 
   /* ── Smooth scroll (see smooth-scroll.tsx) ──────────────────────────────
@@ -437,16 +483,44 @@ body:has(.theme-black) {
 /* Light on the black site: the brand blue falling from the top edge, so the
    page opens lit rather than as a flat black field. Sized in px from the top,
    not in % of the page, so it stays the same on a long page and a short one.
-   It's used in exactly two places, the top of every public page and the
-   closing call to action (.panel-light), so the page opens and closes lit.
-   Scattered glow blobs are the template look this site has spent effort
-   avoiding. */
+   Three named lights now, not two (2026-10-11 — the owner asked for the
+   theme to carry on below the first screen), each anchored to something
+   structural rather than floated into space:
+     .page-light  — the top of every public page
+     .seam-light  — the top edge of a mid-page band: the proof band and the
+                    FAQ on the homepage, the after-launch timeline on /launch
+     .panel-light — the closing call to action, so every page still closes lit
+   Anchored, named and reused is the whole system; scattered free-floating
+   glow blobs remain the template look this site has spent effort avoiding.
+   Never put a light behind the ticker or the clips wall: their edge fades
+   are painted in solid --card / --background (ticker.tsx, clips-wall.tsx)
+   and would render as visible rectangles over a glow. */
 .page-light {
   background-image: radial-gradient(
     1200px 640px at 50% -100px,
     hsl(219 100% 50% / 0.26),
     hsl(219 100% 50% / 0.08) 45%,
     transparent 75%
+  );
+  background-repeat: no-repeat;
+}
+
+/* A quarter of the hero light's energy, pooled behind the band's own content.
+   Centred, unlike .page-light's top-anchored bloom, and that difference is
+   load-bearing: a gradient still carrying alpha where its element ends paints
+   a hard line across mid-page black, and a top-anchored ellipse is near its
+   brightest exactly there. .page-light only gets away with it because nothing
+   sits above the top of the page. The geometry here puts both horizontal
+   edges past the transparent stop — top edge at 45/62 ≈ 73% of the vertical
+   radius, bottom at 55/62 ≈ 89%, both beyond 70% — so the light dissolves
+   before the box does. Alpha 0.10 keeps the fade steps ~11px apart on the
+   blue channel, so it doesn't band, and muted-foreground still measures >7:1
+   over its brightest point. */
+.theme-black .seam-light {
+  background-image: radial-gradient(
+    1000px 62% at 50% 45%,
+    hsl(219 100% 50% / 0.1),
+    transparent 70%
   );
   background-repeat: no-repeat;
 }

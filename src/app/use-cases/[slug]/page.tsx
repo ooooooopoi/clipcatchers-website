@@ -142,7 +142,7 @@ export default async function UseCasePage({
       <section className="relative z-10 mx-auto w-full max-w-3xl px-5 pb-16">
         <ImpressionCounter
           stats={stats}
-          label="impressions delivered across every category"
+          label="impressions delivered"
         />
       </section>
 

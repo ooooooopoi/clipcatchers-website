@@ -7,6 +7,8 @@ import { GetStartedForm } from "@/components/get-started-form";
 import { SmoothScroll } from "@/components/marketing/smooth-scroll";
 import { parseQuotePrefill } from "@/lib/quote-options";
 import { SITE_STATS } from "@/lib/site-stats";
+import { formatCompact } from "@/lib/format";
+import { getPublicStats } from "@/lib/public-stats";
 import { PUBLIC_VIEWPORT } from "@/lib/public-theme";
 
 export const viewport = PUBLIC_VIEWPORT;
@@ -34,14 +36,6 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image", title: SOCIAL_TITLE, description: DESCRIPTION },
 };
-
-// Read from the same modules the homepage uses. These were typed in by hand
-// and had already drifted — the homepage said 40.7M here and 40M+ there.
-const REASSURANCE = [
-  ["15 min", "call, at a time you pick"],
-  ["Per view", "pay only for delivered views"],
-  [SITE_STATS.viewsDelivered, "views delivered so far"],
-];
 
 /**
  * Where "Get started" goes: a name and a brand, then the Calendly calendar
@@ -75,6 +69,27 @@ export default async function QuotePage({
   const { category, budget, artist } = await searchParams;
   const prefill = parseQuotePrefill({ category, budget, artist });
 
+  // The views figure reads live through getPublicStats, exactly as the
+  // homepage does, with SITE_STATS as the database-down fallback (see
+  // src/app/page.tsx for the fallback rationale). It was SITE_STATS
+  // unconditionally for a while — which is how this page said 240.1M while
+  // the homepage live-counted 625M+ one click away. The page is already
+  // dynamically rendered (searchParams below), so the read costs nothing
+  // extra; the hourly unstable_cache is shared.
+  const stats = await getPublicStats();
+  const viewsDelivered =
+    stats.live && stats.totalViews > 0
+      ? formatCompact(stats.totalViews)
+      : SITE_STATS.viewsDelivered;
+
+  // Labels are 2–3 words on purpose: three columns at 375px are ~104px each,
+  // and a label must hold one line there (see .stat-label in globals.css).
+  const reassurance = [
+    ["15 min", "intro call"],
+    ["Per view", "pricing"],
+    [viewsDelivered, "views so far"],
+  ];
+
   return (
     <div className="marketing theme-black page-light relative min-h-screen overflow-x-clip bg-background text-foreground">
       <SmoothScroll />
@@ -104,10 +119,10 @@ export default async function QuotePage({
         </div>
 
         <div className="mx-auto mt-9 grid max-w-lg grid-cols-3 gap-3 text-center">
-          {REASSURANCE.map(([value, label]) => (
+          {reassurance.map(([value, label]) => (
             <div key={label}>
-              <p className="font-mono text-lg font-semibold text-primary-ink">{value}</p>
-              <p className="mt-0.5 text-xs leading-tight text-muted-foreground">{label}</p>
+              <p className="stat-value text-lg">{value}</p>
+              <p className="stat-label">{label}</p>
             </div>
           ))}
         </div>
