@@ -14,22 +14,50 @@ import { SITE_STATS } from "@/lib/site-stats";
  *
  * Black, matching the site since 2026-09-30: the first impression should look
  * like the page it opens. The colours are the `theme-black` tokens in
- * globals.css — logo blue for the rule and tile, the lighter text blue for
+ * globals.css — logo blue for the rule and the glow, the lighter text blue for
  * the highlighted words and figures. (It was still orange from before the site
  * went blue.)
+ *
+ * Both blues come from the brand icon (2026-10-13): BLUE is the tile,
+ * #0052F2, and INK is its inner light-blue C, #8DC2FF (11.3:1 on black). The
+ * corner mark is the icon itself rather than a plain blue square, because the
+ * card is often the first time someone sees the brand and the square was a
+ * placeholder for a logo the old artwork couldn't supply on black.
  */
 export const runtime = "edge";
 export const alt = "Clip Catchers — performance-based creator distribution for brands";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const BLUE = "#005AFD";
-const INK = "#66A1FF";
+const BLUE = "#0052F2";
+const INK = "#8DC2FF";
 const TEXT = "#FAFAFA";
 const MUTED = "#9D9FA9";
 const BORDER = "#25272E";
 
+/**
+ * The icon as a data URI. On the edge runtime there is no filesystem, so the
+ * PNG is pulled in with `new URL(..., import.meta.url)`, which makes the
+ * bundler ship the file with the function, and then inlined: the image
+ * renderer reads a data URI without a second request, and a string `src`
+ * keeps the <img> typed without a cast. Encoded in chunks because spreading
+ * a 110 KB array into one String.fromCharCode call can overflow the stack.
+ */
+async function iconDataUri(): Promise<string> {
+  const buffer = await fetch(new URL("../../public/brand/icon-1024.png", import.meta.url)).then(
+    (res) => res.arrayBuffer(),
+  );
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  }
+  return `data:image/png;base64,${btoa(binary)}`;
+}
+
 export default async function OpengraphImage() {
+  const icon = await iconDataUri();
+
   return new ImageResponse(
     (
       <div
@@ -41,7 +69,7 @@ export default async function OpengraphImage() {
           justifyContent: "space-between",
           backgroundColor: "#000000",
           backgroundImage:
-            "radial-gradient(900px 460px at 50% -120px, rgba(0, 90, 253, 0.22), rgba(0, 90, 253, 0.06) 45%, transparent 75%)",
+            "radial-gradient(900px 460px at 50% -120px, rgba(0, 82, 242, 0.22), rgba(0, 82, 242, 0.06) 45%, transparent 75%)",
           padding: "72px 80px",
           fontFamily: "sans-serif",
         }}
@@ -60,15 +88,10 @@ export default async function OpengraphImage() {
 
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 10,
-                background: BLUE,
-                display: "flex",
-              }}
-            />
+            {/* The icon carries its own rounded corners and transparent
+                surround, so it sits on the black card with no backing tile. */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- the image renderer only understands a plain <img>. */}
+            <img src={icon} alt="" width={36} height={36} style={{ width: 36, height: 36 }} />
             <div style={{ fontSize: 26, fontWeight: 600, color: TEXT, letterSpacing: -0.4 }}>
               Clip Catchers
             </div>

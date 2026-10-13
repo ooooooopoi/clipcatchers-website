@@ -2,25 +2,29 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 /**
- * The logo tile. `onDark` is for the black public site: the same mark cut out
- * of its white square (logo-mark.png) on a near-black tile, because a white
- * square on black reads as a sticker. Everywhere else keeps the original
- * opaque file — with a transparent one, the inset ring that the opaque image
- * has always covered would start showing on the white dashboard.
+ * The logo tile.
+ *
+ * Since the 2026-10-13 icon there is one artwork for every background. The
+ * new icon is a self-contained blue tile with its own transparent rounded
+ * corners, so it reads the same on the black public site and on the white
+ * dashboard. The old mark was a white square, which on black looked like a
+ * sticker; that is why `onDark` used to swap in a cut-out copy on a near-black
+ * tile with an inset ring, and none of that workaround is needed any more.
+ *
+ * `onDark` is still accepted so the public pages that pass it keep compiling,
+ * but it is deliberately not read. The rounding stays as a guard, so that if
+ * the file is ever swapped for a square-cornered export it still sits in the
+ * header as a tile rather than a hard-edged block.
  */
-export function BrandMark({ className, onDark = false }: { className?: string; onDark?: boolean }) {
+export function BrandMark({ className }: { className?: string; onDark?: boolean }) {
   return (
     <Image
-      src={onDark ? "/logo-mark.png" : "/logo.png"}
+      src="/logo.png"
       alt="Clip Catchers"
       width={64}
       height={64}
       priority
-      className={cn(
-        "h-8 w-8 rounded-lg object-cover ring-1 ring-inset",
-        onDark ? "bg-card ring-border" : "ring-primary/25",
-        className,
-      )}
+      className={cn("h-8 w-8 rounded-lg object-cover", className)}
     />
   );
 }

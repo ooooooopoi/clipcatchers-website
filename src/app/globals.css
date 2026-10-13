@@ -14,16 +14,28 @@
     --popover: 0 0% 100%;
     --popover-foreground: 218 50% 10%;
     /* Primary is the blue brand accent used for ink, charts and highlights.
-       CTA is the same family, reserved for filled action buttons. */
-    --primary: 219 100% 50%;
-    --primary-foreground: 0 0% 100%;
-    --primary-ink: 219 91% 36%;
+       CTA is the same family, reserved for filled action buttons.
 
-    /* White text clears contrast on this blue CTA fill, and --cta-ink is the
-       darker text-safe blue used when the color appears on white. */
-    --cta: 219 100% 50%;
+       Every blue here is sampled from the brand icon (2026-10-13), written to
+       one decimal so a button and the logo tile beside it are the same pixel
+       colour rather than two blues that almost match:
+         219.7 100% 47.5%  = #0052F2, the tile itself
+         223.3 89.5% 41%   = #0B3FC6, the icon's navy depth shadow
+         212.1 100% 77.6%  = #8DC2FF, the icon's inner light-blue C
+       The ink is the icon's own navy rather than a darkened copy of the fill,
+       so even the text-only blue on white comes out of the logo. It measures
+       8.3:1 on white; the fill itself measures 6.0:1 and would also pass, but
+       body-size links read better a step darker. */
+    --primary: 219.7 100% 47.5%;
+    --primary-foreground: 0 0% 100%;
+    --primary-ink: 223.3 89.5% 41%;
+
+    /* White text clears contrast on this blue CTA fill (6.0:1, up from 5.4:1
+       on the old #005AFD), and --cta-ink is the darker text-safe blue used
+       when the color appears on white. */
+    --cta: 219.7 100% 47.5%;
     --cta-foreground: 0 0% 100%;
-    --cta-ink: 219 91% 36%;
+    --cta-ink: 223.3 89.5% 41%;
     --secondary: 210 100% 97%;
     --secondary-foreground: 218 50% 10%;
     --muted: 210 100% 97%;
@@ -63,7 +75,7 @@
        need more than a hairline on the white page. */
     --border-strong: 216 40% 58%;
     --input: 214 55% 88%;
-    --ring: 219 100% 50%;
+    --ring: 219.7 100% 47.5%;
     --radius: 0.65rem;
     /* What drop shadows are tinted with. It used to be --foreground, which
        works while text is dark; on the black site that turned every shadow
@@ -80,10 +92,15 @@
     --card-foreground: 210 40% 98%;
     --popover: 222 43% 10%;
     --popover-foreground: 210 40% 98%;
-    --primary: 214 100% 62%;
+    /* The icon's blue lifted to 65%, keeping its hue. The tile colour itself
+       is too dark to work as an accent on navy (3.3:1 against the background),
+       and the dark navy foreground on this lighter version measures 5.9:1, so
+       filled pills and badges keep their contrast. */
+    --primary: 219.7 100% 65%;
     --primary-foreground: 222 47% 6%;
-    /* On a dark page the readable version is the brighter one, not the darker. */
-    --primary-ink: 207 100% 72%;
+    /* On a dark page the readable version is the brighter one, not the darker:
+       the icon's inner light blue (#8DC2FF), 10.5:1 on the portal background. */
+    --primary-ink: 212.1 100% 77.6%;
     --secondary: 217 32% 16%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217 32% 16%;
@@ -101,7 +118,7 @@
     --warning-foreground: 48 96% 9%;
     --border: 217 32% 20%;
     --input: 217 32% 22%;
-    --ring: 214 100% 62%;
+    --ring: 219.7 100% 65%;
     /* The clipper portal's shadows have always been tinted with its light
        foreground; kept, so --shadow changes nothing there. */
     --shadow: 210 40% 98%;
@@ -118,9 +135,17 @@
          menus) is a near-black with a trace of the blue in it, and so are the
          lines, which is what makes black and blue look like one palette
          instead of two that happen to meet.
-       - Buttons keep the logo blue as a fill (white on it is 5.4:1). Blue as
-         *light* (the results figure, icons, stats) is brighter, 60%: at 50%
-         it measured 3.9:1 on black and looked unlit. Blue text is 70%.
+       - Buttons keep the logo blue as a fill. Since the 2026-10-13 icon that
+         is the icon tile's own #0052F2, and white on it measures 6.0:1.
+       - Blue as *light* (icons, dots, bars, focus rings) is the icon's hue
+         lifted to 60%: the tile colour itself measures only 3.5:1 on black
+         and looks unlit there, while 60% measures 5.3:1 on black and 4.8:1
+         on --card.
+       - Blue text and figures (--primary-ink, --cta-ink, the stat values) are
+         the icon's inner light-blue C, #8DC2FF, which measures 11.3:1 on
+         black and 10.4:1 on --card. Taking it from the logo rather than
+         mixing a new tint keeps the page to the one blue family the icon
+         already shows.
        - Grey text is 64% (7.8:1). */
   .theme-black {
     --background: 0 0% 0%;
@@ -129,12 +154,12 @@
     --card-foreground: 0 0% 98%;
     --popover: 228 14% 8%;
     --popover-foreground: 0 0% 98%;
-    --primary: 217 100% 60%;
+    --primary: 219.7 100% 60%;
     --primary-foreground: 0 0% 100%;
-    --primary-ink: 217 100% 70%;
-    --cta: 219 100% 50%;
+    --primary-ink: 212.1 100% 77.6%;
+    --cta: 219.7 100% 47.5%;
     --cta-foreground: 0 0% 100%;
-    --cta-ink: 217 100% 70%;
+    --cta-ink: 212.1 100% 77.6%;
     --secondary: 228 12% 10%;
     --secondary-foreground: 0 0% 98%;
     --muted: 228 12% 10%;
@@ -153,7 +178,7 @@
     --border: 228 10% 16%;
     --border-strong: 228 8% 32%;
     --input: 228 10% 18%;
-    --ring: 217 100% 60%;
+    --ring: 219.7 100% 60%;
     --shadow: 0 0% 0%;
   }
 }
@@ -296,9 +321,11 @@
      a label call site DON'T work — this rule's two classes outrank a
      single-class mt-*, so the 0.375rem below is the spacing, not a default.
 
-     The value is --primary, not --primary-ink: the theme defines stats as
-     blue-as-light at 60% (see .theme-black), and at 800 weight it measures
-     5.2:1 on black. tabular-nums is for the live counters (proportional
+     The value is --primary-ink: on the black site that is the brand icon's
+     inner light-blue C (#8DC2FF, see .theme-black), so the figures carry the
+     same two blues as the logo beside them, and it measures 11.3:1 on black
+     where the old 60% blue measured 5.2:1. On the white pages the same token
+     is the icon's navy, 8.3:1 on white. tabular-nums is for the live counters (proportional
      digits shiver as they tick) and does nothing to letters, so word values
      ("Per view", "24 hrs") share the class safely. Tracking is -0.01em,
      not .display-num's -0.02em, because these run 14–36px, not 112.
@@ -318,7 +345,7 @@
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.01em;
     line-height: 1.1;
-    color: hsl(var(--primary));
+    color: hsl(var(--primary-ink));
   }
 
   .marketing .stat-label {
@@ -494,12 +521,15 @@ body:has(.theme-black) {
    glow blobs remain the template look this site has spent effort avoiding.
    Never put a light behind the ticker or the clips wall: their edge fades
    are painted in solid --card / --background (ticker.tsx, clips-wall.tsx)
-   and would render as visible rectangles over a glow. */
+   and would render as visible rectangles over a glow.
+   All three lights are the icon tile's own blue (#0052F2, the --cta value)
+   rather than a lifted tint, because a glow is the logo's colour spilling
+   onto the page and should match the tile in the header pixel for pixel. */
 .page-light {
   background-image: radial-gradient(
     1200px 640px at 50% -100px,
-    hsl(219 100% 50% / 0.26),
-    hsl(219 100% 50% / 0.08) 45%,
+    hsl(219.7 100% 47.5% / 0.26),
+    hsl(219.7 100% 47.5% / 0.08) 45%,
     transparent 75%
   );
   background-repeat: no-repeat;
@@ -519,7 +549,7 @@ body:has(.theme-black) {
 .theme-black .seam-light {
   background-image: radial-gradient(
     1000px 62% at 50% 45%,
-    hsl(219 100% 50% / 0.1),
+    hsl(219.7 100% 47.5% / 0.1),
     transparent 70%
   );
   background-repeat: no-repeat;
@@ -528,7 +558,7 @@ body:has(.theme-black) {
 .theme-black .panel-light {
   background-image: radial-gradient(
     700px 320px at 50% -60px,
-    hsl(219 100% 50% / 0.22),
+    hsl(219.7 100% 47.5% / 0.22),
     transparent 70%
   );
 }
