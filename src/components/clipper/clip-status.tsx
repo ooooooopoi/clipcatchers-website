@@ -106,18 +106,18 @@ export function Engagement({
   );
 }
 
-/** The word for a clip's state. Paid beats approved: once money has gone out,
- *  "approved" is history rather than status. */
-export function statusOf(status: string, paid: boolean): { colour: string; label: string } {
-  const [colour, label] = paid
-    ? ["bg-success", "Paid"]
-    : status === "approved"
-      ? ["bg-success/70", "Approved"]
-      : status === "pending"
-        ? ["bg-warning/80", "Pending"]
-        : status === "rejected"
-          ? ["bg-destructive/80", "Rejected"]
-          : ["bg-muted-foreground/50", "Taken down"];
+/** The word for a clip's review state. Never its payment state: clippers see
+ *  their money as a balance on Earnings only (owner, 2026-10-13). Clips are
+ *  settled one at a time behind the scenes, and a rounding gap once left a
+ *  clip a withdrawal had covered reading as unpaid. */
+export function statusOf(status: string): { colour: string; label: string } {
+  const [colour, label] = status === "approved"
+    ? ["bg-success/70", "Approved"]
+    : status === "pending"
+      ? ["bg-warning/80", "Pending"]
+      : status === "rejected"
+        ? ["bg-destructive/80", "Rejected"]
+        : ["bg-muted-foreground/50", "Taken down"];
   return { colour, label };
 }
 
@@ -128,14 +128,12 @@ export function statusOf(status: string, paid: boolean): { colour: string; label
  */
 export function StatusDot({
   status,
-  paid,
   fixed = true,
 }: {
   status: string;
-  paid: boolean;
   fixed?: boolean;
 }) {
-  const { colour, label } = statusOf(status, paid);
+  const { colour, label } = statusOf(status);
 
   return (
     <span className={`flex ${fixed ? "w-24 " : ""}shrink-0 items-center gap-2`}>

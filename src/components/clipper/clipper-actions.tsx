@@ -26,7 +26,6 @@ export function ClipperActions({
   sig,
   clipId,
   status,
-  paid,
   locked,
   className = "shrink-0",
 }: {
@@ -34,7 +33,7 @@ export function ClipperActions({
   sig: string;
   clipId: number;
   status: string;
-  paid: boolean;
+  /** Admin-locked, or earnings final (a settled clip). The bot refuses take-down for both, and the two aren't told apart here: clippers see money as a balance, not per clip. */
   locked: boolean;
   /** The button's size and place: the phone's clip panel makes it a full-height half. */
   className?: string;
@@ -43,15 +42,13 @@ export function ClipperActions({
   const [gone, setGone] = useState(false);
   const router = useRouter();
 
-  // The bot refuses all three of these, so the button would only ever produce
-  // an error. Saying why in place beats a control that exists to fail.
-  const blocked = paid
-    ? "Paid out"
-    : locked
-      ? "Locked"
-      : status === "withdrawn" || gone
-        ? "Taken down"
-        : null;
+  // The bot refuses both of these, so the button would only ever produce an
+  // error. Saying why in place beats a control that exists to fail.
+  const blocked = locked
+    ? "Locked"
+    : status === "withdrawn" || gone
+      ? "Taken down"
+      : null;
 
   if (blocked) {
     return <span className="shrink-0 text-xs text-muted-foreground">{blocked}</span>;

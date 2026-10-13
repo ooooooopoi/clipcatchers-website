@@ -131,18 +131,18 @@ export default async function ReferralsPage({
           </li>
           <li>
             <span className="font-medium text-foreground">2. They clip.</span> For {days} after
-            they join, every clip they post that gets paid earns you {share} of what it paid.
+            they join, you earn {share} of what their clips earn.
           </li>
           <li>
             <span className="font-medium text-foreground">3. You get paid.</span> Your {share}{" "}
-            lands in your balance when they&apos;re paid, and you withdraw it like the rest of
+            is added to your balance as their earnings are paid out to them, and you withdraw it like the rest of
             your earnings.
           </li>
         </ol>
         <p className="mt-5 text-xs text-muted-foreground/70">
           Clip Catchers pays your {share} on top, so the creator still keeps everything they
           earn. Only joins through your own link count, from {day(data.program_start)} on.
-          Rejected and unpaid clips don&apos;t earn a share.
+          Rejected clips, and earnings not yet paid out to them, don&apos;t earn a share.
         </p>
       </section>
     </>

@@ -139,37 +139,41 @@ export function buildNotices(data: ClipperData): ClipperNotice[] {
   // ── Things that happened ───────────────────────────────────────────────
   // Only campaigns this clipper actually has clips in. A release they have no
   // stake in isn't news to them.
-  const unpaidByCampaign = new Map<number, { worth: number; clips: number }>();
+  //
+  // Counted over every non-rejected clip, paid or not. These notices speak in
+  // balance terms (owner, 2026-10-13): a sum of unpaid clips disagrees with the
+  // balance whenever a withdrawal ran ahead of the clips or a rounding gap left
+  // one behind, and printing it read as money missing. The standing
+  // money-ready and awaiting-release notices above carry the dollar figures.
+  const stakeByCampaign = new Map<number, { earned: number; clips: number }>();
   for (const clip of clips) {
-    if (clip.paid || clip.status === "rejected") continue;
-    const row = unpaidByCampaign.get(clip.campaign_id) ?? { worth: 0, clips: 0 };
-    row.worth += clip.worth;
+    if (clip.status === "rejected") continue;
+    const row = stakeByCampaign.get(clip.campaign_id) ?? { earned: 0, clips: 0 };
+    row.earned += clip.worth;
     row.clips += 1;
-    unpaidByCampaign.set(clip.campaign_id, row);
+    stakeByCampaign.set(clip.campaign_id, row);
   }
+  // A release is news for a month. It used to drop out once its clips were
+  // paid; without that filter, old releases would pile up for good.
+  const recent = Date.now() / 1000 - 30 * 24 * 60 * 60;
 
   for (const campaign of campaigns) {
-    const mine = unpaidByCampaign.get(campaign.id);
+    const mine = stakeByCampaign.get(campaign.id);
     if (!mine || mine.clips === 0) continue;
 
     const released = Number(campaign.payouts_released ?? 0) === 1;
     if (released) {
-      // A release worth nothing is not news. Clips that came in under the view
-      // floor, or never got views at all, still sit here unpaid forever — and
-      // announcing "$0.00 is now withdrawable" for each of them buries the one
-      // release that actually paid.
-      if (mine.worth < 0.01) continue;
-
       const when = Number(campaign.payouts_released_at ?? 0);
+      // A release worth nothing is not news: clips under the view floor would
+      // otherwise announce a release that changed nothing for them.
+      if (mine.earned < 0.01 || when < recent) continue;
       notices.push({
         // Keyed by the moment as well as the campaign: if a campaign were ever
         // released twice, that is genuinely two pieces of news.
         id: `released-${campaign.id}-${Math.round(when)}`,
         title: `Payouts released — ${campaign.name}`,
-        body: `${dollars(mine.worth)} from your ${mine.clips} clip${
-          mine.clips === 1 ? "" : "s"
-        } is now withdrawable.`,
-        at: when > 0 ? when : null,
+        body: "Your earnings from it are now in your balance.",
+        at: when,
         href: "/earnings",
         tone: "good",
       });
@@ -184,11 +188,7 @@ export function buildNotices(data: ClipperData): ClipperNotice[] {
       notices.push({
         id: `ended-${campaign.id}-${Math.round(closed)}`,
         title: `${campaign.name} finished`,
-        body:
-          `Your ${mine.clips} clip${many ? "s" : ""} ${many ? "are" : "is"} being checked.` +
-          // Only when there is something to open up. On a clip that earned
-          // nothing, "$0.00 opens up once that's done" reads as a mistake.
-          (mine.worth >= 0.01 ? ` ${dollars(mine.worth)} opens up once that's done.` : ""),
+        body: `Your ${mine.clips} clip${many ? "s" : ""} ${many ? "are" : "is"} being checked. Your balance updates once that's done.`,
         at: closed,
         href: "/earnings",
         tone: "plain",

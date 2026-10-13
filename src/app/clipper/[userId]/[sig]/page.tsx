@@ -38,8 +38,8 @@ export default async function DashboardPage({
 
   const withdrawable = earnings?.withdrawable ?? 0;
   const running = earnings?.running ?? 0;
-  const advance = earnings?.advance ?? 0;
-  const totalSent = earnings?.total_sent ?? (earnings?.already_paid ?? 0) + advance;
+  // From the payment records, never rebuilt from which clips are paid.
+  const totalSent = earnings?.total_sent ?? 0;
 
   // Newest first: the clip someone comes back to check is almost always the
   // one they posted last.
@@ -97,7 +97,7 @@ export default async function DashboardPage({
                 </p>
               </div>
               <div className="relative flex flex-col justify-between px-3 py-4 lg:block lg:px-5 lg:py-5">
-                <p className="text-xs text-muted-foreground">Paid so far</p>
+                <p className="text-xs text-muted-foreground">Sent to you</p>
                 <p className="mt-1.5 font-mono text-lg font-semibold tracking-tight text-muted-foreground lg:text-2xl">
                   {dollars(totalSent)}
                 </p>
@@ -143,7 +143,7 @@ export default async function DashboardPage({
                         className="surface rounded-2xl border border-border bg-card px-4 py-3.5"
                       >
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
-                          <StatusDot status={clip.status} paid={clip.paid} />
+                          <StatusDot status={clip.status} />
                           <span className="min-w-0 flex-1 truncate text-sm font-medium">
                             {clip.campaign}
                           </span>
@@ -164,16 +164,14 @@ export default async function DashboardPage({
                             floor={floorPct}
                             minViews={floorFrom}
                           />
-                          {/* Worth is provisional while the campaign runs; muted
-                              until it's a settled figure, so a moving number
-                              doesn't dress as a promise. */}
+                          {/* Worth is provisional while the campaign runs, so it
+                              stays muted until the campaign closes; a moving
+                              number shouldn't dress as a promise. Paid and
+                              unpaid clips look identical on purpose: payment
+                              is shown only as a balance (owner, 2026-10-13). */}
                           <span
                             className={`font-mono text-sm ${
-                              clip.paid
-                                ? "text-muted-foreground"
-                                : clip.worth > 0 && !clip.campaign_active
-                                  ? "font-semibold text-primary-ink"
-                                  : "text-muted-foreground"
+                              clip.campaign_active ? "text-muted-foreground" : "text-foreground"
                             }`}
                           >
                             {dollars(clip.worth)}
@@ -183,8 +181,7 @@ export default async function DashboardPage({
                             sig={sig}
                             clipId={clip.id}
                             status={clip.status}
-                            paid={clip.paid}
-                            locked={clip.locked}
+                            locked={clip.locked || clip.paid}
                           />
                         </div>
 

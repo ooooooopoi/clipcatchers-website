@@ -16,7 +16,6 @@ type Result = {
   fee?: number;
   gross?: number;
   tx_hash?: string;
-  settled_clips?: number;
   awaiting?: number;
   /** What was asked for, echoed back on a too_much or below_minimum refusal. */
   asked?: number;
@@ -169,7 +168,9 @@ export function WithdrawButton({
     if (body.ok) {
       const fee = body.fee ? ` (fee $${body.fee.toFixed(2)})` : "";
       toast.success(
-        `Sent $${(body.amount ?? 0).toFixed(2)} USDT${fee}. ${body.settled_clips ?? 0} clip(s) settled.`,
+        // No count of clips settled: clippers see money as a balance only
+        // (owner, 2026-10-13), and which clips a payment covered is internal.
+        `Sent $${(body.amount ?? 0).toFixed(2)} USDT${fee}. It's on its way to your wallet.`,
       );
       // Deliberately stays busy: the refresh re-renders this with a zero
       // balance, which is what should replace the button.
@@ -193,7 +194,7 @@ export function WithdrawButton({
       too_much: `You asked for $${(body.asked ?? 0).toFixed(2)} but $${(
         body.settled ?? 0
       ).toFixed(2)} is available now — it changed while this page was open. Reload and try again.`,
-      nothing: "Nothing settled to withdraw yet.",
+      nothing: "Nothing ready to withdraw yet.",
       no_method: "No payout method set. Add one above, then withdraw.",
       paypal: "PayPal payouts go in an admin batch — you're already in the next one.",
       not_configured: `Instant withdrawal isn't switched on yet (${body.reason ?? "not configured"}). Your balance is safe.`,

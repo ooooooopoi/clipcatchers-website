@@ -105,29 +105,18 @@ export const STATUS_TONE: Record<string, string> = {
 /**
  * A run of clips from one campaign, so a long history reads as a few groups.
  *
- * ── Why `earned` is not enough on its own ────────────────────────────────
- * It is lifetime worth, paid and unpaid together. Shown as the headline figure
- * it made a settled campaign look identical to one still owing money — "FLOAT,
- * 15 clips, $127.69" reads as money waiting, when every cent of it was sent
- * weeks ago. So the split is carried here rather than recomputed per page, and
- * the pages lead with `owed`.
+ * Rows say what the clips EARNED, never what is left to pay. Payment is shown
+ * only as a balance at the top of Earnings (owner, 2026-10-13): clips are
+ * settled one at a time behind the scenes, so a per-campaign "owed" or
+ * "settled" built from clip flags disagreed with the balance whenever a
+ * withdrawal ran ahead of the clips or a rounding gap left one behind.
  */
 export type ClipGroup = {
   id: number;
   name: string;
   clips: ClipperClip[];
-  /** Lifetime worth of the campaign's clips, paid and unpaid. */
+  /** What the campaign's clips have earned. Provisional while it's live. */
   earned: number;
-  /**
-   * A debt: earned, unpaid, and the campaign has ended. Money on a live
-   * campaign is in `running` instead — it can still move with views, and the
-   * audit at close can reject clips, so it isn't owed until then.
-   */
-  owed: number;
-  /** Earned so far on a campaign still running. Provisional. */
-  running: number;
-  /** Already sent. */
-  paid: number;
   /** Whether the campaign is still live. */
   active: boolean;
 };
@@ -142,26 +131,16 @@ export function groupByCampaign(clips: ClipperClip[]): ClipGroup[] {
         name: clip.campaign,
         clips: [],
         earned: 0,
-        owed: 0,
-        running: 0,
-        paid: 0,
         active: clip.campaign_active,
       };
       groups.set(clip.campaign_id, group);
     }
     group.clips.push(clip);
     group.earned += clip.worth;
-    if (clip.paid) group.paid += clip.worth;
-    else if (clip.campaign_active) group.running += clip.worth;
-    else group.owed += clip.worth;
   }
-  // Live campaigns first — that is where today's work goes — then campaigns
-  // that owe money, then settled history.
+  // Live campaigns first — that is where today's work goes — then by what each
+  // earned. Never by anything unpaid: the order would signal payment state.
   return [...groups.values()].sort(
-    (a, b) =>
-      Number(b.active) - Number(a.active) ||
-      Number(b.owed > 0) - Number(a.owed > 0) ||
-      b.owed - a.owed ||
-      b.earned - a.earned,
+    (a, b) => Number(b.active) - Number(a.active) || b.earned - a.earned,
   );
 }

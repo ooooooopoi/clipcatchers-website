@@ -3,7 +3,6 @@ import { auth } from "@/auth";
 import { BotOffline, PageHeading, Stat } from "@/components/clipper/chrome";
 import { PayoutMethodForm } from "@/components/clipper/payout-method-form";
 import { WithdrawButton } from "@/components/clipper/withdraw-button";
-import { formatNumber } from "@/lib/format";
 import { dollars, groupByCampaign, loadClipper } from "@/lib/clipper-data";
 
 export const metadata: Metadata = { title: "Earnings" };
@@ -34,10 +33,6 @@ export default async function EarningsPage({
 
   const clips = earnings?.breakdown ?? [];
   const groups = groupByCampaign(clips);
-  // Already sent ahead of clips settling. The bot nets it out of `owed`, so
-  // the per-campaign rows (gross clip value) sum to more than the tile — this
-  // is the line that accounts for the difference on screen.
-  const advance = earnings?.advance ?? 0;
 
   const withdrawable = earnings?.withdrawable ?? 0;
   const hasPayout = Boolean(earnings?.payout_method);
@@ -134,35 +129,33 @@ export default async function EarningsPage({
             </div>
           </div>
 
-          {/* "Owed" means a campaign that has ended and hasn't been paid.
-              Earnings on a live campaign sit in their own tile: the figure
-              still moves with views, and the audit at close can reject clips —
-              so calling it owed would state a debt nobody has incurred. */}
+          {/* The balance in four buckets, the same ones 💰 Balance shows in
+              Discord. Total earned is the sum of the other three plus Ready to
+              withdraw above, so the page reconciles on sight with no per-clip
+              working. Clippers see money as a balance only (owner, 2026-10-13):
+              clips settle one at a time behind the scenes, and a rounding gap
+              once left a covered clip reading as unpaid. */}
           <div className="surface mt-10 grid max-w-2xl grid-cols-2 divide-border rounded-2xl border border-border bg-card sm:grid-cols-4 sm:divide-x">
+            <Stat
+              value={dollars(
+                (earnings?.total_sent ?? 0) +
+                  withdrawable +
+                  (earnings?.awaiting_release ?? 0) +
+                  (earnings?.running ?? 0),
+              )}
+              label="total earned"
+            />
+            <Stat value={dollars(earnings?.total_sent ?? 0)} label="sent to you" />
+            <Stat
+              value={dollars(earnings?.awaiting_release ?? 0)}
+              label="waiting for release"
+              hint="Finished campaigns still being checked."
+            />
             <Stat
               value={dollars(earnings?.running ?? 0)}
               label="still running"
               hint="Moves with views. Not owed until the campaign ends."
             />
-            <Stat
-              value={dollars(earnings?.owed ?? 0)}
-              label="owed to you"
-              hint="From campaigns that have finished."
-            />
-            {/* What has reached them, not what their settled clips are worth —
-                the two differ by any advance. */}
-            <Stat
-              value={dollars(
-                earnings?.total_sent ?? (earnings?.already_paid ?? 0) + advance,
-              )}
-              label="paid so far"
-              hint={
-                advance > 0
-                  ? `Includes ${dollars(advance)} sent ahead of the clips covering it.`
-                  : undefined
-              }
-            />
-            <Stat value={formatNumber(earnings?.clips ?? 0)} label="clips submitted" />
           </div>
 
           <section className="mt-10">
@@ -175,9 +168,9 @@ export default async function EarningsPage({
                 Nothing yet. Submit a clip to a live campaign and it shows up here.
               </p>
             ) : (
-              // The right-hand figure is what is STILL OWED, never lifetime
-              // worth. Showing the total made a settled campaign look exactly
-              // like one that still owes money.
+              // Each row shows what the campaign's clips earned, never what is
+              // left to pay; money is reported as a balance at the top of the
+              // page (owner, 2026-10-13).
               <ul className="mt-4 space-y-2">
                 {groups.map((group) => (
                   <li
@@ -189,42 +182,16 @@ export default async function EarningsPage({
                       {group.clips.length} {group.clips.length === 1 ? "clip" : "clips"}
                     </span>
 
-                    {group.paid > 0 ? (
-                      <span className="text-xs text-muted-foreground">
-                        {dollars(group.paid)} paid out
-                      </span>
-                    ) : null}
-
-                    {group.active ? (
-                      <span className="font-mono text-sm text-muted-foreground">
-                        {dollars(group.running)}{" "}
-                        <span className="font-sans text-xs">running</span>
-                      </span>
-                    ) : group.owed > 0 ? (
-                      <span className="font-mono text-sm font-semibold text-primary-ink">
-                        {dollars(group.owed)}
-                      </span>
-                    ) : (
-                      <span className="text-xs font-medium text-success">settled</span>
-                    )}
+                    <span
+                      className={`font-mono text-sm ${
+                        group.active ? "text-muted-foreground" : "text-foreground"
+                      }`}
+                    >
+                      {dollars(group.earned)}{" "}
+                      <span className="font-sans text-xs">{group.active ? "running" : "earned"}</span>
+                    </span>
                   </li>
                 ))}
-
-                {advance > 0 ? (
-                  // Money that already left, listed with the campaigns so the
-                  // column still adds up.
-                  <li className="surface flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl border border-border bg-card px-4 py-3.5">
-                    <span className="min-w-0 flex-1 truncate font-medium">
-                      Already withdrawn, ahead of clips settling
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      counted off the total above
-                    </span>
-                    <span className="font-mono text-sm font-semibold text-muted-foreground">
-                      −{dollars(advance)}
-                    </span>
-                  </li>
-                ) : null}
               </ul>
             )}
           </section>

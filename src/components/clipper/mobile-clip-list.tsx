@@ -52,7 +52,7 @@ export function MobileClipList({
                   <Worth clip={clip} />
                 </span>
                 <span className="mt-1.5 flex items-center gap-3">
-                  <StatusDot status={clip.status} paid={clip.paid} fixed={false} />
+                  <StatusDot status={clip.status} fixed={false} />
                   <span className="font-mono text-xs text-muted-foreground">
                     {compact(clip.views)} views
                   </span>
@@ -91,14 +91,16 @@ export function MobileClipList({
   );
 }
 
-/** Worth is provisional while the campaign runs; muted until it's a settled
- *  figure, so a moving number doesn't dress as a promise. */
+/** Worth is provisional while the campaign runs, so it stays muted until the
+ *  campaign closes. Paid and unpaid clips look identical on purpose: clippers
+ *  see their money as a balance on Earnings only (owner, 2026-10-13), because
+ *  clips are settled one at a time behind the scenes and a rounding gap once
+ *  left a covered clip reading as unpaid. */
 function Worth({ clip }: { clip: ClipperClip }) {
-  const settledAndOwed = !clip.paid && clip.worth > 0 && !clip.campaign_active;
   return (
     <span
       className={`font-mono text-sm ${
-        settledAndOwed ? "font-semibold text-primary-ink" : "text-muted-foreground"
+        clip.campaign_active ? "text-muted-foreground" : "text-foreground"
       }`}
     >
       {dollars(clip.worth)}
@@ -120,7 +122,7 @@ function ClipPanel({
   floorFrom: number | null;
 }) {
   const note = clipNote(clip, floorPct, floorFrom);
-  const worthLabel = clip.paid ? "Paid" : clip.campaign_active ? "Worth so far" : "Worth";
+  const worthLabel = clip.campaign_active ? "Worth so far" : "Earned";
 
   return (
     <div>
@@ -128,7 +130,7 @@ function ClipPanel({
       <SheetTitle className="truncate pr-8 text-lg">{clip.campaign}</SheetTitle>
       <SheetDescription asChild>
         <div className="mt-1.5">
-          <StatusDot status={clip.status} paid={clip.paid} fixed={false} />
+          <StatusDot status={clip.status} fixed={false} />
         </div>
       </SheetDescription>
 
@@ -170,8 +172,7 @@ function ClipPanel({
           sig={sig}
           clipId={clip.id}
           status={clip.status}
-          paid={clip.paid}
-          locked={clip.locked}
+          locked={clip.locked || clip.paid}
           className="h-11 flex-1 rounded-xl text-sm"
         />
       </div>
