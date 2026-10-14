@@ -12,13 +12,15 @@ import { cn } from "@/lib/utils";
  * Get started: a name and a brand, then the calendar (2026-09-30, the owner's
  * flow). "Get started" leads here, and here leads to a 15-minute call.
  *
- * The two answers ride into Calendly on its prefill parameters, so nobody types
+ * The answers ride into Calendly on its prefill parameters, so nobody types
  * them twice: `name` fills its name field, and `a1` answers the event's first
- * question, "What are you promoting?". A budget carried by a prefill link
- * (`?budget=1500`) answers the second, "Rough budget?", as `a2`. Checked
- * against the event's public definition: New Meeting, 15 minutes, three
- * required questions in that order. If the questions are reordered in
- * Calendly, reorder a1/a2 here.
+ * question. The event (calendly.com/sitashahi268/30min, since 2026-10-14) has
+ * ONE question, optional free text: "Please share anything that will help
+ * prepare for our meeting." So the brand and any budget carried by a prefill
+ * link (`?budget=1500`) go into that one answer together; a separate `a2`
+ * would be silently dropped, because Calendly ignores answers to questions an
+ * event doesn't have. Checked against the event's public definition. If the
+ * event gains questions, map them here.
  *
  * Nothing is sent to us from this step. The lead pipeline (/api/quote and the
  * bot's /api/lead) requires an email, which Calendly asks for itself, and the
@@ -43,8 +45,9 @@ export function GetStartedForm({ prefill }: { prefill?: QuotePrefill }) {
 
     const url = new URL(booking);
     url.searchParams.set("name", name);
-    url.searchParams.set("a1", brand);
-    if (prefill?.budget) url.searchParams.set("a2", prefill.budget);
+    const notes = [`Promoting: ${brand}`];
+    if (prefill?.budget) notes.push(`Rough budget: ${prefill.budget}`);
+    url.searchParams.set("a1", notes.join(" · "));
     setLeaving(true);
     window.location.assign(url.toString());
   };
