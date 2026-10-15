@@ -8,7 +8,7 @@ import { dollars } from "@/lib/clipper-data";
 import { formatDate, formatNumber } from "@/lib/format";
 import { clipperSignatureValid } from "@/lib/share";
 
-export const metadata: Metadata = { title: "Referrals" };
+export const metadata: Metadata = { title: "Invite link" };
 export const dynamic = "force-dynamic";
 
 /** The bot speaks in Unix seconds. */
@@ -43,10 +43,16 @@ export default async function ReferralsPage({
   if (!data) {
     return (
       <>
-        <PageHeading title="Referrals" subtitle="Bring creators in with your link." />
+        <PageHeading title="Invite link" subtitle="Your own link to the Clip Catchers Discord." />
         <BotOffline />
       </>
     );
+  }
+
+  // The 5% program closed on 2026-10-15: the link and who joined with it,
+  // and nothing about a share, unless the bot says it's open again.
+  if (data.active !== true) {
+    return <InviteLinkOnly data={data} />;
   }
 
   const share = `${data.share_percent}%`;
@@ -144,6 +150,60 @@ export default async function ReferralsPage({
           earn. Only joins through your own link count, from {day(data.program_start)} on.
           Rejected clips, and earnings not yet paid out to them, don&apos;t earn a share.
         </p>
+      </section>
+    </>
+  );
+}
+
+/** The page while the referral program is closed: the link, ready to copy,
+ * and the people who joined the Discord with it. No share, no earnings. */
+function InviteLinkOnly({ data }: { data: ClipperReferrals }) {
+  return (
+    <>
+      <PageHeading title="Invite link" subtitle="Your own link to the Clip Catchers Discord." />
+
+      <div className="surface mt-8 max-w-2xl rounded-3xl bg-card p-7 sm:p-9">
+        <p className="text-base text-muted-foreground">Your link</p>
+        {data.link ? (
+          <ReferralLink url={data.link} />
+        ) : (
+          <div className="mt-4 rounded-2xl border border-warning/30 bg-warning/10 p-4">
+            <p className="text-sm text-warning">
+              Your link isn&apos;t available right now. {data.problem}
+            </p>
+            <div className="mt-3">
+              <RefreshButton />
+            </div>
+          </div>
+        )}
+        <p className="mt-5 text-sm text-muted-foreground">
+          Share it anywhere. Anyone who joins the Clip Catchers Discord through it counts as yours.
+        </p>
+      </div>
+
+      <section className="mt-10 max-w-2xl">
+        <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+          Joined with your link
+        </h2>
+        {data.referrals.length === 0 ? (
+          <p className="mt-4 rounded-2xl border border-dashed border-border px-6 py-16 text-center text-sm text-muted-foreground">
+            Nobody yet. People who join through your link show up here.
+          </p>
+        ) : (
+          <ul className="mt-4 space-y-2">
+            {data.referrals.map((r) => (
+              <li
+                key={r.id}
+                className="surface flex items-center gap-4 rounded-2xl border border-border bg-card px-4 py-3.5"
+              >
+                <span className="min-w-0 flex-1 truncate font-medium">
+                  {r.name ?? "Someone you brought in"}
+                </span>
+                <span className="text-sm text-muted-foreground">Joined {day(r.joined_at)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </>
   );

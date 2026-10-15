@@ -514,6 +514,12 @@ export type ClipperReferral = {
  * rule that pays can't disagree.
  */
 export type ClipperReferrals = {
+  /**
+   * Whether the referral program is open (referrals.ACTIVE in the bot). It
+   * closed on 2026-10-15; while it's closed the page shows the link alone,
+   * with no terms and no earnings. Missing (an older bot) reads as closed.
+   */
+  active?: boolean;
   /** Their personal invite link, or null when the bot couldn't make one. */
   link: string | null;
   /** Why there's no link, in the bot's words. Null when there is one. */

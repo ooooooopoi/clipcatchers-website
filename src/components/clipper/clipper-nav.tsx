@@ -34,7 +34,8 @@ const SECTIONS = [
   { href: "/accounts", label: "Accounts", icon: UserRound },
   { href: "/earnings", label: "Earnings", icon: DollarSign },
   { href: "/progress", label: "Progress", icon: Trophy, soon: true },
-  { href: "/referrals", label: "Referrals", icon: Users },
+  // The page is the personal invite link (the referral program is closed).
+  { href: "/referrals", label: "Invite link", icon: Users },
   { href: "/help", label: "Help", icon: CircleHelp },
 ] as const;
 
