@@ -83,6 +83,8 @@ const campaignSchema = z.object({
   estimatedReach: z.number().int().min(0).default(0),
   clipCount: z.number().int().min(0).default(0),
   platforms: z.array(z.string()).nullish(),
+  /** The campaign card's banner. Empty clears it; absent leaves it alone. */
+  imageUrl: z.string().max(500).nullish(),
   description: z.string().max(4000).nullish(),
   startDate: z.string().nullable().optional(),
   endDate: z.string().nullable().optional(),
@@ -230,6 +232,12 @@ export async function POST(request: Request) {
         estimatedReach: item.estimatedReach,
         clipCount: item.clipCount,
         platforms: item.platforms ?? [],
+        // Shown as the campaign's picture. Only a web link is kept: this goes
+        // straight into an <img src>, so nothing else belongs there. A bot
+        // that doesn't send the field yet leaves the stored one as it is.
+        ...(item.imageUrl === undefined
+          ? {}
+          : { brandLogoUrl: /^https?:\/\//i.test(item.imageUrl ?? "") ? item.imageUrl : null }),
         description: item.description ?? null,
         startDate: item.startDate ? new Date(item.startDate) : null,
         endDate: item.endDate ? new Date(item.endDate) : null,

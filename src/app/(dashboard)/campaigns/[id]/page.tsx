@@ -32,6 +32,40 @@ import {
   initials,
 } from "@/lib/format";
 import { REACH_LABEL, REACH_NOTE } from "@/lib/constants";
+import { CampaignEditor } from "@/components/team/campaign-editor";
+import { fetchCampaigns, isTeamMember, type BotCampaign } from "@/lib/bot";
+import { teamSignature } from "@/lib/share";
+import type { SessionUser } from "@/lib/auth-helpers";
+
+/**
+ * What the team editor needs, for a team member on a bot campaign; null for
+ * everyone else.
+ *
+ * The same editor as the team link page, so the team can change a campaign's
+ * picture and details from the dashboard they sign in to. Clients never get
+ * it. It edits the bot's copy of the campaign — the one Discord's card and
+ * this page are both built from — so it reads the campaign from the bot,
+ * and authorises its saves with the team link's signature, which a team
+ * member is entitled to.
+ */
+async function teamEditing(
+  user: SessionUser,
+  externalId: string | null,
+): Promise<{ sig: string; campaign: BotCampaign } | null> {
+  const botId = Number(/^bot-(\d+)$/.exec(externalId ?? "")?.[1]);
+  if (!botId || !(await isTeamMember(user.discordId))) return null;
+  const sig = teamSignature();
+  if (!sig) return null;
+  try {
+    const { campaigns } = await fetchCampaigns();
+    const campaign = campaigns.find((c) => c.id === botId);
+    return campaign ? { sig, campaign } : null;
+  } catch {
+    // The bot unreachable just means no editor this time; the page still
+    // shows the campaign.
+    return null;
+  }
+}
 
 export const dynamic = "force-dynamic";
 
@@ -62,6 +96,7 @@ export default async function CampaignDetailPage({
     },
   });
   if (!campaign) notFound();
+  const editing = await teamEditing(user, campaign.externalId);
 
   // Views and reach to date, smoothed: the daily figures sawed between quiet
   // days and the days that caught up with them.
@@ -128,6 +163,12 @@ export default async function CampaignDetailPage({
         </div>
 
       </div>
+
+      {editing ? (
+        <div className="pb-6">
+          <CampaignEditor sig={editing.sig} campaign={editing.campaign} />
+        </div>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric icon={Eye} label="Total views" value={formatNumber(campaign.totalViews)} />
