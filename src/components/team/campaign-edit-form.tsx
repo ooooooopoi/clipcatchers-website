@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ImageUp } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,6 +73,9 @@ export function CampaignEditForm({
     active: Number(campaign.active ?? 0) === 1,
   };
   const [form, setForm] = useState(initial);
+  // The banner as the bot has it. An upload saves on its own, so after one
+  // this is what "unchanged" means for the image.
+  const [savedImage, setSavedImage] = useState(initial.image_url);
 
   function set<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -90,7 +94,7 @@ export function CampaignEditForm({
     ]);
     for (const key of Object.keys(initial) as (keyof typeof form)[]) {
       const now = form[key];
-      const was = initial[key];
+      const was = key === "image_url" ? savedImage : initial[key];
       if (numeric.has(key as string)) {
         if (Number(now) !== Number(was)) patch[key] = Number(now);
       } else if (now !== was) {
@@ -137,7 +141,7 @@ export function CampaignEditForm({
           <Input value={form.name} onChange={(e) => set("name", e.target.value)} />
         </Field>
         <Field label="Artist">
-          <Input value={form.artist} onChange={(e) => set("artist", e.target.value)} />
+          <Input value={form.artist} maxLength={100} onChange={(e) => set("artist", e.target.value)} />
         </Field>
         <Field label="Budget ($)">
           <Input
@@ -200,20 +204,35 @@ export function CampaignEditForm({
         </div>
       </Field>
 
-      <Field label="Brief link">
-        <Input value={form.brief_url} onChange={(e) => set("brief_url", e.target.value)} />
-      </Field>
+      <BannerField
+        sig={sig}
+        campaignId={campaign.id}
+        value={form.image_url}
+        onChange={(v) => set("image_url", v)}
+        onUploaded={(url) => {
+          // Already saved by the upload, so it isn't a change left to save.
+          setSavedImage(url);
+          set("image_url", url);
+          router.refresh();
+        }}
+      />
 
       <Field
-        label="Banner image URL"
-        hint="Discord attachment links expire — anything pasted from a message stops loading within a day or so."
+        label="Sound or assets link"
+        hint={'A TikTok sound link shows on the card as "Use this sound"; any other link as "Brand assets".'}
       >
-        <Input value={form.image_url} onChange={(e) => set("image_url", e.target.value)} />
+        <Input
+          value={form.brief_url}
+          maxLength={300}
+          placeholder="https://www.tiktok.com/music/…"
+          onChange={(e) => set("brief_url", e.target.value)}
+        />
       </Field>
 
-      <Field label="Details" hint="Shown on the campaign card. One line each.">
+      <Field label="Content guidelines" hint="What to make and post — formats, hashtags, style. Shown on the campaign card.">
         <textarea
-          rows={3}
+          rows={4}
+          maxLength={2000}
           value={form.details}
           onChange={(e) => set("details", e.target.value)}
           className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-primary"
@@ -221,11 +240,12 @@ export function CampaignEditForm({
       </Field>
 
       <Field
-        label="Rules"
-        hint="On a paid-ads campaign this is where the required spend is stated, and it's shown on the clipper's card. One line each."
+        label="Requirements"
+        hint="Account rules, dos and don'ts, what gets a clip rejected. On a paid-ads campaign this is where the required spend is stated."
       >
         <textarea
           rows={3}
+          maxLength={1000}
           value={form.rules}
           onChange={(e) => set("rules", e.target.value)}
           className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-primary"
@@ -256,6 +276,118 @@ export function CampaignEditForm({
         </Button>
       </div>
     </div>
+  );
+}
+
+/** What the upload route accepts; the bot re-checks the bytes themselves. */
+const BANNER_TYPES = "image/png,image/jpeg,image/gif,image/webp";
+const BANNER_MAX_BYTES = 4 * 1024 * 1024;
+
+/**
+ * The card's banner: a preview, Upload image, and a link box for anyone who
+ * has one.
+ *
+ * Upload is the easy door and the lasting one. The bot keeps the file and
+ * serves it itself, where a pasted Discord attachment link expires within a
+ * day and the banner quietly disappears from the card. It saves the moment
+ * it finishes — the card updates without pressing Save.
+ */
+function BannerField({
+  sig,
+  campaignId,
+  value,
+  onChange,
+  onUploaded,
+}: {
+  sig: string;
+  campaignId: number;
+  value: string;
+  onChange: (v: string) => void;
+  onUploaded: (url: string) => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const [broken, setBroken] = useState(false);
+  const picker = useRef<HTMLInputElement>(null);
+  const shown = /^https?:\/\//i.test(value.trim()) ? value.trim() : "";
+
+  async function upload(file: File) {
+    if (file.size > BANNER_MAX_BYTES) {
+      toast.error("That image is too big — 4 MB at most.");
+      return;
+    }
+    setUploading(true);
+    try {
+      const data = new FormData();
+      data.append("image", file);
+      const res = await fetch(`/api/team/${sig}/campaigns/${campaignId}/image`, {
+        method: "POST",
+        body: data,
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok || !body.image_url) {
+        toast.error(body.error ?? "Couldn't upload that image.");
+        return;
+      }
+      setBroken(false);
+      onUploaded(body.image_url);
+      toast.success("Banner saved — the Discord card shows it now.");
+    } catch {
+      toast.error("Couldn't reach the server. The banner wasn't changed.");
+    } finally {
+      setUploading(false);
+      if (picker.current) picker.current.value = "";
+    }
+  }
+
+  return (
+    <Field
+      label="Banner image"
+      hint="PNG, JPG, GIF or WebP, up to 4 MB. Uploading saves it straight away and it never expires — pasted Discord links stop loading within a day."
+    >
+      {shown && !broken ? (
+        // eslint-disable-next-line @next/next/no-img-element -- any host, previewed as Discord will fetch it
+        <img
+          src={shown}
+          alt="Campaign banner"
+          onError={() => setBroken(true)}
+          className="aspect-[16/9] w-full max-w-md rounded-xl border border-border object-cover"
+        />
+      ) : shown && broken ? (
+        <p className="text-sm text-warning">
+          This link doesn&apos;t load as an image, so the card shows no banner. Upload the picture instead.
+        </p>
+      ) : null}
+      <div className="flex flex-wrap gap-2">
+        <input
+          ref={picker}
+          type="file"
+          accept={BANNER_TYPES}
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) void upload(file);
+          }}
+        />
+        <Button type="button" variant="outline" loading={uploading} onClick={() => picker.current?.click()}>
+          <ImageUp className="mr-2 h-3.5 w-3.5" />
+          {shown ? "Replace image" : "Upload image"}
+        </Button>
+        {shown ? (
+          <Button type="button" variant="outline" onClick={() => onChange("")}>
+            Remove
+          </Button>
+        ) : null}
+      </div>
+      <Input
+        value={value}
+        maxLength={300}
+        placeholder="…or paste an image link"
+        onChange={(e) => {
+          setBroken(false);
+          onChange(e.target.value);
+        }}
+      />
+    </Field>
   );
 }
 

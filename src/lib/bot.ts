@@ -287,6 +287,19 @@ export function updateCampaign(id: number, patch: CampaignPatch) {
   });
 }
 
+/**
+ * Upload a campaign's banner. The bot stores it and serves it from its own
+ * address, then points the card at it; the answer is that new address.
+ * The body is the image's bytes, typed as the image.
+ */
+export function uploadCampaignImage(id: number, image: ArrayBuffer, type: string) {
+  return call<{ ok: boolean; image_url: string }>(`/api/campaigns/${id}/image`, {
+    method: "POST",
+    body: image,
+    headers: { "Content-Type": type || "application/octet-stream" },
+  });
+}
+
 export function markPaid(userId: string, campaignId?: number, paid = true) {
   return call<{ clips_marked: number; amount: number }>("/api/payouts/mark-paid", {
     method: "POST",

@@ -23,11 +23,13 @@ const schema = z.object({
   max_clips_per_account: z.coerce.number().int().min(0).max(500).optional(),
   rate_amount: z.coerce.number().positive().optional(),
   platform: z.string().trim().max(40).optional(),
-  artist: z.string().trim().max(200).optional(),
+  // The card's copy, with Discord's /campaign-details limits — the bot
+  // enforces the same ones, so a longer text would only fail there.
+  artist: z.string().trim().max(100).optional(),
   details: z.string().trim().max(2000).optional(),
-  rules: z.string().trim().max(2000).optional(),
-  brief_url: z.string().trim().max(500).optional(),
-  image_url: z.string().trim().max(500).optional(),
+  rules: z.string().trim().max(1000).optional(),
+  brief_url: z.string().trim().max(300).optional(),
+  image_url: z.string().trim().max(300).optional(),
   active: z.boolean().optional(),
   paid_ads: z.boolean().optional(),
 });
