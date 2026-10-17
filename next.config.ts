@@ -1,5 +1,14 @@
 import type { NextConfig } from "next";
 
+/** The bot's host, for the banners it serves. Same default as src/lib/bot.ts. */
+function botHost() {
+  try {
+    return new URL(process.env.BOT_URL || "https://worker-production-b401.up.railway.app").hostname;
+  } catch {
+    return "worker-production-b401.up.railway.app";
+  }
+}
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -17,11 +26,20 @@ const nextConfig: NextConfig = {
     // dropping the query string 404s them, which has already caught someone on
     // this codebase once. Same reasoning as above: the optimizer's own copy is
     // what keeps the grid rendering after the signature lapses.
+    //
+    // Also: Apple Music cover art (a song campaign's banner is often its
+    // cover, linked from mzstatic.com — Float's was, and Explore showed its
+    // name instead), and banners uploaded through the team editor, which the
+    // bot serves from its own address. Any other host still shows: the art
+    // component falls back to loading the image directly when the optimizer
+    // refuses it.
     remotePatterns: [
       { protocol: "https", hostname: "*.tiktokcdn.com" },
       { protocol: "https", hostname: "*.tiktokcdn-us.com" },
       { protocol: "https", hostname: "cdn.discordapp.com" },
       { protocol: "https", hostname: "media.discordapp.net" },
+      { protocol: "https", hostname: "*.mzstatic.com" },
+      { protocol: "https", hostname: botHost(), pathname: "/campaign-images/**" },
     ],
   },
   async redirects() {

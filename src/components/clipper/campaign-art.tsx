@@ -21,6 +21,13 @@ import { useState } from "react";
  * The error handler is why this is a client component. A server-rendered
  * <Image> has nowhere to catch a dead upstream, and would leave a blank or
  * broken box; here a failed load simply reveals the type underneath.
+ *
+ * ── Two tries before the type ────────────────────────────────────────────
+ * The image optimizer only takes hosts listed in next.config, and refuses
+ * the rest — which looks exactly like a dead link. Float's banner, an Apple
+ * Music cover, showed its name for that reason alone. So a refusal first
+ * retries the same URL loaded directly (unoptimized); only a second failure
+ * falls back to the type.
  */
 export function CampaignArt({
   src,
@@ -32,8 +39,8 @@ export function CampaignArt({
   name: string;
   seed: number;
 }) {
-  const [failed, setFailed] = useState(false);
-  const usable = src.trim().length > 0 && !failed;
+  const [attempt, setAttempt] = useState<"optimized" | "direct" | "failed">("optimized");
+  const usable = src.trim().length > 0 && attempt !== "failed";
 
   // Kept inside the blue family the dark theme already uses, just rotated a
   // little, so the grid stays on-brand rather than turning into confetti.
@@ -48,12 +55,16 @@ export function CampaignArt({
     >
       {usable ? (
         <Image
+          // A new key per attempt, so the retry is a fresh element rather than
+          // the refused one with its error already fired.
+          key={attempt}
           src={src}
           alt=""
           fill
+          unoptimized={attempt === "direct"}
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-          onError={() => setFailed(true)}
+          onError={() => setAttempt((a) => (a === "optimized" ? "direct" : "failed"))}
         />
       ) : (
         <div className="flex h-full items-center justify-center px-5">
