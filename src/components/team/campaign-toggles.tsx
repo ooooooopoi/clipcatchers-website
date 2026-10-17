@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useId, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   BadgeDollarSign,
@@ -10,6 +10,7 @@ import {
   Radio,
   type LucideIcon,
 } from "lucide-react";
+import { ActivePill, PILL_RADIUS } from "@/components/ui/active-pill";
 import { cn } from "@/lib/utils";
 
 /**
@@ -55,6 +56,7 @@ function FlagToggle({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [value, setValue] = useState(initialValue);
+  const pill = useId();
 
   async function move(next: boolean) {
     if (next === value || saving) return;
@@ -104,12 +106,13 @@ function FlagToggle({
             aria-pressed={value === on}
             onClick={() => move(on)}
             className={cn(
-              "inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs transition-colors",
+              "relative isolate inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs transition-colors",
               value === on
-                ? "bg-foreground font-medium text-background"
+                ? "font-medium text-background"
                 : "text-muted-foreground hover:bg-accent hover:text-foreground",
             )}
           >
+            {value === on && <ActivePill layoutId={pill} radius={PILL_RADIUS.none} className="bg-foreground" />}
             {busy && value === on ? (
               <Loader2 className="h-3 w-3 animate-spin" />
             ) : (

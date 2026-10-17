@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import { toast } from "sonner";
+import { ActivePill, PILL_RADIUS } from "@/components/ui/active-pill";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,6 +51,7 @@ export function AddAccountForm({
 }) {
   const { data: session, status } = useSession();
   const [platform, setPlatform] = useState(initialPlatform ?? platforms[0] ?? "TikTok");
+  const pill = useId();
   const [handle, setHandle] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -119,12 +121,15 @@ export function AddAccountForm({
                 key={p}
                 type="button"
                 onClick={() => setPlatform(p)}
-                className={`rounded-lg border px-3.5 py-2 text-sm transition-colors ${
+                className={`relative isolate rounded-lg border px-3.5 py-2 text-sm transition-colors ${
                   platform === p
-                    ? "border-primary bg-primary/10 font-medium text-primary-ink"
+                    ? "border-transparent font-medium text-primary-ink"
                     : "border-border text-muted-foreground hover:bg-accent/50"
                 }`}
               >
+                {platform === p && (
+                  <ActivePill layoutId={pill} radius={PILL_RADIUS.lg} className="border border-primary bg-primary/10" />
+                )}
                 {p}
               </button>
             ))}

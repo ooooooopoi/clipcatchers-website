@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useId, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
@@ -15,6 +15,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { toast } from "sonner";
+import { ActivePill, PILL_RADIUS } from "@/components/ui/active-pill";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -44,6 +45,7 @@ export function NotificationList({ initial }: { initial: NotificationRow[] }) {
   const router = useRouter();
   const [items, setItems] = useState(initial);
   const [filter, setFilter] = useState<"all" | "unread">("all");
+  const pill = useId();
   const [, startTransition] = useTransition();
 
   const visible = filter === "unread" ? items.filter((i) => !i.read) : items;
@@ -101,12 +103,13 @@ export function NotificationList({ initial }: { initial: NotificationRow[] }) {
               key={value}
               onClick={() => setFilter(value)}
               className={cn(
-                "rounded-md px-3 py-1 text-xs font-medium capitalize transition-colors",
-                filter === value
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground",
+                "relative isolate rounded-md px-3 py-1 text-xs font-medium capitalize transition-colors",
+                filter === value ? "text-foreground" : "text-muted-foreground hover:text-foreground",
               )}
             >
+              {filter === value && (
+                <ActivePill layoutId={pill} radius={PILL_RADIUS.md} className="bg-background shadow-sm" />
+              )}
               {value}
               {value === "unread" && unreadCount > 0 && (
                 <span className="ml-1.5 text-primary">{unreadCount}</span>

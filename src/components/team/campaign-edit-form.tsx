@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ImageUp } from "lucide-react";
 import { toast } from "sonner";
+import { ActivePill } from "@/components/ui/active-pill";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,6 +56,7 @@ export function CampaignEditForm({
 }) {
   const [busy, setBusy] = useState(false);
   const router = useRouter();
+  const platformPill = useId();
 
   const initial = {
     name: campaign.name ?? "",
@@ -192,12 +194,15 @@ export function CampaignEditForm({
               onClick={() => set("platform", o.value)}
               aria-pressed={form.platform === o.value}
               className={cn(
-                "rounded-full border px-3.5 py-1.5 text-sm transition-colors",
+                "relative isolate rounded-full border px-3.5 py-1.5 text-sm transition-colors",
                 form.platform === o.value
-                  ? "border-foreground bg-foreground text-background"
+                  ? "border-transparent text-background"
                   : "border-border text-muted-foreground hover:border-[hsl(var(--border-strong))] hover:text-foreground",
               )}
             >
+              {form.platform === o.value && (
+                <ActivePill layoutId={platformPill} className="bg-foreground" />
+              )}
               {o.label}
             </button>
           ))}

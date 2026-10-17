@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import Link from "next/link";
 import { Pencil, Search } from "lucide-react";
 import { CampaignEditForm } from "@/components/team/campaign-edit-form";
@@ -23,6 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatCurrency, formatNumber } from "@/lib/format";
+import { ActivePill, PILL_RADIUS } from "@/components/ui/active-pill";
 import { cn } from "@/lib/utils";
 import type { BotCampaign } from "@/lib/bot";
 
@@ -269,6 +270,7 @@ function FilterGroup<T extends string>({
   onChange: (v: T) => void;
   options: { value: T; label: string }[];
 }) {
+  const pill = useId();
   return (
     <div className="inline-flex overflow-hidden rounded-lg border border-border">
       {options.map((o) => (
@@ -278,12 +280,13 @@ function FilterGroup<T extends string>({
           aria-pressed={value === o.value}
           onClick={() => onChange(o.value)}
           className={cn(
-            "px-3 py-1.5 text-xs transition-colors",
+            "relative isolate px-3 py-1.5 text-xs transition-colors",
             value === o.value
-              ? "bg-foreground font-medium text-background"
+              ? "font-medium text-background"
               : "text-muted-foreground hover:bg-accent hover:text-foreground",
           )}
         >
+          {value === o.value && <ActivePill layoutId={pill} radius={PILL_RADIUS.none} className="bg-foreground" />}
           {o.label}
         </button>
       ))}

@@ -1,7 +1,9 @@
 "use client";
 
+import { useId } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ActivePill, PILL_RADIUS } from "@/components/ui/active-pill";
 import {
   BadgeDollarSign,
   CircleHelp,
@@ -52,6 +54,7 @@ const SECTIONS = [
  */
 export function ClipperNav({ base }: { base: string }) {
   const pathname = usePathname();
+  const pill = useId();
 
   return (
     <nav className="flex justify-between gap-1 p-3 lg:flex-col lg:justify-start lg:overflow-visible lg:p-4">
@@ -84,12 +87,15 @@ export function ClipperNav({ base }: { base: string }) {
             href={target}
             aria-label={label}
             aria-current={active ? "page" : undefined}
-            className={`flex h-11 w-11 min-w-0 items-center justify-center gap-3 rounded-lg text-sm transition-colors lg:h-auto lg:w-auto lg:shrink-0 lg:justify-start lg:px-3 lg:py-2.5 ${
+            className={`relative isolate flex h-11 w-11 min-w-0 items-center justify-center gap-3 rounded-lg text-sm transition-colors lg:h-auto lg:w-auto lg:shrink-0 lg:justify-start lg:px-3 lg:py-2.5 ${
               active
-                ? "bg-accent font-medium text-primary-ink"
+                ? "font-medium text-primary-ink"
                 : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
             }`}
           >
+            {/* The nav lives in the layout, so it stays mounted from page to
+                page and this glides to the new tab instead of jumping. */}
+            {active && <ActivePill layoutId={pill} radius={PILL_RADIUS.lg} className="bg-accent" />}
             <Icon className="h-5 w-5 shrink-0 lg:h-[18px] lg:w-[18px]" aria-hidden="true" />
             <span className="hidden whitespace-nowrap lg:inline">{label}</span>
           </Link>

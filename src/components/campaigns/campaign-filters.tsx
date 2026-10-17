@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search, X } from "lucide-react";
+import { ActivePill } from "@/components/ui/active-pill";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/use-debounce";
 import { CAMPAIGN_STATUS_META } from "@/lib/constants";
@@ -10,7 +11,20 @@ import { cn } from "@/lib/utils";
 
 const STATUSES = Object.keys(CAMPAIGN_STATUS_META) as (keyof typeof CAMPAIGN_STATUS_META)[];
 
+/**
+ * A status's colours split in two: the text colour stays on the button, the
+ * fill and border go on the pill that slides between them.
+ */
+function splitColours(className: string) {
+  const parts = className.split(" ");
+  return {
+    text: parts.filter((c) => c.includes("text-")).join(" "),
+    fill: parts.filter((c) => !c.includes("text-")).join(" "),
+  };
+}
+
 export function CampaignFilters() {
+  const pill = useId();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -64,28 +78,36 @@ export function CampaignFilters() {
         <button
           onClick={() => setStatus(null)}
           className={cn(
-            "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+            "relative isolate rounded-full border px-3 py-1 text-xs font-medium transition-colors",
             !activeStatus
-              ? "border-primary/40 bg-primary/10 text-primary"
+              ? "border-transparent text-primary"
               : "border-border text-muted-foreground hover:text-foreground",
           )}
         >
+          {!activeStatus && (
+            <ActivePill layoutId={pill} className="border border-primary/40 bg-primary/10" />
+          )}
           All
         </button>
-        {STATUSES.map((status) => (
-          <button
-            key={status}
-            onClick={() => setStatus(activeStatus === status ? null : status)}
-            className={cn(
-              "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
-              activeStatus === status
-                ? CAMPAIGN_STATUS_META[status].className
-                : "border-border text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {CAMPAIGN_STATUS_META[status].label}
-          </button>
-        ))}
+        {STATUSES.map((status) => {
+          const active = activeStatus === status;
+          const { text, fill } = splitColours(CAMPAIGN_STATUS_META[status].className);
+          return (
+            <button
+              key={status}
+              onClick={() => setStatus(active ? null : status)}
+              className={cn(
+                "relative isolate rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                active
+                  ? cn("border-transparent", text)
+                  : "border-border text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {active && <ActivePill layoutId={pill} className={cn("border", fill)} />}
+              {CAMPAIGN_STATUS_META[status].label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

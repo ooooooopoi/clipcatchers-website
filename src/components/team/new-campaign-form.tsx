@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BadgeDollarSign, Check, Loader2, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { STANDARD_CLIPPER_RATE, STANDARD_CLIPPER_RATE_LABEL } from "@/lib/pricing";
+import { ActivePill } from "@/components/ui/active-pill";
 import { cn } from "@/lib/utils";
 
 /**
@@ -38,6 +39,8 @@ export function NewCampaignForm({ sig }: { sig: string }) {
   const [paidAds, setPaidAds] = useState(true);
   const [perViews, setPerViews] = useState(100000);
   const [platform, setPlatform] = useState("");
+  const perViewsPill = useId();
+  const platformPill = useId();
   const [state, setState] = useState<"idle" | "saving" | "done">("idle");
   const [error, setError] = useState<string | null>(null);
   const [created, setCreated] = useState<{ id: number; name: string } | null>(null);
@@ -212,6 +215,7 @@ export function NewCampaignForm({ sig }: { sig: string }) {
                   active={perViews === o.value}
                   onClick={() => setPerViews(o.value)}
                   label={o.label}
+                  pill={perViewsPill}
                 />
               ))}
             </div>
@@ -268,6 +272,7 @@ export function NewCampaignForm({ sig }: { sig: string }) {
               active={platform === o.value}
               onClick={() => setPlatform(o.value)}
               label={o.label}
+              pill={platformPill}
             />
           ))}
         </div>
@@ -337,10 +342,13 @@ function Chip({
   active,
   onClick,
   label,
+  pill,
 }: {
   active: boolean;
   onClick: () => void;
   label: string;
+  /** Shared by the chips of one group, so the selection slides between them. */
+  pill: string;
 }) {
   return (
     <button
@@ -348,12 +356,13 @@ function Chip({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "rounded-full border px-3.5 py-2 text-sm transition-colors",
+        "relative isolate rounded-full border px-3.5 py-2 text-sm transition-colors",
         active
-          ? "border-foreground bg-foreground text-background"
+          ? "border-transparent text-background"
           : "border-border text-muted-foreground hover:border-[hsl(var(--border-strong))] hover:text-foreground",
       )}
     >
+      {active && <ActivePill layoutId={pill} className="bg-foreground" />}
       {label}
     </button>
   );
