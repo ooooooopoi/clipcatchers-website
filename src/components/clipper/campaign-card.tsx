@@ -1,3 +1,4 @@
+import { Users } from "lucide-react";
 import { CampaignArt } from "@/components/clipper/campaign-art";
 import { CampaignBrief } from "@/components/clipper/campaign-brief";
 import { SubmitClipDialog } from "@/components/clipper/submit-clip-dialog";
@@ -46,6 +47,9 @@ export function CampaignCard({
 }) {
   const live = Boolean(campaign.active);
   const perAccount = Number(campaign.max_clips_per_account ?? 0);
+  const clippers = Number(campaign.clippers ?? 0);
+  const createdAt = Number(campaign.created_at ?? 0);
+  const isNew = live && createdAt > 0 && Date.now() / 1000 - createdAt < NEW_FOR_SECONDS;
 
   // The rate split in two so the money can carry the weight and the unit can
   // stay out of its way. rateLabel still holds the canonical wording and is
@@ -71,13 +75,21 @@ export function CampaignCard({
         </div>
 
         <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-2">
-          {campaign.platform ? (
-            <span className="rounded-md bg-background/80 px-2 py-1 text-[11px] font-medium backdrop-blur-sm">
-              {campaign.platform}
-            </span>
-          ) : (
-            <span />
-          )}
+          <span className="flex gap-1.5">
+            {campaign.platform ? (
+              <span className="rounded-md bg-background/80 px-2 py-1 text-[11px] font-medium backdrop-blur-sm">
+                {campaign.platform}
+              </span>
+            ) : null}
+            {/* Fresh campaigns are where a clipper gets the most of the
+                budget, so they're marked — and only for a few days, or the
+                badge stops meaning anything. */}
+            {isNew ? (
+              <span className="rounded-md bg-primary px-2 py-1 text-[11px] font-semibold text-primary-foreground">
+                New
+              </span>
+            ) : null}
+          </span>
           <span
             className={[
               "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-medium backdrop-blur-sm",
@@ -106,6 +118,15 @@ export function CampaignCard({
         </p>
         {campaign.artist ? (
           <p className="truncate text-xs text-muted-foreground">{campaign.artist}</p>
+        ) : null}
+
+        <BudgetBar campaign={campaign} live={live} />
+
+        {clippers >= MIN_CLIPPERS_SHOWN ? (
+          <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Users className="h-3.5 w-3.5" aria-hidden="true" />
+            {clippers} clippers {live ? "earning" : "paid"}
+          </p>
         ) : null}
 
         {/* The conditions, as things you can count rather than a sentence. */}
@@ -177,6 +198,71 @@ export function CampaignCard({
         </div>
       </div>
     </article>
+  );
+}
+
+/** How long a campaign carries the New badge. */
+const NEW_FOR_SECONDS = 3 * 24 * 60 * 60;
+/**
+ * The clipper count shows from here up. "1 clipper earning" says nobody wants
+ * it; a small number beside a strong offer drags the offer down rather than
+ * backing it, so it waits until it reads as proof.
+ */
+const MIN_CLIPPERS_SHOWN = 3;
+/** From this share used, the bar turns amber and says the budget is nearly gone. */
+const ALMOST_GONE = 0.8;
+
+/**
+ * How much of the budget has been paid out, the way the big clipping
+ * marketplaces show it (Whop Content Rewards leads every card with it).
+ *
+ * It answers the two questions a clipper has before cutting anything: does
+ * this campaign actually pay (a part-spent budget is proof it does), and is
+ * there enough left to be worth it. Nearly gone turns amber, because the
+ * scarcity is real — a clip that lands after the budget runs out earns
+ * nothing.
+ *
+ * A campaign with its budget hidden shows the share used but no dollars, as
+ * its Discord card does: the bar and the dollars left together would give
+ * the hidden figure away.
+ */
+function BudgetBar({ campaign, live }: { campaign: BotCampaign; live: boolean }) {
+  const budget = Number(campaign.budget ?? 0);
+  if (!budget || campaign.spent === undefined) return null;
+  const share = Math.min(Number(campaign.spent) / budget, 1);
+  const pct = Math.round(share * 100);
+  const hidden = Number(campaign.hide_budget ?? 0) === 1;
+  const left = Math.max(budget - Number(campaign.spent), 0);
+  const almostGone = live && share >= ALMOST_GONE;
+
+  return (
+    <div className="mt-3">
+      <div className="flex items-baseline justify-between gap-2 text-xs">
+        <span className={almostGone ? "font-medium text-warning" : "text-muted-foreground"}>
+          {almostGone ? "Almost gone · " : ""}
+          {pct}% paid out
+        </span>
+        {live && !hidden ? (
+          <span className="font-mono text-foreground/80">${Math.round(left).toLocaleString()} left</span>
+        ) : null}
+      </div>
+      <div
+        className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-foreground/[0.08]"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={pct}
+        aria-label="Budget paid out"
+      >
+        <div
+          className={[
+            "h-full rounded-full",
+            !live ? "bg-muted-foreground/40" : almostGone ? "bg-warning" : "bg-primary",
+          ].join(" ")}
+          style={{ width: `${Math.max(pct, 2)}%` }}
+        />
+      </div>
+    </div>
   );
 }
 

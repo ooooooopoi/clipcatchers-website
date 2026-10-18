@@ -180,6 +180,10 @@ export type BotCampaign = {
    * so anything clipper-facing has to check this before rendering them.
    */
   hide_budget?: number;
+  /** People with an approved clip in it. Optional because an older bot doesn't send it. */
+  clippers?: number;
+  /** Unix seconds the campaign was created; 0 or missing on old rows. */
+  created_at?: number;
   /** Unix seconds, 0 when the campaign never closed. */
   closed_at: number;
   /**
